@@ -24,6 +24,8 @@ public class Loja {
     private String logo;
     @Column(unique = true)
     private String email;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @OneToMany(mappedBy = "loja")
     @JsonIgnore
