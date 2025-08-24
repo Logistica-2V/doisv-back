@@ -19,7 +19,7 @@ public class Produto {
     private Double preco;
     private String imagem;
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Status status = Status.ATIVO;
 
     @ManyToOne
     @JoinColumn(name = "idLoja")

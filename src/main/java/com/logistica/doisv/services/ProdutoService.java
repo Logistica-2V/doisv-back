@@ -1,9 +1,12 @@
 package com.logistica.doisv.services;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Optional;
-
+import com.logistica.doisv.dto.ProdutoDTO;
+import com.logistica.doisv.entities.Produto;
+import com.logistica.doisv.repositories.LojaRepository;
+import com.logistica.doisv.repositories.ProdutoRepository;
+import com.logistica.doisv.services.api.GoogleDriveService;
+import com.logistica.doisv.services.exceptions.DatabaseException;
+import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -12,38 +15,38 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.logistica.doisv.dto.ProdutoDTO;
-import com.logistica.doisv.entities.Produto;
-import com.logistica.doisv.repositories.ProdutoRepository;
-import com.logistica.doisv.services.api.GoogleDriveService;
-import com.logistica.doisv.services.exceptions.DatabaseException;
-import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
-
-import jakarta.persistence.EntityNotFoundException;
+import java.io.IOException;
+import java.nio.file.AccessDeniedException;
+import java.security.GeneralSecurityException;
+import java.util.Optional;
 
 @Service
 public class ProdutoService {
     @Autowired
     private ProdutoRepository repository;
 
+    @Autowired
+    private LojaRepository lojaRepository;
+
     @Transactional(readOnly = true)
     public Page<ProdutoDTO> buscarTodos(Pageable pageable, Long idLoja){
         Page<Produto> produtos = repository.findAllByLoja_IdLoja(pageable, idLoja);
-        return produtos.map( p -> new ProdutoDTO(p));
+        return produtos.map(ProdutoDTO::new);
     }
 
     @Transactional(readOnly = true)
     public ProdutoDTO buscarPorId(Long id){
         Optional<Produto> resultado = repository.findById(id);
         Produto produto = resultado.orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
-        ProdutoDTO dto = new ProdutoDTO(produto);
-        return dto;
+        return new ProdutoDTO(produto);
     }
 
     @Transactional
-    public ProdutoDTO salvar(ProdutoDTO dto, MultipartFile imagem) throws IOException, GeneralSecurityException{
+    public ProdutoDTO salvar(ProdutoDTO dto, MultipartFile imagem, Long idLoja) throws IOException, GeneralSecurityException{
         Produto produto = new Produto();
         dtoParaEntidade(dto, produto);
+        produto.setLoja(lojaRepository.findById(idLoja).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrada")));
+
         if(imagem.getContentType() != null){
             repository.save(produto);
             String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto(), produto.getClass().getSimpleName());
@@ -54,19 +57,16 @@ public class ProdutoService {
 
     @Transactional
     public ProdutoDTO atualizar(Long id, ProdutoDTO dto, Long idLoja, MultipartFile imagem) throws IOException, GeneralSecurityException{
-        if(dto.getLoja().getIdLoja().equals(idLoja)){
-            try {
-                Produto produto = repository.getReferenceById(id);
-                dtoParaEntidade(dto, produto);
-                String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto(), produto.getClass().getSimpleName());
-                produto.setImagem(url.split("/")[5]);
-                produto = repository.save(produto);
-                return new ProdutoDTO(produto);
-            }catch (EntityNotFoundException e){
-                throw new ResourceNotFoundException("Produto não encontrado");
-            }
+        Produto produto = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+
+        if(!produto.getLoja().getIdLoja().equals(idLoja)) {
+            throw new AccessDeniedException("Você não tem permissão para editar esse produto");
         }
-        throw new DataIntegrityViolationException(null);
+        dtoParaEntidade(dto, produto);
+        String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto(), produto.getClass().getSimpleName());
+        produto.setImagem(url.split("/")[5]);
+        produto = repository.save(produto);
+        return new ProdutoDTO(produto);
     }
 
     @Transactional
@@ -83,11 +83,9 @@ public class ProdutoService {
 
 
     private void dtoParaEntidade(ProdutoDTO dto, Produto produto){
-        produto.setDescricao(dto.getDescricao());
-        produto.setUnidadeMedida(dto.getUnidadeMedida());
-        produto.setPreco(dto.getPreco());
-        produto.setStatusProduto(dto.getStatusProduto());
-        produto.setLoja(dto.getLoja());
-        produto.setImagem(dto.getImagem());
+        produto.setDescricao(dto.descricao());
+        produto.setUnidadeMedida(dto.unidadeMedida());
+        produto.setPreco(dto.preco());
+        produto.setImagem(dto.imagem());
     }
 }

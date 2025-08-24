@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name= "tb_Consumidor")
+@Table(name= "tb_Consumidor", uniqueConstraints = @UniqueConstraint(columnNames = {"idLoja", "cpf_cnpj"}))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,7 +26,7 @@ public class Consumidor {
     private String telefone;
     private String endereco;
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Status status = Status.ATIVO;
 
     @ManyToOne
     @JoinColumn(name= "idLoja")

@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    
+
     @Autowired
     private TokenAutenticacao tokenAutenticacao;
 
@@ -24,8 +24,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/doisv/login", "/h2-console/**","/swagger-ui/**","swagger-ui.html","v3/api-docs/**",
-                        "swagger-resources/**")
+                        .requestMatchers("/doisv/login", "/h2-console/**", "/swagger-ui/**", "swagger-ui.html", "v3/api-docs/**",
+                                "swagger-resources/**")
                         .permitAll()
                         .anyRequest().authenticated()
                 ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

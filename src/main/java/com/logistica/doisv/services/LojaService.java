@@ -5,6 +5,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.logistica.doisv.entities.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +18,6 @@ import com.logistica.doisv.services.api.GoogleDriveService;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
-
 
 @Service
 public class LojaService {
@@ -64,11 +64,18 @@ public class LojaService {
         }
     }
 
+    @Transactional
+    public void deletar(Long id){
+        Loja loja = lojaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrada"));
+        loja.setStatus(Status.INATVO);
+        lojaRepository.save(loja);
+    }
+
     public void dtoParaEntidade(LojaDTO lojaDTO, Loja loja) {
-        loja.setNome(lojaDTO.getNome());
-        loja.setEmail(lojaDTO.getEmail());
-        loja.setCnpj(lojaDTO.getCnpj());
-        loja.setLogo(lojaDTO.getLogo());
-        loja.setSegmento(lojaDTO.getSegmento());
+        loja.setNome(lojaDTO.nome());
+        loja.setEmail(lojaDTO.email());
+        loja.setCnpj(lojaDTO.cnpj());
+        loja.setLogo(lojaDTO.logo());
+        loja.setSegmento(lojaDTO.segmento());
     }
 }

@@ -1,38 +1,13 @@
 package com.logistica.doisv.dto;
 
 import com.logistica.doisv.entities.Consumidor;
-import com.logistica.doisv.entities.Loja;
-
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class ConsumidorDTO {
-    private Long idConsumidor;
-    @NotBlank
-    private String nome;
-    private String cpf_cnpj;
-    private String email;
-    @NotBlank
-    private String celular;
-    private String telefone;
-    private String endereco;
-    @NotNull
-    private Loja loja;
-
+public record ConsumidorDTO(Long idConsumidor, @NotBlank String nome, String cpf_cnpj, String email, @NotBlank String celular, String telefone, 
+                                String endereco) {
+    
     public ConsumidorDTO(Consumidor consumidor){
-        idConsumidor = consumidor.getIdConsumidor();
-        nome = consumidor.getNome();
-        cpf_cnpj = consumidor.getCpf_cnpj();
-        email = consumidor.getEmail();
-        celular = consumidor.getCelular();
-        telefone = consumidor.getTelefone();
-        endereco = consumidor.getEndereco();
-        loja = consumidor.getLoja();
+        this(consumidor.getIdConsumidor(), consumidor.getNome(), consumidor.getCpf_cnpj(), consumidor.getEmail(), consumidor.getCelular(), consumidor.getTelefone()
+                , consumidor.getEndereco());
     }
 }

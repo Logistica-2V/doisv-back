@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Entity
 @Table(name = "tb_Lojista")
 @Data
@@ -14,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class Lojista {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idLojista;
     private String nome;
     private String cpf;
     @Column(unique = true)
@@ -22,7 +21,7 @@ public class Lojista {
     @Column(name = "senha")
     private String password;
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Status status = Status.ATIVO;
 
     @ManyToOne
     @JoinColumn(name = "idLoja")

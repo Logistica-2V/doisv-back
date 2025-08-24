@@ -25,14 +25,18 @@ public class Loja {
     @Column(unique = true)
     private String email;
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Status status = Status.ATIVO;
 
-    @OneToMany(mappedBy = "loja")
+    @OneToMany(mappedBy = "loja", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<Lojista> lojistas = new HashSet<>();
 
-    @OneToMany(mappedBy = "loja")
+    @OneToMany(mappedBy = "loja", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Produto> produtos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "loja", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Consumidor> consumidores = new ArrayList<>();
 
 }

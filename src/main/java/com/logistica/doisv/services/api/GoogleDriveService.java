@@ -15,18 +15,15 @@ import com.logistica.doisv.configuration.GoogleDriveConfig;
 
 @Service
 public class GoogleDriveService {
-    private static String pastaId = null;
    
     public static String salvarArquivoDrive(MultipartFile arquivo, Long idItem, String nomePasta) throws IOException, GeneralSecurityException {
         Drive driveService = GoogleDriveConfig.getDriveService();
 
-        // Verifica se a pasta Loja está criada
-        if (pastaId == null) {
-            pastaId = obterOuCriarPasta(driveService, nomePasta);
-        }
+        //Obtém o ID da pasta desejada a cada chamada, em vez de usar uma variável estática.
+        String idPasta = obterOuCriarPasta(driveService, nomePasta);
 
-        // Verifica se já existe um arquivo com o id
-        String arquivoExistenteId = buscarArquivoPorNome(driveService, idItem.toString());
+        //Busca o arquivo passando o ID da pasta correta como parâmetro.
+        String arquivoExistenteId = buscarArquivoPorNome(driveService, idItem.toString(), idPasta);
 
         // Metadados do arquivo
         File metadadosArquivo = new File();
@@ -43,7 +40,7 @@ public class GoogleDriveService {
         } else {
             // Cria novo arquivo
             metadadosArquivo.setName(idItem.toString());
-            metadadosArquivo.setParents(Collections.singletonList(pastaId));
+            metadadosArquivo.setParents(Collections.singletonList(idPasta));
             arquivoSalvo = driveService.files().create(metadadosArquivo, new com.google.api.client.http.InputStreamContent(
                             arquivo.getContentType(),
                             inputStream
@@ -79,9 +76,11 @@ public class GoogleDriveService {
         return pastaCriada.getId();
     }
 
-    private static String buscarArquivoPorNome(Drive driveService, String nomeArquivo) throws IOException {
+    private static String buscarArquivoPorNome(Drive driveService, String nomeArquivo, String idDaPastaCorreta) throws IOException {
+        String query = String.format("name='%s' and '%s' in parents and trashed=false", nomeArquivo, idDaPastaCorreta);
+
         FileList resultado = driveService.files().list()
-                .setQ("name='" + nomeArquivo + "' and '" + pastaId + "' in parents and trashed=false")
+                .setQ(query)
                 .setSpaces("drive")
                 .execute();
 
