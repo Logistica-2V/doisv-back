@@ -30,7 +30,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Controller
 @RequestMapping("doisv/consumidores")
 @CrossOrigin(origins = "*")
-@Tag(name = "Consumidor", description = "Manter Consumidor")
 public class ConsumidorController {
     @Autowired
     private ConsumidorService consumidorService;
@@ -39,20 +38,17 @@ public class ConsumidorController {
     private TokenService tokenService;
 
     @GetMapping
-    @Operation(summary = "Buscar todos", description = "Rota responsável por buscar todos consumidores de uma loja")
     public ResponseEntity<List<ConsumidorDTO>> buscarTodos(@RequestHeader String Authorization){
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         return ResponseEntity.ok(consumidorService.buscarTodos(acesso.getIdLoja()));
     }
 
     @GetMapping(value="/{id}")
-    @Operation(summary = "Buscar por ID", description = "Rota responsável por buscar consumidores pelo seu ID")
     public ResponseEntity<ConsumidorDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(consumidorService.buscarPorId(id));
     }
 
     @PostMapping
-    @Operation(summary = "Cadastrar consumidor", description = "Rota responsável por cadastrar um consumidor.")
     public ResponseEntity<ConsumidorDTO> salvar(@RequestBody ConsumidorDTO dto, @RequestHeader String Authorization){
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         dto.getLoja().setIdLoja(acesso.getIdLoja());
@@ -62,14 +58,12 @@ public class ConsumidorController {
     }
 
     @PutMapping(value="/{id}")
-    @Operation(summary = "Atualizar consumidor", description = "Rota responsável por atualizar um consumidor através do seu ID.")
     public ResponseEntity<ConsumidorDTO> atualizar(@PathVariable Long id, @RequestBody ConsumidorDTO dto, @RequestHeader String Authorization){
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         return ResponseEntity.ok().body(consumidorService.atualizar(dto, id, acesso.getIdLoja()));
     }
 
     @DeleteMapping(value="/{id}")
-    @Operation(summary = "Excluir consumidor", description = "Rota responsável por excluir um consumidor através do seu ID.")
     public ResponseEntity<Void> delete(@PathVariable Long id){
         consumidorService.remover(id);
         return ResponseEntity.noContent().build();

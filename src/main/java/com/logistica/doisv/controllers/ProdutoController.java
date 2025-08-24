@@ -34,7 +34,6 @@ import jakarta.validation.Valid;
 @Controller
 @RequestMapping("doisv/produtos")
 @CrossOrigin(origins = "*")
-@Tag(name = "Produto", description = "Manter produtos")
 public class ProdutoController {
     @Autowired
     private ProdutoService service;
@@ -43,14 +42,12 @@ public class ProdutoController {
     private TokenService tokenService;
 
     @GetMapping(value = "/{id}")
-    @Operation(summary = "Buscar por ID", description = "Rota responsável por buscar produtos pelo seu ID")
     public ResponseEntity<ProdutoDTO> buscarPorId(@PathVariable Long id) {
             ProdutoDTO dto = service.buscarPorId(id);
             return ResponseEntity.ok(dto);
     }
 
     @GetMapping
-    @Operation(summary = "Buscar todos produtos", description = "Rota responsável por retornar todos produtos.")
     public ResponseEntity<Page<ProdutoDTO>> buscarTodos(Pageable pageable, @RequestHeader String Authorization){
         AcessoDTO acessoDTO = tokenService.validarToken(Authorization);
         Page<ProdutoDTO> dto = service.buscarTodos(pageable, acessoDTO.getIdLoja());
@@ -58,7 +55,6 @@ public class ProdutoController {
     }
 
     @PostMapping(consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Cadastrar produto", description = "Rota responsável por cadastrar um produto.")
     public ResponseEntity<ProdutoDTO> salvar(@Valid @RequestPart("produto") ProdutoDTO dto,@RequestPart("imagem") MultipartFile imagem, 
                                             @RequestHeader String Authorization) throws GeneralSecurityException, IOException{
 
@@ -70,7 +66,6 @@ public class ProdutoController {
     }
 
     @PutMapping(value = "/{id}")
-    @Operation(summary = "Atualizar produto", description = "Rota responsável por atualizar um produto através do seu ID.")
     public ResponseEntity<ProdutoDTO> atualizar(@PathVariable Long id, @Valid @RequestPart("produto") ProdutoDTO dto,
                                                 @RequestPart("imagem") MultipartFile imagem, @RequestHeader String Authorization) throws GeneralSecurityException, IOException{
         AcessoDTO acesso = tokenService.validarToken(Authorization);
@@ -79,7 +74,6 @@ public class ProdutoController {
     }
 
     @DeleteMapping(value = "/{id}")
-    @Operation(summary = "Excluir produto", description = "Rota responsável por excluir um produto através do seu ID.")
     public ResponseEntity<ProdutoDTO> excluir(@PathVariable Long id){
         service.remover(id);
         return ResponseEntity.noContent().build();

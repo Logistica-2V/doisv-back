@@ -30,32 +30,27 @@ import jakarta.validation.Valid;
 @Controller
 @RequestMapping("doisv/lojas")
 @CrossOrigin(origins = "*")
-@Tag(name = "Lojas", description = "Manter Lojas")
 public class LojaController {
     @Autowired
     LojaService lojaService;
 
     @GetMapping
-    @Operation(summary = "Buscar Todas Lojas", description = "Rota responsável por buscar todas as Lojas")    
     public ResponseEntity<List<LojaDTO>> buscarLojas(){
         return ResponseEntity.ok().body(lojaService.buscarTodos());
     }
 
     @GetMapping(value = "/{id}")
-    @Operation(summary = "Buscar por ID", description = "Rota responsável por buscar Lojas pelo seu ID")
     public ResponseEntity<LojaDTO> buscarLojaPorId(@PathVariable Long id){
         return ResponseEntity.ok().body(lojaService.buscarPorId(id));
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Cadastrar Loja", description = "Rota responsável por cadastrar Loja")
     public ResponseEntity<LojaDTO> salvar(@Valid @RequestPart("loja") LojaDTO dto, @RequestPart("logo") MultipartFile logo) throws GeneralSecurityException, IOException {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getIdLoja()).toUri();
         return ResponseEntity.created(uri).body(lojaService.salvar(dto, logo));
     }
 
     @PutMapping(value = "/{id}")
-    @Operation(summary = "Atualizar Loja", description = "Rota responsável por ataulizar os dados da loja através do seu ID")
     public ResponseEntity<?> atualizar(@PathVariable Long id, @Valid @RequestPart("loja") LojaDTO dto, @RequestPart("logo") MultipartFile logo) throws GeneralSecurityException, IOException{
         return ResponseEntity.ok().body(lojaService.atualizar(id, dto, logo));
     }

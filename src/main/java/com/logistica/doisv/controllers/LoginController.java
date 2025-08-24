@@ -20,14 +20,12 @@ import jakarta.validation.Valid;
 @Controller
 @RequestMapping("/doisv")
 @CrossOrigin(origins = "*")
-@Tag(name = "Login", description = "Autenticação de usuários")
 public class LoginController {
 
     @Autowired
     private LojistaService lojistaService;
 
     @PostMapping("/login")
-    @Operation(summary = "Autenticação", description = "Rota responsável por autenticar um lojista através do login e senha.")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO dto){
         String token = lojistaService.login(dto.getEmail(), dto.getPassword());
         if(token != null){
