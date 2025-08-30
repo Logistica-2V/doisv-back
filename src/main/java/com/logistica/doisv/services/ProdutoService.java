@@ -2,6 +2,7 @@ package com.logistica.doisv.services;
 
 import com.logistica.doisv.dto.ProdutoDTO;
 import com.logistica.doisv.entities.Produto;
+import com.logistica.doisv.entities.Status;
 import com.logistica.doisv.repositories.LojaRepository;
 import com.logistica.doisv.repositories.ProdutoRepository;
 import com.logistica.doisv.services.api.GoogleDriveService;
@@ -11,14 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 import java.security.GeneralSecurityException;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class ProdutoService {
@@ -36,8 +37,7 @@ public class ProdutoService {
 
     @Transactional(readOnly = true)
     public ProdutoDTO buscarPorId(Long id){
-        Optional<Produto> resultado = repository.findById(id);
-        Produto produto = resultado.orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+        Produto produto = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
         return new ProdutoDTO(produto);
     }
 
@@ -58,10 +58,7 @@ public class ProdutoService {
     @Transactional
     public ProdutoDTO atualizar(Long id, ProdutoDTO dto, Long idLoja, MultipartFile imagem) throws IOException, GeneralSecurityException{
         Produto produto = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
-
-        if(!produto.getLoja().getIdLoja().equals(idLoja)) {
-            throw new AccessDeniedException("Você não tem permissão para editar esse produto");
-        }
+        validarLojaProduto(idLoja, produto);
         dtoParaEntidade(dto, produto);
         String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto(), produto.getClass().getSimpleName());
         produto.setImagem(url.split("/")[5]);
@@ -70,15 +67,26 @@ public class ProdutoService {
     }
 
     @Transactional
-    public void remover(Long id){
+    public void remover(Long id, Long idLoja){
         if(!repository.existsById(id)){
             throw new ResourceNotFoundException("Recurso não encontrado");
         }
         try {
+            validarLojaProduto(idLoja, repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado")));
             repository.deleteById(id);
         }catch(DataIntegrityViolationException e){
             throw new DatabaseException("Falha na integridade referencial");
         }
+    }
+
+    @Transactional
+    public void inativar(List<Long> ids, Long idLoja){
+        List<Produto> produtos = repository.findAllById(ids);
+        if (produtos.stream().anyMatch(p -> !p.getLoja().getIdLoja().equals(idLoja))){
+            throw new AccessDeniedException("Você não tem permissão para editar um ou mais produtos desta lista.");
+        }
+        produtos.forEach(p -> p.setStatus(Status.INATVO));
+        repository.saveAll(produtos);
     }
 
 
@@ -87,5 +95,11 @@ public class ProdutoService {
         produto.setUnidadeMedida(dto.unidadeMedida());
         produto.setPreco(dto.preco());
         produto.setImagem(dto.imagem());
+    }
+
+    private void validarLojaProduto(Long idLoja, Produto produto) {
+        if(!produto.getLoja().getIdLoja().equals(idLoja)) {
+            throw new AccessDeniedException("Você não tem permissão para editar esse produto");
+        }
     }
 }

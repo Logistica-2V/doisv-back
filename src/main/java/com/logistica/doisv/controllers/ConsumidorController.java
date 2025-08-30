@@ -24,18 +24,18 @@ public class ConsumidorController {
     private TokenService tokenService;
 
     @GetMapping
-    public ResponseEntity<List<ConsumidorDTO>> buscarTodos(@RequestHeader String Authorization) {
+    public ResponseEntity<List<ConsumidorDTO>> buscarTodosConsumidores(@RequestHeader String Authorization) {
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         return ResponseEntity.ok(consumidorService.buscarTodos(acesso.getIdLoja()));
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ConsumidorDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ConsumidorDTO> buscarConsumidorPorId(@PathVariable Long id) {
         return ResponseEntity.ok(consumidorService.buscarPorId(id));
     }
 
     @PostMapping
-    public ResponseEntity<ConsumidorDTO> salvar(@RequestBody ConsumidorDTO dto, @RequestHeader String Authorization) {
+    public ResponseEntity<ConsumidorDTO> criarConsumidor(@RequestBody ConsumidorDTO dto, @RequestHeader String Authorization) {
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         dto = consumidorService.salvar(dto, acesso.getIdLoja());
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.idConsumidor()).toUri();
@@ -43,16 +43,23 @@ public class ConsumidorController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<ConsumidorDTO> atualizar(@PathVariable Long id, @RequestBody ConsumidorDTO dto, @RequestHeader String Authorization) {
+    public ResponseEntity<ConsumidorDTO> atualizarConsumidor(@PathVariable Long id, @RequestBody ConsumidorDTO dto, @RequestHeader String Authorization) {
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         return ResponseEntity.ok().body(consumidorService.atualizar(dto, id, acesso.getIdLoja()));
     }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        consumidorService.remover(id);
+    @DeleteMapping(value = "/{id}/permanent")
+    public ResponseEntity<Void> deletarConsumidor(@PathVariable Long id, @RequestHeader String Authorization) {
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        consumidorService.remover(id, acesso.getIdLoja());
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> desativarConsumidor(@RequestBody List<Long> consumidoresIds, @RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        consumidorService.inativar(consumidoresIds, acesso.getIdLoja());
+        return ResponseEntity.noContent().build();
+    }
 
 }

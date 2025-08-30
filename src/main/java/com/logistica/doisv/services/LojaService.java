@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.logistica.doisv.entities.Status;
+import com.logistica.doisv.services.exceptions.DatabaseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,8 +66,20 @@ public class LojaService {
         }
     }
 
+    //Necessário implementar futuramente uma deleção em massa de todos itens vinculados a loja
     @Transactional
-    public void deletar(Long id){
+    public void remover(Long id){
+        if(!lojaRepository.existsById(id)){
+            throw new ResourceNotFoundException("Loja não encontrada");
+        }try {
+            lojaRepository.deleteById(id);
+        }catch(DataIntegrityViolationException e){
+            throw new DatabaseException("Falha na integridade referencial");
+        }
+    }
+
+    @Transactional
+    public void inativar(Long id){
         Loja loja = lojaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrada"));
         loja.setStatus(Status.INATVO);
         lojaRepository.save(loja);

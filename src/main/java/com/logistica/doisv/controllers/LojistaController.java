@@ -5,14 +5,13 @@ import com.logistica.doisv.services.LojistaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("doisv/lojistas")
 @CrossOrigin(origins = "*")
 public class LojistaController {
@@ -20,35 +19,41 @@ public class LojistaController {
     private LojistaService lojistaService;
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<LojistaDTO> buscarPorId(@PathVariable Long id){
+    public ResponseEntity<LojistaDTO> buscarLojistaPorId(@PathVariable Long id){
         return ResponseEntity.ok(lojistaService.buscarPorId(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<LojistaDTO>> listarLojistas(){
+    public ResponseEntity<List<LojistaDTO>> buscarTodosLojistas(){
         return ResponseEntity.ok(lojistaService.buscarTodos());
     }
 
     @GetMapping(params = "lojaId")
-    public ResponseEntity<List<LojistaDTO>> listarLojistaPorLoja(@RequestParam Long lojaId){
+    public ResponseEntity<List<LojistaDTO>> buscarLojistaPorLoja(@RequestParam Long lojaId){
         return ResponseEntity.ok(lojistaService.buscarLojistaPorLoja(lojaId));
     }
 
     @PostMapping
-    public ResponseEntity<LojistaDTO> salvar(@Valid @RequestBody LojistaDTO dto){
+    public ResponseEntity<LojistaDTO> criarLojista(@Valid @RequestBody LojistaDTO dto){
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(lojistaService.salvar(dto));
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<LojistaDTO> atualizar(@PathVariable Long id, @Valid @RequestBody LojistaDTO dto){
+    public ResponseEntity<LojistaDTO> atualizarLojista(@PathVariable Long id, @Valid @RequestBody LojistaDTO dto){
         dto = lojistaService.atualizar(id, dto);
         return ResponseEntity.ok(dto);
     }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id){
-        lojistaService.deletar(id);
+    @DeleteMapping(value = "/{id}/permanent")
+    public ResponseEntity<Void> deletarLojista(@PathVariable Long id){
+        lojistaService.remover(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> desativarLojistas(@RequestBody List<Long> lojistasIds){
+        lojistaService.inativar(lojistasIds);
         return ResponseEntity.noContent().build();
     }
 }

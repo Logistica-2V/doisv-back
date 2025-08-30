@@ -2,6 +2,7 @@ package com.logistica.doisv.services;
 
 import com.logistica.doisv.dto.ConsumidorDTO;
 import com.logistica.doisv.entities.Consumidor;
+import com.logistica.doisv.entities.Status;
 import com.logistica.doisv.repositories.ConsumidorRepository;
 import com.logistica.doisv.repositories.LojaRepository;
 import com.logistica.doisv.services.exceptions.DatabaseException;
@@ -54,14 +55,26 @@ public class ConsumidorService {
     }
 
     @Transactional
-    public void remover(Long id){
+    public void remover(Long id, Long idLoja){
         if(!repository.existsById(id)){
             throw new ResourceNotFoundException("Recurso não encontrado");
-        }try {
+        }
+        try {
+            validarLojaConsumidor(idLoja, repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Consumidor não encontrado")));
             repository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Falha na integridade referencial");
         }
+    }
+
+    @Transactional
+    public void inativar(List<Long> ids, Long idLoja){
+        List<Consumidor> consumidores = repository.findAllById(ids);
+        if(consumidores.stream().anyMatch(c -> !c.getLoja().getIdLoja().equals(idLoja))){
+            throw new AccessDeniedException("Você não tem permissão para editar um ou mais consumidores desta lista.");
+        }
+        consumidores.forEach(c -> c.setStatus(Status.INATVO));
+        repository.saveAll(consumidores);
     }
 
     public void dtoParaEntidade(ConsumidorDTO dto, Consumidor consumidor){
@@ -71,5 +84,11 @@ public class ConsumidorService {
         consumidor.setCelular(dto.celular());
         consumidor.setTelefone(dto.telefone());
         consumidor.setEndereco(dto.endereco());
+    }
+
+    private void validarLojaConsumidor(Long idLoja, Consumidor consumidor){
+        if(!consumidor.getLoja().getIdLoja().equals(idLoja)) {
+            throw new AccessDeniedException("Você não tem permissão para editar esse produto");
+        }
     }
 }

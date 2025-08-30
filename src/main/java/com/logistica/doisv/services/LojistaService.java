@@ -3,6 +3,7 @@ package com.logistica.doisv.services;
 import com.logistica.doisv.dto.LojistaDTO;
 import com.logistica.doisv.entities.Loja;
 import com.logistica.doisv.entities.Lojista;
+import com.logistica.doisv.entities.Status;
 import com.logistica.doisv.repositories.LojaRepository;
 import com.logistica.doisv.repositories.LojistaRepository;
 import com.logistica.doisv.services.exceptions.DatabaseException;
@@ -94,7 +95,7 @@ public class LojistaService {
     }
 
     @Transactional
-    public void deletar(Long id){
+    public void remover(Long id){
         if(!lojistaRepository.existsById(id)){
             throw new ResourceNotFoundException("Lojista não encontrado");
         }try {
@@ -102,6 +103,13 @@ public class LojistaService {
         }catch(DataIntegrityViolationException e){
             throw new DatabaseException("Falha na integridade referencial");
         }
+    }
+
+    @Transactional
+    public void inativar(List<Long> lojitasIds){
+        var lojistas = lojistaRepository.findAllById(lojitasIds);
+        lojistas.forEach(l -> l.setStatus(Status.INATVO));
+        lojistaRepository.saveAll(lojistas);
     }
 
     public void dtoParaEntidade(LojistaDTO dto, Lojista lojista){
