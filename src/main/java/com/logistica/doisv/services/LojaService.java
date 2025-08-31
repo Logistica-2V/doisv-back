@@ -85,11 +85,14 @@ public class LojaService {
         lojaRepository.save(loja);
     }
 
-    public void dtoParaEntidade(LojaDTO lojaDTO, Loja loja) {
-        loja.setNome(lojaDTO.nome());
-        loja.setEmail(lojaDTO.email());
-        loja.setCnpj(lojaDTO.cnpj());
-        loja.setLogo(lojaDTO.logo());
-        loja.setSegmento(lojaDTO.segmento());
+    public void dtoParaEntidade(LojaDTO dto, Loja loja) {
+        loja.setNome(dto.nome());
+        loja.setEmail(dto.email());
+        loja.setCnpj(dto.cnpj());
+        loja.setLogo(dto.logo());
+        loja.setSegmento(dto.segmento());
+        if(dto.status() != null && !dto.status().isBlank()) {
+            loja.setStatus(Status.converterParaString(dto.status()));
+        }
     }
 }

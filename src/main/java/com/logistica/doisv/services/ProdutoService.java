@@ -95,6 +95,9 @@ public class ProdutoService {
         produto.setUnidadeMedida(dto.unidadeMedida());
         produto.setPreco(dto.preco());
         produto.setImagem(dto.imagem());
+        if (dto.status() != null && !dto.status().isBlank()){
+            produto.setStatus(Status.converterParaString(dto.status()));
+        }
     }
 
     private void validarLojaProduto(Long idLoja, Produto produto) {

@@ -84,6 +84,9 @@ public class ConsumidorService {
         consumidor.setCelular(dto.celular());
         consumidor.setTelefone(dto.telefone());
         consumidor.setEndereco(dto.endereco());
+        if(dto.status() != null && !dto.status().isBlank()){
+            consumidor.setStatus(Status.converterParaString(dto.status()));
+        }
     }
 
     private void validarLojaConsumidor(Long idLoja, Consumidor consumidor){

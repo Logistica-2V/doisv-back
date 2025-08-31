@@ -117,5 +117,8 @@ public class LojistaService {
         lojista.setCpf(dto.cpf());
         lojista.setEmail(dto.email());
         lojista.setPassword(encoder.encode(dto.password()));
+        if (dto.status() != null && !dto.status().isBlank()) {
+            lojista.setStatus(Status.converterParaString(dto.status()));
+        }
     }
 }
