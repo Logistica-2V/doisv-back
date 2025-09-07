@@ -10,27 +10,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "tb_Produto", uniqueConstraints = @UniqueConstraint(columnNames = {"idLoja", "descricao"}))
+@Table(name = "tb_Venda")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Produto {
+public class Venda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idProduto;
-    private String descricao;
-    private String unidadeMedida;
+    private Long id;
+    @Column(unique = true)
+    private String serialVenda;
+    private Integer senha;
     @Column(precision = 6, scale = 2)
-    private BigDecimal preco;
-    private String imagem;
-    @Enumerated(EnumType.STRING)
+    private BigDecimal precoTotal;
+    private StatusPedido statusPedido;
+    private Double desconto;
     private Status status = Status.ATIVO;
 
     @ManyToOne
     @JoinColumn(name = "idLoja")
     private Loja loja;
 
-    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemVenda> itensVenda = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "idConsumidor")
+    private Consumidor consumidor;
 
+    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemVenda> itensVenda = new ArrayList<>();
 }

@@ -39,4 +39,8 @@ public class Loja {
     @JsonIgnore
     private List<Consumidor> consumidores = new ArrayList<>();
 
+    @OneToMany(mappedBy = "loja", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Venda> vendas = new ArrayList<>();
+
 }
