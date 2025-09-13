@@ -6,13 +6,13 @@ import com.logistica.doisv.entities.Status;
 import com.logistica.doisv.repositories.LojaRepository;
 import com.logistica.doisv.repositories.ProdutoRepository;
 import com.logistica.doisv.services.api.GoogleDriveService;
+import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
 import com.logistica.doisv.services.exceptions.DatabaseException;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -83,7 +83,7 @@ public class ProdutoService {
     public void inativar(List<Long> ids, Long idLoja){
         List<Produto> produtos = repository.findAllById(ids);
         if (produtos.stream().anyMatch(p -> !p.getLoja().getIdLoja().equals(idLoja))){
-            throw new AccessDeniedException("Você não tem permissão para editar um ou mais produtos desta lista.");
+            throw new AssociacaoInvalidaException("Você não tem permissão para editar um ou mais produtos desta lista.");
         }
         produtos.forEach(p -> p.setStatus(Status.INATVO));
         repository.saveAll(produtos);
@@ -102,7 +102,7 @@ public class ProdutoService {
 
     private void validarLojaProduto(Long idLoja, Produto produto) {
         if(!produto.getLoja().getIdLoja().equals(idLoja)) {
-            throw new AccessDeniedException("Você não tem permissão para editar esse produto");
+            throw new AssociacaoInvalidaException("Você não tem permissão para editar esse produto");
         }
     }
 }

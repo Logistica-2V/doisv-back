@@ -1,6 +1,7 @@
 package com.logistica.doisv.controllers.exceptions;
 
 import com.logistica.doisv.dto.ErroCustomizado;
+import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,8 @@ import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.time.Instant;
 
 @ControllerAdvice
@@ -54,5 +57,26 @@ public class ControllerException {
     public ResponseEntity<?> RequisicaoSemParametro(MissingMatrixVariableException e, HttpServletRequest requisicao) {
         ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.BAD_REQUEST.value(), e.getMessage(), requisicao.getRequestURI());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
+
+    //Tentativa de acessar um recurso que pertence a outro registro -> 403
+    @ExceptionHandler(AssociacaoInvalidaException.class)
+    public ResponseEntity<?> AssociacaoNaoPermitida(AssociacaoInvalidaException e, HttpServletRequest requisicao){
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.FORBIDDEN.value(), e.getMessage(), requisicao.getRequestURI());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erro);
+    }
+
+    //Erro de permissão para acessar o Google Drive ao anexar -> 403
+    @ExceptionHandler(GeneralSecurityException.class)
+    public ResponseEntity<?> ErroPermissaoGoogleDrive(GeneralSecurityException e, HttpServletRequest requisicao){
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.FORBIDDEN.value(), e.getMessage(), requisicao.getRequestURI());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN). body(erro);
+    }
+
+    //Erro no formato do arquivo enviado ao Google Drive -> 400
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<?> ErroFormatoAnexoGoogleDrive(IOException e, HttpServletRequest requisicao){
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.BAD_REQUEST.value(), e.getMessage(), requisicao.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST). body(erro);
     }
 }

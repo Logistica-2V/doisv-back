@@ -5,6 +5,7 @@ import com.logistica.doisv.entities.Consumidor;
 import com.logistica.doisv.entities.Status;
 import com.logistica.doisv.repositories.ConsumidorRepository;
 import com.logistica.doisv.repositories.LojaRepository;
+import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
 import com.logistica.doisv.services.exceptions.DatabaseException;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +72,7 @@ public class ConsumidorService {
     public void inativar(List<Long> ids, Long idLoja){
         List<Consumidor> consumidores = repository.findAllById(ids);
         if(consumidores.stream().anyMatch(c -> !c.getLoja().getIdLoja().equals(idLoja))){
-            throw new AccessDeniedException("Você não tem permissão para editar um ou mais consumidores desta lista.");
+            throw new AssociacaoInvalidaException("Você não tem permissão para editar um ou mais consumidores desta lista.");
         }
         consumidores.forEach(c -> c.setStatus(Status.INATVO));
         repository.saveAll(consumidores);
@@ -91,7 +92,7 @@ public class ConsumidorService {
 
     private void validarLojaConsumidor(Long idLoja, Consumidor consumidor){
         if(!consumidor.getLoja().getIdLoja().equals(idLoja)) {
-            throw new AccessDeniedException("Você não tem permissão para editar esse produto");
+            throw new AssociacaoInvalidaException("Você não tem permissão para editar esse produto");
         }
     }
 }
