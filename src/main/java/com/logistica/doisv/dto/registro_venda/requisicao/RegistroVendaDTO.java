@@ -8,5 +8,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record RegistroVendaDTO(@DecimalMin(value = "0.0") @Digits(integer = 6, fraction = 2) BigDecimal desconto, @NotBlank Long idConsumidor,
-                                    @NotBlank List<ItensDTO> itensVenda) {
+                                    Integer prazoTroca, Integer prazoDevolucao,
+                                    String formaPagamento, @NotBlank String statusPedido, @NotBlank List<ItemDTO> itensVenda) {
 }
