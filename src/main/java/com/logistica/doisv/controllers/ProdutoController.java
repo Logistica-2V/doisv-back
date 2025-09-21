@@ -21,7 +21,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("doisv/produtos")
-@CrossOrigin(origins = "*")
 public class ProdutoController {
     @Autowired
     private ProdutoService service;

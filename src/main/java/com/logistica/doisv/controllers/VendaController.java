@@ -14,7 +14,6 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("doisv/vendas")
-@CrossOrigin(origins = "*")
 public class VendaController {
 
     @Autowired

@@ -15,7 +15,6 @@ import java.util.List;
 
 @Controller
 @RequestMapping("doisv/consumidores")
-@CrossOrigin(origins = "*")
 public class ConsumidorController {
     @Autowired
     private ConsumidorService consumidorService;
@@ -60,6 +59,11 @@ public class ConsumidorController {
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         consumidorService.inativar(consumidoresIds, acesso.getIdLoja());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/login")
+    public ResponseEntity<?> login(){
+        return ResponseEntity.ok("Teste de rota");
     }
 
 }

@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("doisv/lojistas")
-@CrossOrigin(origins = "*")
 public class LojistaController {
     @Autowired
     private LojistaService lojistaService;

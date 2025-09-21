@@ -18,7 +18,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("doisv/lojas")
-@CrossOrigin(origins = "*")
 public class LojaController {
     @Autowired
     LojaService lojaService;
