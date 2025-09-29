@@ -1,7 +1,9 @@
 package com.logistica.doisv.controllers;
 
+import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.LojistaDTO;
 import com.logistica.doisv.services.LojistaService;
+import com.logistica.doisv.services.validacao.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +19,18 @@ public class LojistaController {
     @Autowired
     private LojistaService lojistaService;
 
+    @Autowired
+    private TokenService tokenService;
+
     @GetMapping(value = "/{id}")
     public ResponseEntity<LojistaDTO> buscarLojistaPorId(@PathVariable Long id){
         return ResponseEntity.ok(lojistaService.buscarPorId(id));
+    }
+
+    @GetMapping(value = "/profile")
+    public ResponseEntity<LojistaDTO> buscarLojistaPorToken(@RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        return ResponseEntity.ok(lojistaService.buscarPorId(acesso.getIdLojista()));
     }
 
     @GetMapping
