@@ -1,16 +1,13 @@
 package com.logistica.doisv.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_Produto", uniqueConstraints = @UniqueConstraint(columnNames = {"idLoja", "descricao"}))
@@ -23,11 +20,17 @@ public class Produto {
     private Long idProduto;
     private String descricao;
     private String unidadeMedida;
-    private Double preco;
+    @Column(precision = 6, scale = 2)
+    private BigDecimal preco;
     private String imagem;
-    private String statusProduto;
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.ATIVO;
 
     @ManyToOne
     @JoinColumn(name = "idLoja")
     private Loja loja;
+
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemVenda> itensVenda = new ArrayList<>();
+
 }

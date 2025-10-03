@@ -1,26 +1,30 @@
 package com.logistica.doisv.services;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import com.logistica.doisv.dto.ConsumidorDTO;
+import com.logistica.doisv.entities.Consumidor;
+import com.logistica.doisv.entities.Status;
+import com.logistica.doisv.repositories.ConsumidorRepository;
+import com.logistica.doisv.repositories.LojaRepository;
+import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
+import com.logistica.doisv.services.exceptions.DatabaseException;
+import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.logistica.doisv.dto.ConsumidorDTO;
-import com.logistica.doisv.entities.Consumidor;
-import com.logistica.doisv.repositories.ConsumidorRepository;
-import com.logistica.doisv.services.exceptions.DatabaseException;
-import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
-
-import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ConsumidorService {
     @Autowired
     private ConsumidorRepository repository;
+
+    @Autowired
+    private LojaRepository lojaRepository;
 
     @Transactional(readOnly = true)
     public List<ConsumidorDTO> buscarTodos(Long id){
@@ -34,46 +38,61 @@ public class ConsumidorService {
     }
 
     @Transactional
-    public ConsumidorDTO salvar(ConsumidorDTO dto){
+    public ConsumidorDTO salvar(ConsumidorDTO dto, Long idLoja){
         Consumidor consumidor = new Consumidor();
         dtoParaEntidade(dto, consumidor);
+        consumidor.setLoja(lojaRepository.findById(idLoja).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrada")));
         return new ConsumidorDTO(repository.save(consumidor));
     }
 
     @Transactional
     public ConsumidorDTO atualizar(ConsumidorDTO dto, Long id, Long idLoja){
-        if(dto.getLoja().getIdLoja().equals(idLoja)){    
-            try{
-                Consumidor consumidor = repository.getReferenceById(id);
-                dtoParaEntidade(dto, consumidor);
-                return new ConsumidorDTO(repository.save(consumidor));
-            }catch(EntityNotFoundException e){
-                throw new ResourceNotFoundException("Recurso não encontrado");
-            }
+        Consumidor consumidor = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Consumidor não encontrado"));
+        if(!consumidor.getLoja().getIdLoja().equals(idLoja)){
+            throw new AccessDeniedException("Você não tem permissão para editar esse produto");
         }
-            throw new DataIntegrityViolationException(null);
+        dtoParaEntidade(dto, consumidor);
+        return new ConsumidorDTO(repository.save(consumidor));
     }
 
     @Transactional
-    public void remover(Long id){
+    public void remover(Long id, Long idLoja){
         if(!repository.existsById(id)){
             throw new ResourceNotFoundException("Recurso não encontrado");
-        }try {
+        }
+        try {
+            validarLojaConsumidor(idLoja, repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Consumidor não encontrado")));
             repository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Falha na integridade referencial");
         }
-            
-        
+    }
+
+    @Transactional
+    public void inativar(List<Long> ids, Long idLoja){
+        List<Consumidor> consumidores = repository.findAllById(ids);
+        if(consumidores.stream().anyMatch(c -> !c.getLoja().getIdLoja().equals(idLoja))){
+            throw new AssociacaoInvalidaException("Você não tem permissão para editar um ou mais consumidores desta lista.");
+        }
+        consumidores.forEach(c -> c.setStatus(Status.INATVO));
+        repository.saveAll(consumidores);
     }
 
     public void dtoParaEntidade(ConsumidorDTO dto, Consumidor consumidor){
-        consumidor.setNome(dto.getNome());
-        consumidor.setCpf_cnpj(dto.getCpf_cnpj());
-        consumidor.setEmail(dto.getEmail());
-        consumidor.setCelular(dto.getCelular());
-        consumidor.setTelefone(dto.getTelefone());
-        consumidor.setEndereco(dto.getEndereco());
-        consumidor.setLoja(dto.getLoja());
+        consumidor.setNome(dto.nome());
+        consumidor.setCpf_cnpj(dto.cpf_cnpj());
+        consumidor.setEmail(dto.email());
+        consumidor.setCelular(dto.celular());
+        consumidor.setTelefone(dto.telefone());
+        consumidor.setEndereco(dto.endereco());
+        if(dto.status() != null && !dto.status().isBlank()){
+            consumidor.setStatus(Status.converterParaString(dto.status()));
+        }
+    }
+
+    private void validarLojaConsumidor(Long idLoja, Consumidor consumidor){
+        if(!consumidor.getLoja().getIdLoja().equals(idLoja)) {
+            throw new AssociacaoInvalidaException("Você não tem permissão para editar esse produto");
+        }
     }
 }

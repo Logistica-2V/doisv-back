@@ -1,0 +1,20 @@
+package com.logistica.doisv.entities;
+
+public enum Status {
+    ATIVO("Ativo"),
+    INATVO("Inativo");
+
+    private String statusItem;
+
+    Status(String statusItem){
+        this.statusItem = statusItem;
+    }
+
+    public static Status converterParaString(String statusString){
+        for(Status status : Status.values()){
+            if(status.statusItem.equalsIgnoreCase(statusString))
+                return status;
+        }
+        throw new IllegalArgumentException("Status não localizado");
+    }
+}

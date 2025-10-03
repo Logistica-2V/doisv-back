@@ -23,7 +23,7 @@ import com.logistica.doisv.services.api.GoogleDriveService;
 
 @Configuration
 public class GoogleDriveConfig {
- private static final String CAMINHO_ARQUIVO_CREDENCIAL = "/credentials.json";
+    private static final String CAMINHO_ARQUIVO_CREDENCIAL = "/credentials.json";
     private static final String CAMINHO_TOKENS = "tokens";
     private static final GsonFactory GSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final List<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/drive.file");

@@ -1,7 +1,10 @@
 package com.logistica.doisv.services;
 
 import com.logistica.doisv.dto.LojistaDTO;
+import com.logistica.doisv.entities.Loja;
 import com.logistica.doisv.entities.Lojista;
+import com.logistica.doisv.entities.Status;
+import com.logistica.doisv.repositories.LojaRepository;
 import com.logistica.doisv.repositories.LojistaRepository;
 import com.logistica.doisv.services.exceptions.DatabaseException;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
@@ -26,6 +29,9 @@ public class LojistaService {
     private LojistaRepository lojistaRepository;
 
     @Autowired
+    private LojaRepository lojaRepository;
+
+    @Autowired
     private PasswordEncoder encoder;
 
     @Value("${jwt.secret}")
@@ -38,7 +44,7 @@ public class LojistaService {
             Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
                 return Jwts.builder()
                         .setSubject(email)
-                        .claim("idLojista", lojista.getId())
+                        .claim("idLojista", lojista.getIdLojista())
                         .claim("nomeLojista",lojista.getNome())
                         .claim("idLoja", lojista.getLoja().getIdLoja())
                         .signWith(key)
@@ -70,7 +76,9 @@ public class LojistaService {
     @Transactional
     public LojistaDTO salvar(LojistaDTO dto){
         Lojista lojista = new Lojista();
+        Loja loja = lojaRepository.findById(dto.idLoja()).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrada"));
         dtoParaEntidade(dto, lojista);
+        lojista.setLoja(loja);
         return new LojistaDTO(lojistaRepository.save(lojista));
     }
 
@@ -87,7 +95,7 @@ public class LojistaService {
     }
 
     @Transactional
-    public void deletar(Long id){
+    public void remover(Long id){
         if(!lojistaRepository.existsById(id)){
             throw new ResourceNotFoundException("Lojista não encontrado");
         }try {
@@ -97,12 +105,20 @@ public class LojistaService {
         }
     }
 
+    @Transactional
+    public void inativar(List<Long> lojitasIds){
+        var lojistas = lojistaRepository.findAllById(lojitasIds);
+        lojistas.forEach(l -> l.setStatus(Status.INATVO));
+        lojistaRepository.saveAll(lojistas);
+    }
 
     public void dtoParaEntidade(LojistaDTO dto, Lojista lojista){
-        lojista.setNome(dto.getNome());
-        lojista.setCpf(dto.getCpf());
-        lojista.setEmail(dto.getEmail());
-        lojista.setPassword(encoder.encode(dto.getPassword()));
-        lojista.setLoja(dto.getLoja());
+        lojista.setNome(dto.nome());
+        lojista.setCpf(dto.cpf());
+        lojista.setEmail(dto.email());
+        lojista.setPassword(encoder.encode(dto.password()));
+        if (dto.status() != null && !dto.status().isBlank()) {
+            lojista.setStatus(Status.converterParaString(dto.status()));
+        }
     }
 }

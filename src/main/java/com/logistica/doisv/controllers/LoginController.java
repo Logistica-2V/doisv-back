@@ -1,5 +1,9 @@
 package com.logistica.doisv.controllers;
 
+import com.logistica.doisv.dto.LoginDTO;
+import com.logistica.doisv.dto.LoginResponse;
+import com.logistica.doisv.services.LojistaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,28 +13,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.logistica.doisv.dto.LoginDTO;
-import com.logistica.doisv.dto.LoginResponse;
-import com.logistica.doisv.services.LojistaService;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-
 @Controller
 @RequestMapping("/doisv")
-@CrossOrigin(origins = "*")
-@Tag(name = "Login", description = "Autenticação de usuários")
 public class LoginController {
 
     @Autowired
     private LojistaService lojistaService;
 
     @PostMapping("/login")
-    @Operation(summary = "Autenticação", description = "Rota responsável por autenticar um lojista através do login e senha.")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO dto){
-        String token = lojistaService.login(dto.getEmail(), dto.getPassword());
-        if(token != null){
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO dto) {
+        String token = lojistaService.login(dto.email(), dto.password());
+        if (token != null) {
             return ResponseEntity.ok(new LoginResponse(token));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email ou senha inválidos");

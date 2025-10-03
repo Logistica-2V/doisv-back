@@ -15,17 +15,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    
+
     @Autowired
     private TokenAutenticacao tokenAutenticacao;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
+                .cors(cors -> {})
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/doisv/login", "/h2-console/**","/swagger-ui/**","swagger-ui.html","v3/api-docs/**",
-                        "swagger-resources/**")
+                        .requestMatchers("/doisv/login", "/doisv/consumidores/login", "/h2-console/**", "/swagger-ui/**", "swagger-ui.html",
+                                "v3/api-docs/**","swagger-resources/**")
                         .permitAll()
                         .anyRequest().authenticated()
                 ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -1,36 +1,20 @@
 package com.logistica.doisv.controllers;
 
-import java.net.URI;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.ConsumidorDTO;
 import com.logistica.doisv.services.ConsumidorService;
 import com.logistica.doisv.services.validacao.TokenService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
-
+import java.net.URI;
+import java.util.List;
 
 @Controller
 @RequestMapping("doisv/consumidores")
-@CrossOrigin(origins = "*")
-@Tag(name = "Consumidor", description = "Manter Consumidor")
 public class ConsumidorController {
     @Autowired
     private ConsumidorService consumidorService;
@@ -39,42 +23,47 @@ public class ConsumidorController {
     private TokenService tokenService;
 
     @GetMapping
-    @Operation(summary = "Buscar todos", description = "Rota responsável por buscar todos consumidores de uma loja")
-    public ResponseEntity<List<ConsumidorDTO>> buscarTodos(@RequestHeader String Authorization){
+    public ResponseEntity<List<ConsumidorDTO>> buscarTodosConsumidores(@RequestHeader String Authorization) {
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         return ResponseEntity.ok(consumidorService.buscarTodos(acesso.getIdLoja()));
     }
 
-    @GetMapping(value="/{id}")
-    @Operation(summary = "Buscar por ID", description = "Rota responsável por buscar consumidores pelo seu ID")
-    public ResponseEntity<ConsumidorDTO> buscarPorId(@PathVariable Long id) {
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<ConsumidorDTO> buscarConsumidorPorId(@PathVariable Long id) {
         return ResponseEntity.ok(consumidorService.buscarPorId(id));
     }
 
     @PostMapping
-    @Operation(summary = "Cadastrar consumidor", description = "Rota responsável por cadastrar um consumidor.")
-    public ResponseEntity<ConsumidorDTO> salvar(@RequestBody ConsumidorDTO dto, @RequestHeader String Authorization){
+    public ResponseEntity<ConsumidorDTO> criarConsumidor(@RequestBody ConsumidorDTO dto, @RequestHeader String Authorization) {
         AcessoDTO acesso = tokenService.validarToken(Authorization);
-        dto.getLoja().setIdLoja(acesso.getIdLoja());
-        dto = consumidorService.salvar(dto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getIdConsumidor()).toUri();
+        dto = consumidorService.salvar(dto, acesso.getIdLoja());
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.idConsumidor()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
 
-    @PutMapping(value="/{id}")
-    @Operation(summary = "Atualizar consumidor", description = "Rota responsável por atualizar um consumidor através do seu ID.")
-    public ResponseEntity<ConsumidorDTO> atualizar(@PathVariable Long id, @RequestBody ConsumidorDTO dto, @RequestHeader String Authorization){
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<ConsumidorDTO> atualizarConsumidor(@PathVariable Long id, @RequestBody ConsumidorDTO dto, @RequestHeader String Authorization) {
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         return ResponseEntity.ok().body(consumidorService.atualizar(dto, id, acesso.getIdLoja()));
     }
 
-    @DeleteMapping(value="/{id}")
-    @Operation(summary = "Excluir consumidor", description = "Rota responsável por excluir um consumidor através do seu ID.")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
-        consumidorService.remover(id);
+    @DeleteMapping(value = "/{id}/permanent")
+    public ResponseEntity<Void> deletarConsumidor(@PathVariable Long id, @RequestHeader String Authorization) {
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        consumidorService.remover(id, acesso.getIdLoja());
         return ResponseEntity.noContent().build();
     }
 
-    
+    @DeleteMapping
+    public ResponseEntity<Void> desativarConsumidor(@RequestBody List<Long> consumidoresIds, @RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        consumidorService.inativar(consumidoresIds, acesso.getIdLoja());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/login")
+    public ResponseEntity<?> login(){
+        return ResponseEntity.ok("Teste de rota");
+    }
 
 }
