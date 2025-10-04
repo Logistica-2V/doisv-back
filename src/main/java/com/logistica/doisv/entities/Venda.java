@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class Venda {
     private Integer prazoTroca;
     private Integer prazoDevolucao;
     private Instant dataCriacao;
+    private LocalDate dataEntrega;
     @Enumerated(EnumType.STRING)
     private Status status = Status.ATIVO;
 
@@ -42,7 +44,7 @@ public class Venda {
     @JoinColumn(name = "idConsumidor")
     private Consumidor consumidor;
 
-    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ItemVenda> itensVenda = new ArrayList<>();
 
     public Venda(Loja loja, Consumidor consumidor, String statusPedido, BigDecimal desconto, String formaPagamento, Integer prazoTroca, Integer prazoDevolucao){

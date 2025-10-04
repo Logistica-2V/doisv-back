@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Locale;
 
 public record VendaDTO (Long idVenda, String serial, BigDecimal precoTotal, String statusPedido, BigDecimal desconto, String formaPagamento,
-                        Integer prazoTroca, Integer prazoDevolucao, String dataCriacao,LojaVendaDTO loja,
+                        Integer prazoTroca, Integer prazoDevolucao, String dataCriacao, String dataEntrega, LojaVendaDTO loja,
                         ConsumidorVendaDTO consumidor, String status, List<ItemVendaDTO> itens) {
     public VendaDTO(Venda venda){
         this(venda.getId(),
@@ -22,6 +22,7 @@ public record VendaDTO (Long idVenda, String serial, BigDecimal precoTotal, Stri
                 venda.getPrazoDevolucao(),
                 venda.getDataCriacao().atZone(ZoneId.of("America/Sao_Paulo"))
                         .format(DateTimeFormatter.ofPattern("dd/MM/yyyy", new Locale("pt", "BR"))),
+                venda.getDataEntrega() != null ? venda.getDataEntrega().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "",
                 new LojaVendaDTO(venda.getLoja()),
                 new ConsumidorVendaDTO(venda.getConsumidor()),
                 venda.getStatus().toString(),

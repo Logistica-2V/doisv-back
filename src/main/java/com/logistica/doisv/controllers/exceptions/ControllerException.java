@@ -2,6 +2,7 @@ package com.logistica.doisv.controllers.exceptions;
 
 import com.logistica.doisv.dto.ErroCustomizado;
 import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
+import com.logistica.doisv.services.exceptions.EdicaoNaoPermitidaException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,13 +71,21 @@ public class ControllerException {
     @ExceptionHandler(GeneralSecurityException.class)
     public ResponseEntity<?> ErroPermissaoGoogleDrive(GeneralSecurityException e, HttpServletRequest requisicao){
         ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.FORBIDDEN.value(), e.getMessage(), requisicao.getRequestURI());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN). body(erro);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erro);
     }
 
     //Erro no formato do arquivo enviado ao Google Drive -> 400
     @ExceptionHandler(IOException.class)
     public ResponseEntity<?> ErroFormatoAnexoGoogleDrive(IOException e, HttpServletRequest requisicao){
         ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.BAD_REQUEST.value(), e.getMessage(), requisicao.getRequestURI());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST). body(erro);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
+
+    //Erro ao editar com status que não permite edição
+    @ExceptionHandler(EdicaoNaoPermitidaException.class)
+    public ResponseEntity<?> EdicaoNaoPermitida (EdicaoNaoPermitidaException e, HttpServletRequest requisicao){
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.CONFLICT.value(), e.getMessage(), requisicao.getRequestURI());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
+    }
+
 }
