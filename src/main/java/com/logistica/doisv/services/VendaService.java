@@ -60,26 +60,10 @@ public class VendaService {
 
         if(consumidor.getLoja().getIdLoja().equals(idLoja)){
             Loja loja = consumidor.getLoja();
-            List<Produto> produtos = produtoRepository.findAllById(dto.itensVenda().stream().map(ItemDTO::idProduto).toList());
-
-            if (produtos.stream().anyMatch(p -> !p.getLoja().getIdLoja().equals(loja.getIdLoja()))){
-                throw new AssociacaoInvalidaException("Um ou mais produtos desta lista não está associado a esta loja");
-            }
 
             Venda venda = new Venda(loja, consumidor, dto.statusPedido(), dto.desconto(), dto.formaPagamento(), dto.prazoTroca(), dto.prazoDevolucao());
-            Map<Long, Produto> produtosPorId = produtos.stream().collect(Collectors.toMap(Produto::getIdProduto, Function.identity()));
 
-            for(ItemDTO i : dto.itensVenda()){
-                Produto produto = produtosPorId.get(i.idProduto());
-                ItemVenda item = new ItemVenda(produto.getPreco(), i.valorVendido(), i.quantidade(), i.detalhe(), venda, produto);
-                venda.getItensVenda().add(item);
-
-                venda.setPrecoTotal(venda.getPrecoTotal()
-                                .add(item.getPrecoVendido()
-                                .multiply(BigDecimal.valueOf(item.getQuantidade())))
-                                .setScale(2, RoundingMode.HALF_UP));
-            }
-            venda.setPrecoTotal(venda.getPrecoTotal().subtract(venda.getDesconto()));
+            calcularValorVenda(venda, dto, loja);
             gerarAcessoConsumidor(venda);
             return new VendaDTO(repository.save(venda));
         }
@@ -88,20 +72,27 @@ public class VendaService {
         }
     }
 
+    @Transactional
     public VendaDTO atualizar(Long idVenda, RegistroVendaDTO dto, Long idLoja){
         Venda venda = repository.findById(idVenda).orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada"));
 
         if(venda.getStatusPedido() == StatusPedido.ENTREGUE || venda.getStatusPedido() == StatusPedido.CANCELADA){
-            //Criar uma validação personalizada
             throw new EdicaoNaoPermitidaException("Status atual da venda não permite edição de dados");
         }
 
-        try{
-            repository.delete(venda);
-            return salvar(dto, idLoja);
-        }catch (DataIntegrityViolationException e){
-            throw new DatabaseException("Falha na integridade referencial");
+        if(!venda.getConsumidor().getIdConsumidor().equals(dto.idConsumidor())){
+            venda.setConsumidor(consumidorRepository.findById(dto.idConsumidor())
+                            .filter(c -> c.getLoja().getIdLoja().equals(idLoja))
+                            .orElseThrow(() -> new RuntimeException("Consumidor não localizado ou não associado a esta loja")));
         }
+        venda.setDesconto(dto.desconto());
+        venda.setPrazoTroca(dto.prazoTroca());
+        venda.setPrazoDevolucao(dto.prazoDevolucao());
+        venda.setStatusPedido(StatusPedido.converterParaString(dto.statusPedido()));
+        venda.getItensVenda().clear();
+        calcularValorVenda(venda, dto, venda.getLoja());
+        gerarAcessoConsumidor(venda);
+        return new VendaDTO(repository.save(venda));
     }
 
     @Transactional
@@ -126,5 +117,28 @@ public class VendaService {
             venda.setSenha(null);
             venda.setStatus(Status.INATVO);
         }
+    }
+
+    private void calcularValorVenda(Venda venda, RegistroVendaDTO dto, Loja loja){
+        venda.setPrecoTotal(BigDecimal.valueOf(0));
+        List<Produto> produtos = produtoRepository.findAllById(dto.itensVenda().stream().map(ItemDTO::idProduto).toList());
+
+        if (produtos.stream().anyMatch(p -> !p.getLoja().getIdLoja().equals(loja.getIdLoja()))){
+            throw new AssociacaoInvalidaException("Um ou mais produtos desta lista não está associado a esta loja");
+        }
+
+        Map<Long, Produto> produtosPorId = produtos.stream().collect(Collectors.toMap(Produto::getIdProduto, Function.identity()));
+
+        for(ItemDTO i : dto.itensVenda()){
+            Produto produto = produtosPorId.get(i.idProduto());
+            ItemVenda item = new ItemVenda(produto.getPreco(), i.valorVendido(), i.quantidade(), i.detalhe(), venda, produto);
+            venda.getItensVenda().add(item);
+
+            venda.setPrecoTotal(venda.getPrecoTotal()
+                    .add(item.getPrecoVendido()
+                            .multiply(BigDecimal.valueOf(item.getQuantidade())))
+                    .setScale(2, RoundingMode.HALF_UP));
+        }
+        venda.setPrecoTotal(venda.getPrecoTotal().subtract(venda.getDesconto()));
     }
 }
