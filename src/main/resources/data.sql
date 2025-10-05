@@ -1,8 +1,8 @@
 -- LOJAS
 INSERT IGNORE INTO tb_Loja (id_loja, nome, cnpj, segmento, logo, email, status) VALUES
-(1, 'Loja CenterTech', '10234567000101', 'Tecnologia', 'https://drive.google.com/file/d/1qHS3CjGqHF0C3rTDLuMU_dG8dCzYgXrv/view?usp=drivesdk', 'contato@centertech.com', 'ATIVO'),
-(2, 'Loja Estilo&Cia', '20345678000102', 'Moda', 'https://drive.google.com/file/d/1qQist6b6FVov1d5LbBVddDY3U6IAD264/view?usp=drivesdk', 'contato@estilocia.com', 'ATIVO'),
-(3, 'Loja MundoLivros', '30456789000103', 'Livros', 'https://drive.google.com/file/d/1ua9emAVgEZIraJIHVhgpcMO0XL6qn8e5/view?usp=drivesdk', 'contato@mundolivros.com', 'ATIVO');
+(1, 'Loja CenterTech', '10234567000101', 'Tecnologia', '1qHS3CjGqHF0C3rTDLuMU_dG8dCzYgXrv', 'contato@centertech.com', 'ATIVO'),
+(2, 'Loja Estilo&Cia', '20345678000102', 'Moda', '1qQist6b6FVov1d5LbBVddDY3U6IAD264', 'contato@estilocia.com', 'ATIVO'),
+(3, 'Loja MundoLivros', '30456789000103', 'Livros', '1ua9emAVgEZIraJIHVhgpcMO0XL6qn8e5', 'contato@mundolivros.com', 'ATIVO');
 
 -- ADMIN
 INSERT IGNORE INTO tb_Lojista (id_lojista, nome, cpf, email, senha, status, id_loja) VALUES
@@ -67,7 +67,7 @@ INSERT IGNORE INTO tb_Consumidor (id_consumidor, nome, cpf_cnpj, email, celular,
 (4, 'Ana Beatriz', '45678901234', 'ana.beatriz@email.com', '(51) 98700-1122', NULL, 'Rua João Goulart, 321 - Porto Alegre/RS', 'ATIVO', 1),
 (5, 'Rafael Gomes', '56789012345', 'rafael.gomes@email.com', '(41) 99888-7766', '(41) 3030-2020', 'Rua XV de Novembro, 654 - Curitiba/PR', 'ATIVO', 2),
 (6, 'Camila Rocha', '67890123456', 'camila.rocha@email.com', '(61) 91919-1919', NULL, 'SQS 305 Bloco E - Brasília/DF', 'ATIVO', 3),
-(7, 'Marcos Vinícius', '78901234567', 'marcos.vinicius@email.com', '(85) 98787-1212', '(85) 3222-3333', 'Av. Beira Mar, 800 - Fortaleza/CE', 'ATIVO', 1),
+(7, 'Marcelo William', '78901234567', 'marcelo.sousa@uscsonline.com.br', '(85) 98787-1212', '(85) 3222-3333', 'Av. Beira Mar, 800 - Fortaleza/CE', 'ATIVO', 1),
 (8, 'Patrícia Carvalho', '89012345678', 'patricia.carvalho@email.com', '(71) 92345-6789', NULL, 'Rua do Porto, 200 - Salvador/BA', 'ATIVO', 2),
 (9, 'Lucas Almeida', '90123456789', 'lucas.almeida@email.com', '(91) 99999-0000', NULL, 'Travessa Tucuruí, 55 - Belém/PA', 'ATIVO', 3),
 (10, 'Renata Figueiredo', '01234567890', 'renata.figueiredo@email.com', '(62) 98888-1234', '(62) 4002-8922', 'Av. Goiás, 1000 - Goiânia/GO', 'ATIVO', 1);

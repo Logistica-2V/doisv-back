@@ -8,16 +8,15 @@ import com.logistica.doisv.repositories.ConsumidorRepository;
 import com.logistica.doisv.repositories.ProdutoRepository;
 import com.logistica.doisv.repositories.VendaRepository;
 import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
-import com.logistica.doisv.services.exceptions.DatabaseException;
 import com.logistica.doisv.services.exceptions.EdicaoNaoPermitidaException;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -43,6 +42,9 @@ public class VendaService {
     @Autowired
     private PasswordEncoder encoder;
 
+    @Autowired
+    private EmailService emailService;
+
     @Transactional(readOnly = true)
     public Page<VendaDTO> buscarTodasVendasPorLoja(Pageable pageable, Long idLoja){
         return repository.findAllByLoja_idLoja(pageable, idLoja).map(VendaDTO::new);
@@ -55,7 +57,7 @@ public class VendaService {
     }
 
     @Transactional
-    public VendaDTO salvar(RegistroVendaDTO dto, Long idLoja){
+    public VendaDTO salvar(RegistroVendaDTO dto, Long idLoja) throws MessagingException {
         Consumidor consumidor = consumidorRepository.findById(dto.idConsumidor()).orElseThrow(() -> new ResourceNotFoundException("Consumidor não encontrado"));
 
         if(consumidor.getLoja().getIdLoja().equals(idLoja)){
@@ -65,7 +67,13 @@ public class VendaService {
 
             calcularValorVenda(venda, dto, loja);
             gerarAcessoConsumidor(venda);
-            return new VendaDTO(repository.save(venda));
+            VendaDTO vendaDTO = new VendaDTO(repository.save(venda));
+
+            if(venda.getStatusPedido().equals(StatusPedido.ENTREGUE)){
+                emailService.enviarEmailAcessoConsumidor(venda);
+            }
+
+            return vendaDTO;
         }
         else{
             throw new AssociacaoInvalidaException("O consumidor não está associado a esta loja");
@@ -73,7 +81,7 @@ public class VendaService {
     }
 
     @Transactional
-    public VendaDTO atualizar(Long idVenda, RegistroVendaDTO dto, Long idLoja){
+    public VendaDTO atualizar(Long idVenda, RegistroVendaDTO dto, Long idLoja) throws MessagingException {
         Venda venda = repository.findById(idVenda).orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada"));
 
         if(venda.getStatusPedido() == StatusPedido.ENTREGUE || venda.getStatusPedido() == StatusPedido.CANCELADA){
@@ -92,7 +100,12 @@ public class VendaService {
         venda.getItensVenda().clear();
         calcularValorVenda(venda, dto, venda.getLoja());
         gerarAcessoConsumidor(venda);
-        return new VendaDTO(repository.save(venda));
+        VendaDTO vendaDTO = new VendaDTO(repository.save(venda));
+
+        if(venda.getStatusPedido().equals(StatusPedido.ENTREGUE)){
+            emailService.enviarEmailAcessoConsumidor(venda);
+        }
+        return  vendaDTO;
     }
 
     @Transactional
@@ -108,7 +121,7 @@ public class VendaService {
     private void gerarAcessoConsumidor(Venda venda){
         if(venda.getStatusPedido() == StatusPedido.ENTREGUE){
             venda.setSerialVenda(UUID.randomUUID().toString().substring(0,11).replace("-", ""));
-            var senha = venda.getConsumidor().getCpf_cnpj().substring(0,4) + "@" + UUID.randomUUID().toString().substring(0,3); //
+            var senha = venda.getConsumidor().getCpf_cnpj().substring(0,4) + "@" + LocalDate.now().getYear(); //
             venda.setSenha(encoder.encode(senha));
             venda.setDataEntrega(LocalDate.now());
         }

@@ -3,6 +3,7 @@ package com.logistica.doisv.controllers.exceptions;
 import com.logistica.doisv.dto.ErroCustomizado;
 import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
 import com.logistica.doisv.services.exceptions.EdicaoNaoPermitidaException;
+import jakarta.mail.MessagingException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -84,6 +85,12 @@ public class ControllerException {
     //Erro ao editar com status que não permite edição
     @ExceptionHandler(EdicaoNaoPermitidaException.class)
     public ResponseEntity<?> EdicaoNaoPermitida (EdicaoNaoPermitidaException e, HttpServletRequest requisicao){
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.CONFLICT.value(), e.getMessage(), requisicao.getRequestURI());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
+    }
+
+    @ExceptionHandler(MessagingException.class)
+    public ResponseEntity<?> ErroAoEnviarEmail (MessagingException e, HttpServletRequest requisicao){
         ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.CONFLICT.value(), e.getMessage(), requisicao.getRequestURI());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
     }

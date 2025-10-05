@@ -5,6 +5,7 @@ import com.logistica.doisv.dto.registro_venda.requisicao.RegistroVendaDTO;
 import com.logistica.doisv.dto.registro_venda.resposta.VendaDTO;
 import com.logistica.doisv.services.VendaService;
 import com.logistica.doisv.services.validacao.TokenService;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,14 +39,14 @@ public class VendaController {
     }
 
     @PostMapping
-    public ResponseEntity<VendaDTO> criarVenda(@RequestBody RegistroVendaDTO dto, @RequestHeader String Authorization){
+    public ResponseEntity<VendaDTO> criarVenda(@RequestBody RegistroVendaDTO dto, @RequestHeader String Authorization) throws MessagingException {
         VendaDTO venda = service.salvar(dto, validarLoja(Authorization));
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(venda.idVenda()).toUri();
         return ResponseEntity.created(uri).body(venda);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<VendaDTO> atualizarVenda(@PathVariable Long id, @RequestBody RegistroVendaDTO dto, @RequestHeader String Authorization){
+    public ResponseEntity<VendaDTO> atualizarVenda(@PathVariable Long id, @RequestBody RegistroVendaDTO dto, @RequestHeader String Authorization) throws MessagingException {
         VendaDTO venda = service.atualizar(id, dto, validarLoja(Authorization));
         return ResponseEntity.ok(venda);
     }
