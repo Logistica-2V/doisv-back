@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,17 +38,26 @@ public class LojistaService {
     @Value("${jwt.secret}")
     private String secretKey;
 
+    @Value("${jwt.lojista.expiration}")
+    private long validadeToken;
+
     @Transactional(readOnly = true)
     public String login (String email, String password) {
         Lojista lojista = lojistaRepository.findByEmail(email);
         if (lojista != null && encoder.matches(password, lojista.getPassword())){
             Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+
+            Date dataCriacao = new Date();
+            Date dataExpiracao = new Date(dataCriacao.getTime() + validadeToken);
+
                 return Jwts.builder()
                         .setSubject(email)
                         .claim("tipo", "LOJISTA")
                         .claim("idLojista", lojista.getIdLojista())
                         .claim("nome",lojista.getNome())
                         .claim("idLoja", lojista.getLoja().getIdLoja())
+                        .setIssuedAt(dataCriacao)
+                        .setExpiration(dataExpiracao)
                         .signWith(key)
                         .compact();
         }

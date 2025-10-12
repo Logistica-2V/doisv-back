@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,11 +43,18 @@ public class ConsumidorService {
     @Value("${jwt.secret}")
     private String secretKey;
 
+    @Value("${jwt.consumidor.expiration}")
+    private long validadeToken;
+
     @Transactional(readOnly = true)
     public String login(String serial, String senha){
         Venda venda = vendaRepository.findBySerialVendaIgnoreCase(serial).orElseThrow(() -> new ResourceNotFoundException("Venda não localizada"));
         if(venda != null && encoder.matches(senha,venda.getSenha())){
             Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+
+            Date dataCriacao = new Date();
+            Date dataExpiracao = new Date(dataCriacao.getTime() + validadeToken);
+
             return Jwts.builder()
                     .setSubject(venda.getConsumidor().getEmail())
                     .claim("tipo", "CONSUMIDOR")
@@ -55,6 +63,8 @@ public class ConsumidorService {
                     .claim("serialVenda", venda.getSerialVenda())
                     .claim("idVenda", venda.getId())
                     .claim("idLoja", venda.getLoja().getIdLoja())
+                    .setIssuedAt(dataCriacao)
+                    .setExpiration(dataExpiracao)
                     .signWith(key)
                     .compact();
         }
