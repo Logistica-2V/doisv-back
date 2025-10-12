@@ -40,6 +40,9 @@ public class VendaService {
     private ProdutoRepository produtoRepository;
 
     @Autowired
+    private VendaRepository vendaRepository;
+
+    @Autowired
     private PasswordEncoder encoder;
 
     @Autowired

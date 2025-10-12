@@ -6,7 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface VendaRepository extends JpaRepository<Venda, Long> {
     Page<Venda> findAllByLoja_idLoja(Pageable pageable, Long idLoja);
+
+    Optional<Venda> findBySerialVendaIgnoreCase(String serialVenda);
 }

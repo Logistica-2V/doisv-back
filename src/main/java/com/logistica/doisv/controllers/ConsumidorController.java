@@ -1,7 +1,9 @@
 package com.logistica.doisv.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.ConsumidorDTO;
+import com.logistica.doisv.repositories.VendaRepository;
 import com.logistica.doisv.services.ConsumidorService;
 import com.logistica.doisv.services.validacao.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,10 +62,4 @@ public class ConsumidorController {
         consumidorService.inativar(consumidoresIds, acesso.getIdLoja());
         return ResponseEntity.noContent().build();
     }
-
-    @PostMapping(value = "/login")
-    public ResponseEntity<?> login(){
-        return ResponseEntity.ok("Teste de rota");
-    }
-
 }

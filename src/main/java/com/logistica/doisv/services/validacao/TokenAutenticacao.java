@@ -26,7 +26,7 @@ public class TokenAutenticacao extends OncePerRequestFilter{
     protected void doFilterInternal(HttpServletRequest requisicao, HttpServletResponse resposta, FilterChain filterChain)throws ServletException, IOException {
         String uri = requisicao.getRequestURI();
 
-        if(uri.contains("doisv/login")){
+        if(uri.contains("/login") ){
             filterChain.doFilter(requisicao, resposta);
             return;
         }
@@ -40,9 +40,10 @@ public class TokenAutenticacao extends OncePerRequestFilter{
                 AcessoDTO acesso = tokenService.validarToken(token);
 
                 UsernamePasswordAuthenticationToken autenticacao = new UsernamePasswordAuthenticationToken(acesso, null, null);
-                autenticacao.setDetails(new WebAuthenticationDetailsSource()
-                    .buildDetails(requisicao));
+                autenticacao.setDetails(new WebAuthenticationDetailsSource().buildDetails(requisicao));
+
                 SecurityContextHolder.getContext().setAuthentication(autenticacao);
+
             }catch(Exception e){
                 resposta.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 resposta.getWriter().write("Token inválido ou acesso não autorizado");

@@ -44,8 +44,9 @@ public class LojistaService {
             Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
                 return Jwts.builder()
                         .setSubject(email)
+                        .claim("tipo", "LOJISTA")
                         .claim("idLojista", lojista.getIdLojista())
-                        .claim("nomeLojista",lojista.getNome())
+                        .claim("nome",lojista.getNome())
                         .claim("idLoja", lojista.getLoja().getIdLoja())
                         .signWith(key)
                         .compact();

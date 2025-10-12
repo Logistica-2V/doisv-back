@@ -2,6 +2,8 @@ package com.logistica.doisv.services.validacao;
 
 import java.security.Key;
 
+import com.logistica.doisv.repositories.VendaRepository;
+import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,10 @@ public class TokenService {
     private String secretKey;
 
     @Autowired
-    private LojistaRepository repository;
+    private LojistaRepository lojistaRepository;
+
+    @Autowired
+    private VendaRepository vendaRepository;
 
     public AcessoDTO validarToken(String token){
         
@@ -34,19 +39,43 @@ public class TokenService {
                     .build().parseClaimsJws(token)
                     .getBody();
 
-            AcessoDTO acesso = new AcessoDTO(claims.get("idLojista",Long.class), 
-                claims.get("sub", String.class), 
-                claims.get("nomeLojista",String.class), 
-                claims.get("idLoja", Long.class));
-
-            if (!repository.existsByEmail(acesso.getEmailLojista())) {
-                    throw new SecurityException("Lojista não localizado");
+            String tipo = claims.get("tipo", String.class);
+            if (tipo == null) {
+                throw new SecurityException("Claim 'tipo' não encontrada no token.");
             }
-            
-            return acesso;
+            AcessoDTO.TipoUsuario tipoUsuario = AcessoDTO.TipoUsuario.valueOf(tipo);
+            AcessoDTO.AcessoDTOBuilder builder = AcessoDTO.builder()
+                    .tipo(tipoUsuario)
+                    .subject(claims.getSubject())
+                    .nome(claims.get("nome", String.class))
+                    .idLoja(claims.get("idLoja", Long.class));
+
+            if(tipoUsuario == AcessoDTO.TipoUsuario.LOJISTA){
+                if(!lojistaRepository.existsById(claims.get("idLojista", Long.class))){
+                    throw new ResourceNotFoundException("Lojista do token não localizado");
+                }
+
+                return builder
+                        .idLojista(claims.get("idLojista", Long.class))
+                        .build();
+            }
+            else if(tipoUsuario == AcessoDTO.TipoUsuario.CONSUMIDOR){
+                if(!vendaRepository.existsById(claims.get("idVenda", Long.class))){
+                    throw new ResourceNotFoundException("Venda do token não localizada");
+                }
+
+                return builder
+                        .idConsumidor(claims.get("idConsumidor", Long.class))
+                        .serialVenda(claims.get("serialVenda", String.class))
+                        .idVenda(claims.get("idVenda", Long.class))
+                        .build();
+            }else {
+                throw new ResourceNotFoundException("Tipo de usuário desconhecido no token.");
+            }
+
 
         }catch(Exception e){
-            throw new SecurityException("Token inválido");
+            throw new SecurityException("Token inválido ou experirado");
         }
     }      
 }

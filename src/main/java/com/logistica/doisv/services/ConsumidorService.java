@@ -3,17 +3,24 @@ package com.logistica.doisv.services;
 import com.logistica.doisv.dto.ConsumidorDTO;
 import com.logistica.doisv.entities.Consumidor;
 import com.logistica.doisv.entities.Status;
+import com.logistica.doisv.entities.Venda;
 import com.logistica.doisv.repositories.ConsumidorRepository;
 import com.logistica.doisv.repositories.LojaRepository;
+import com.logistica.doisv.repositories.VendaRepository;
 import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
 import com.logistica.doisv.services.exceptions.DatabaseException;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Key;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,6 +32,34 @@ public class ConsumidorService {
 
     @Autowired
     private LojaRepository lojaRepository;
+
+    @Autowired
+    private VendaRepository vendaRepository;
+
+    @Autowired
+    private PasswordEncoder encoder;
+
+    @Value("${jwt.secret}")
+    private String secretKey;
+
+    @Transactional(readOnly = true)
+    public String login(String serial, String senha){
+        Venda venda = vendaRepository.findBySerialVendaIgnoreCase(serial).orElseThrow(() -> new ResourceNotFoundException("Venda não localizada"));
+        if(venda != null && encoder.matches(senha,venda.getSenha())){
+            Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+            return Jwts.builder()
+                    .setSubject(venda.getConsumidor().getEmail())
+                    .claim("tipo", "CONSUMIDOR")
+                    .claim("idConsumidor", venda.getConsumidor().getIdConsumidor())
+                    .claim("nome", venda.getConsumidor().getNome())
+                    .claim("serialVenda", venda.getSerialVenda())
+                    .claim("idVenda", venda.getId())
+                    .claim("idLoja", venda.getLoja().getIdLoja())
+                    .signWith(key)
+                    .compact();
+        }
+        return null;
+    }
 
     @Transactional(readOnly = true)
     public List<ConsumidorDTO> buscarTodos(Long id){
