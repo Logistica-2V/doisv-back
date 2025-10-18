@@ -57,7 +57,7 @@ public class LojaService {
         try{
             Loja loja = lojaRepository.getReferenceById(id);
             dtoParaEntidade(dto, loja);
-            String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, id, loja.getClass().getSimpleName());
+            String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, id, "Loja");
             loja.setLogo(logoUrl.split("/")[5]);
             loja = lojaRepository.save(loja);
             return new LojaDTO(loja);

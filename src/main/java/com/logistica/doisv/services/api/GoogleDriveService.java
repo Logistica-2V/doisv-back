@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +16,13 @@ import com.logistica.doisv.configuration.GoogleDriveConfig;
 
 @Service
 public class GoogleDriveService {
+
+    private static String appDistribuicao;
+
+    @Value("${app.distribuicao.ativa}")
+    public void setAppDistribuicao(String distribuicao){
+        GoogleDriveService.appDistribuicao = distribuicao;
+    }
    
     public static String salvarArquivoDrive(MultipartFile arquivo, Long idItem, String nomePasta) throws IOException, GeneralSecurityException {
         Drive driveService = GoogleDriveConfig.getDriveService();
@@ -53,9 +61,9 @@ public class GoogleDriveService {
         return arquivoSalvo.getWebViewLink();
     }
 
-    private static String obterOuCriarPasta(Drive driveService, String nomePasta) throws IOException {
+    private static String obterOuCriarPasta(Drive driveService, String nomePastaFilha) throws IOException {
         FileList resultado = driveService.files().list()
-                .setQ("name='"+ nomePasta +"' and mimeType='application/vnd.google-apps.folder' and trashed=false")
+                .setQ("name='"+ nomePastaFilha +"' and '"+ appDistribuicao +"' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false")
                 .setSpaces("drive")
                 .execute();
 
@@ -66,8 +74,10 @@ public class GoogleDriveService {
 
         // Se não existe, cria a pasta
         File pasta = new File();
-        pasta.setName(nomePasta);
+        pasta.setName(nomePastaFilha);
         pasta.setMimeType("application/vnd.google-apps.folder");
+
+        pasta.setParents(Collections.singletonList(appDistribuicao));
 
         File pastaCriada = driveService.files().create(pasta)
                 .setFields("id")
