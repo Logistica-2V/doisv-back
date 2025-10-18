@@ -9,7 +9,7 @@ public record LojistaDTO(Long id, @NotBlank String nome, @NotNull String cpf, @N
                                 String status) {
 
         public LojistaDTO(Lojista lojista){
-            this(lojista.getIdLojista(), lojista.getNome(), lojista.getCpf(), lojista.getEmail(), lojista.getPassword(), lojista.getLoja().getIdLoja(),
+            this(lojista.getIdLojista(), lojista.getNome(), lojista.getCpf(), lojista.getEmail(), "", lojista.getLoja().getIdLoja(),
                         lojista.getStatus().toString());
         }
 }
