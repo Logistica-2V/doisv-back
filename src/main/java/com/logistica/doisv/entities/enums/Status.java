@@ -1,4 +1,4 @@
-package com.logistica.doisv.entities;
+package com.logistica.doisv.entities.enums;
 
 public enum Status {
     ATIVO("Ativo"),

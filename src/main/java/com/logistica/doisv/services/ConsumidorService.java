@@ -2,7 +2,7 @@ package com.logistica.doisv.services;
 
 import com.logistica.doisv.dto.ConsumidorDTO;
 import com.logistica.doisv.entities.Consumidor;
-import com.logistica.doisv.entities.Status;
+import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.entities.Venda;
 import com.logistica.doisv.repositories.ConsumidorRepository;
 import com.logistica.doisv.repositories.LojaRepository;

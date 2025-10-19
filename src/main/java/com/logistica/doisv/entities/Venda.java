@@ -1,9 +1,10 @@
 package com.logistica.doisv.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.logistica.doisv.entities.enums.Status;
+import com.logistica.doisv.entities.enums.StatusPedido;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -13,7 +14,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "tb_Venda")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Venda {
@@ -46,6 +48,10 @@ public class Venda {
 
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ItemVenda> itensVenda = new ArrayList<>();
+
+    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<SolicitacaoTrocaDevolucao> solicitacoes = new ArrayList<>();
 
     public Venda(Loja loja, Consumidor consumidor, String statusPedido, BigDecimal desconto, String formaPagamento, Integer prazoTroca, Integer prazoDevolucao){
         this.loja = loja;

@@ -1,17 +1,17 @@
 package com.logistica.doisv.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.logistica.doisv.entities.enums.Status;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name= "tb_Consumidor", uniqueConstraints = @UniqueConstraint(columnNames = {"idLoja", "cpf_cnpj"}))
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Consumidor {
@@ -39,4 +39,10 @@ public class Consumidor {
     @OneToMany(mappedBy = "consumidor", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Venda> vendas = new ArrayList<>();
+
+    @OneToMany(mappedBy = "consumidor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<SolicitacaoTrocaDevolucao> solicitacoes = new ArrayList<>();
+
+
 }

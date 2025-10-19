@@ -3,7 +3,7 @@ package com.logistica.doisv.services;
 import com.logistica.doisv.dto.LojistaDTO;
 import com.logistica.doisv.entities.Loja;
 import com.logistica.doisv.entities.Lojista;
-import com.logistica.doisv.entities.Status;
+import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.repositories.LojaRepository;
 import com.logistica.doisv.repositories.LojistaRepository;
 import com.logistica.doisv.services.exceptions.DatabaseException;

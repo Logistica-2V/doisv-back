@@ -38,6 +38,12 @@ public class VendaController {
         return ResponseEntity.ok(dto);
     }
 
+    @GetMapping(value = "/me")
+    public ResponseEntity<VendaDTO> buscarVendaPorToken(@RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        return ResponseEntity.ok(service.buscarPorId(acesso.getIdVenda()));
+    }
+
     @PostMapping
     public ResponseEntity<VendaDTO> criarVenda(@RequestBody RegistroVendaDTO dto, @RequestHeader String Authorization) throws MessagingException {
         VendaDTO venda = service.salvar(dto, validarLoja(Authorization));

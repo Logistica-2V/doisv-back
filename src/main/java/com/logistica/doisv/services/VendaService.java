@@ -4,6 +4,8 @@ import com.logistica.doisv.dto.registro_venda.requisicao.ItemDTO;
 import com.logistica.doisv.dto.registro_venda.requisicao.RegistroVendaDTO;
 import com.logistica.doisv.dto.registro_venda.resposta.VendaDTO;
 import com.logistica.doisv.entities.*;
+import com.logistica.doisv.entities.enums.Status;
+import com.logistica.doisv.entities.enums.StatusPedido;
 import com.logistica.doisv.repositories.ConsumidorRepository;
 import com.logistica.doisv.repositories.ProdutoRepository;
 import com.logistica.doisv.repositories.VendaRepository;

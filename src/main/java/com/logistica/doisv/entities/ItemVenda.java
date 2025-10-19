@@ -1,16 +1,19 @@
 package com.logistica.doisv.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.logistica.doisv.entities.enums.Status;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_Item_Venda")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemVenda {
@@ -35,6 +38,10 @@ public class ItemVenda {
     @ManyToOne
     @JoinColumn(name = "idProduto")
     private Produto produto;
+
+    @OneToMany(mappedBy = "itemVenda", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<SolicitacaoTrocaDevolucao> solicitacoes = new ArrayList<>();
 
     public ItemVenda(BigDecimal precoOriginal, BigDecimal precoVendido, Double quantidade, String detalhes, Venda venda, Produto produto){
         this.precoOriginal = precoOriginal;

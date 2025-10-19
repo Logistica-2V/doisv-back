@@ -5,7 +5,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.logistica.doisv.entities.Status;
+import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.services.exceptions.DatabaseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

@@ -1,6 +1,7 @@
 package com.logistica.doisv.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.logistica.doisv.entities.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +12,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tb_Loja")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Loja {

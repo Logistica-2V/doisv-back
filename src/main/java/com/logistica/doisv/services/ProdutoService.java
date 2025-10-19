@@ -2,7 +2,7 @@ package com.logistica.doisv.services;
 
 import com.logistica.doisv.dto.ProdutoDTO;
 import com.logistica.doisv.entities.Produto;
-import com.logistica.doisv.entities.Status;
+import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.repositories.LojaRepository;
 import com.logistica.doisv.repositories.ProdutoRepository;
 import com.logistica.doisv.services.api.GoogleDriveService;
