@@ -2,10 +2,10 @@ package com.logistica.doisv.entities;
 
 import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.entities.enums.StatusSolicitacao;
+import com.logistica.doisv.entities.enums.TipoSolicitacao;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,18 +17,19 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SolicitacaoTrocaDevolucao {
+public class Solicitacao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(EnumType.STRING)
     private TipoSolicitacao tipoSolicitacao;
-    private BigDecimal quantidade;
+    private Double quantidade;
     private String motivo;
     private Instant dataSolicitacao;
     private LocalDateTime dataAtualizacao;
     @Enumerated(EnumType.STRING)
     private StatusSolicitacao statusSolicitacao = StatusSolicitacao.PENDENTE;
+    @Enumerated(EnumType.STRING)
     private Status status = Status.ATIVO;
 
     @ManyToOne
@@ -46,8 +47,5 @@ public class SolicitacaoTrocaDevolucao {
     @OneToMany(mappedBy = "solicitacao")
     private List<AnexoSolicitacao> anexos = new ArrayList<>();
 
-    public enum TipoSolicitacao{
-        TROCA,
-        DEVOLUCAO;
-    }
+
 }

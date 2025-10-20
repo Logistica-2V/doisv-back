@@ -2,7 +2,7 @@ package com.logistica.doisv.entities.enums;
 
 public enum Status {
     ATIVO("Ativo"),
-    INATVO("Inativo");
+    INATIVO("Inativo");
 
     private String statusItem;
 

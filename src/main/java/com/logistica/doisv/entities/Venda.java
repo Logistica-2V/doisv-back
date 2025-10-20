@@ -51,7 +51,7 @@ public class Venda {
 
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<SolicitacaoTrocaDevolucao> solicitacoes = new ArrayList<>();
+    private List<Solicitacao> solicitacoes = new ArrayList<>();
 
     public Venda(Loja loja, Consumidor consumidor, String statusPedido, BigDecimal desconto, String formaPagamento, Integer prazoTroca, Integer prazoDevolucao){
         this.loja = loja;

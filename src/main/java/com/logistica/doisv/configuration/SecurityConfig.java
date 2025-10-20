@@ -29,6 +29,7 @@ public class SecurityConfig {
                         .requestMatchers("/doisv/login", "/doisv/consumidores/login", "/h2-console/**", "/swagger-ui/**", "swagger-ui.html",
                                 "v3/api-docs/**","swagger-resources/**").permitAll()
                         .requestMatchers("/doisv/vendas/me").hasRole("CONSUMIDOR")
+                        .requestMatchers("/doisv/solicitacoes/criar").hasRole("CONSUMIDOR")
                         .requestMatchers("/doisv/produtos/**").hasRole("LOJISTA")
                         .requestMatchers("/doisv/consumidores/**").hasRole("LOJISTA")
                         .requestMatchers("/doisv/lojas/**").hasRole("LOJISTA")

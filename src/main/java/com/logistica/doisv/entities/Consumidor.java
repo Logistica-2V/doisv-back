@@ -42,7 +42,7 @@ public class Consumidor {
 
     @OneToMany(mappedBy = "consumidor", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<SolicitacaoTrocaDevolucao> solicitacoes = new ArrayList<>();
+    private List<Solicitacao> solicitacoes = new ArrayList<>();
 
 
 }

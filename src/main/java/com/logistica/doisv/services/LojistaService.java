@@ -119,7 +119,7 @@ public class LojistaService {
     @Transactional
     public void inativar(List<Long> lojitasIds){
         var lojistas = lojistaRepository.findAllById(lojitasIds);
-        lojistas.forEach(l -> l.setStatus(Status.INATVO));
+        lojistas.forEach(l -> l.setStatus(Status.INATIVO));
         lojistaRepository.saveAll(lojistas);
     }
 

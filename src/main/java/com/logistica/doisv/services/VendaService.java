@@ -119,7 +119,7 @@ public class VendaService {
         if(vendas.stream().anyMatch(v -> !v.getLoja().getIdLoja().equals(idLoja))){
             throw new AssociacaoInvalidaException("Você não tem permissão para editar um ou mais produtos desta lista.");
         }
-        vendas.forEach(v -> v.setStatus(Status.INATVO));
+        vendas.forEach(v -> v.setStatus(Status.INATIVO));
         repository.saveAll(vendas);
     }
 
@@ -133,7 +133,7 @@ public class VendaService {
         else if(venda.getStatusPedido() == StatusPedido.CANCELADA){
             venda.setSerialVenda(null);
             venda.setSenha(null);
-            venda.setStatus(Status.INATVO);
+            venda.setStatus(Status.INATIVO);
         }
     }
 

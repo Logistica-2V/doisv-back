@@ -20,5 +20,5 @@ public class AnexoSolicitacao {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idSolicitacao", nullable = false)
-    private SolicitacaoTrocaDevolucao solicitacao;
+    private Solicitacao solicitacao;
 }

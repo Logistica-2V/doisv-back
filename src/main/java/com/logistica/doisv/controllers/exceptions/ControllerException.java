@@ -3,6 +3,7 @@ package com.logistica.doisv.controllers.exceptions;
 import com.logistica.doisv.dto.ErroCustomizado;
 import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
 import com.logistica.doisv.services.exceptions.EdicaoNaoPermitidaException;
+import com.logistica.doisv.services.exceptions.RegraNegocioException;
 import jakarta.mail.MessagingException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -93,6 +94,12 @@ public class ControllerException {
     public ResponseEntity<?> ErroAoEnviarEmail (MessagingException e, HttpServletRequest requisicao){
         ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.CONFLICT.value(), e.getMessage(), requisicao.getRequestURI());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
+    }
+
+    @ExceptionHandler(RegraNegocioException.class)
+    public ResponseEntity<?> ErroNaRegraDeNegocio (RegraNegocioException e, HttpServletRequest requisicao){
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.CONFLICT.value(), e.getMessage(), requisicao.getRequestURI());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(erro);
     }
 
 }

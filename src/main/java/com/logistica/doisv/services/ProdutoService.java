@@ -85,7 +85,7 @@ public class ProdutoService {
         if (produtos.stream().anyMatch(p -> !p.getLoja().getIdLoja().equals(idLoja))){
             throw new AssociacaoInvalidaException("Você não tem permissão para editar um ou mais produtos desta lista.");
         }
-        produtos.forEach(p -> p.setStatus(Status.INATVO));
+        produtos.forEach(p -> p.setStatus(Status.INATIVO));
         repository.saveAll(produtos);
     }
 

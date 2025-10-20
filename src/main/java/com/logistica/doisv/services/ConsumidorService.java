@@ -119,7 +119,7 @@ public class ConsumidorService {
         if(consumidores.stream().anyMatch(c -> !c.getLoja().getIdLoja().equals(idLoja))){
             throw new AssociacaoInvalidaException("Você não tem permissão para editar um ou mais consumidores desta lista.");
         }
-        consumidores.forEach(c -> c.setStatus(Status.INATVO));
+        consumidores.forEach(c -> c.setStatus(Status.INATIVO));
         repository.saveAll(consumidores);
     }
 

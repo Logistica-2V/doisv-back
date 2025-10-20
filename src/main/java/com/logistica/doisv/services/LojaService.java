@@ -81,7 +81,7 @@ public class LojaService {
     @Transactional
     public void inativar(Long id){
         Loja loja = lojaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrada"));
-        loja.setStatus(Status.INATVO);
+        loja.setStatus(Status.INATIVO);
         lojaRepository.save(loja);
     }
 

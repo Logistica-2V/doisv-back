@@ -41,7 +41,7 @@ public class ItemVenda {
 
     @OneToMany(mappedBy = "itemVenda", fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<SolicitacaoTrocaDevolucao> solicitacoes = new ArrayList<>();
+    private List<Solicitacao> solicitacoes = new ArrayList<>();
 
     public ItemVenda(BigDecimal precoOriginal, BigDecimal precoVendido, Double quantidade, String detalhes, Venda venda, Produto produto){
         this.precoOriginal = precoOriginal;
