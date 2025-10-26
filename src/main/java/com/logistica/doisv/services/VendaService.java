@@ -56,9 +56,12 @@ public class VendaService {
     }
 
     @Transactional(readOnly = true)
-    public VendaDTO buscarPorId(Long id){
+    public VendaDTO buscarPorId(Long id, Long idLoja){
         Venda venda = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada"));
-        return new VendaDTO(venda);
+        if (venda.getLoja().getIdLoja().equals(idLoja)) {
+            return new VendaDTO(venda);
+        }
+        throw new AssociacaoInvalidaException("Não foi possível buscar a venda com esse ID");
     }
 
     @Transactional

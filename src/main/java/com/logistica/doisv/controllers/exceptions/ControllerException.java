@@ -4,20 +4,18 @@ import com.logistica.doisv.dto.ErroCustomizado;
 import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
 import com.logistica.doisv.services.exceptions.EdicaoNaoPermitidaException;
 import com.logistica.doisv.services.exceptions.RegraNegocioException;
+import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingMatrixVariableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
-
-import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -57,7 +55,7 @@ public class ControllerException {
 
     //Requisição sem os parametros esperados -> 400
     @ExceptionHandler(MissingServletRequestPartException.class)
-    public ResponseEntity<?> RequisicaoSemParametro(MissingMatrixVariableException e, HttpServletRequest requisicao) {
+    public ResponseEntity<?> RequisicaoSemParametro(MissingServletRequestPartException e, HttpServletRequest requisicao) {
         ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.BAD_REQUEST.value(), e.getMessage(), requisicao.getRequestURI());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
@@ -102,4 +100,21 @@ public class ControllerException {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(erro);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> ErroArgumento (IllegalArgumentException e, HttpServletRequest requisicao){
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.CONFLICT.value(), e.getMessage(), requisicao.getRequestURI());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(erro);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<?> ErroParteRequisicaoFaltando (IllegalStateException e, HttpServletRequest requisicao){
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.CONFLICT.value(), e.getMessage(), requisicao.getRequestURI());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(erro);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<?> ErroDeTipoInvalido(MethodArgumentTypeMismatchException e, HttpServletRequest requisicao){
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.CONFLICT.value(), e.getMessage(), requisicao.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
 }

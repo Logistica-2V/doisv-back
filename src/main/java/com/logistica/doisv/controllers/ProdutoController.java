@@ -29,8 +29,9 @@ public class ProdutoController {
     private TokenService tokenService;
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ProdutoDTO> buscarProdutoPorId(@PathVariable Long id) {
-        ProdutoDTO dto = service.buscarPorId(id);
+    public ResponseEntity<ProdutoDTO> buscarProdutoPorId(@PathVariable Long id, @RequestHeader String Authorization) {
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        ProdutoDTO dto = service.buscarPorId(id, acesso.getIdLoja());
         return ResponseEntity.ok(dto);
     }
 

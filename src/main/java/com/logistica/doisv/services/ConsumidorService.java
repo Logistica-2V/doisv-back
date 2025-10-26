@@ -1,6 +1,7 @@
 package com.logistica.doisv.services;
 
 import com.logistica.doisv.dto.ConsumidorDTO;
+import com.logistica.doisv.dto.ConsumidorLoginDTO;
 import com.logistica.doisv.entities.Consumidor;
 import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.entities.Venda;
@@ -15,7 +16,6 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,9 +47,9 @@ public class ConsumidorService {
     private long validadeToken;
 
     @Transactional(readOnly = true)
-    public String login(String serial, String senha){
-        Venda venda = vendaRepository.findBySerialVendaIgnoreCase(serial).orElseThrow(() -> new ResourceNotFoundException("Venda não localizada"));
-        if(venda != null && encoder.matches(senha,venda.getSenha())){
+    public String login(ConsumidorLoginDTO dto){
+        Venda venda = vendaRepository.findBySerialVendaIgnoreCase(dto.serial()).orElseThrow(() -> new ResourceNotFoundException("Venda não localizada"));
+        if(venda != null && encoder.matches(dto.senha(),venda.getSenha())){
             Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
             Date dataCriacao = new Date();
@@ -77,9 +77,12 @@ public class ConsumidorService {
     }
 
     @Transactional(readOnly=true)
-    public ConsumidorDTO buscarPorId(Long id){
-        Optional<Consumidor> resultado = repository.findById(id);
-        return new ConsumidorDTO(resultado.orElseThrow(() -> new ResourceNotFoundException("Recurso não encontrado")));
+    public ConsumidorDTO buscarPorId(Long id, Long idLoja){
+        Consumidor consumidor = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Consumidor não encontrado"));
+        if (!consumidor.getLoja().getIdLoja().equals(idLoja)){
+            throw new AssociacaoInvalidaException("Você não tem permissão para buscar esse consumidor");
+        }
+        return new ConsumidorDTO(consumidor);
     }
 
     @Transactional
@@ -94,7 +97,7 @@ public class ConsumidorService {
     public ConsumidorDTO atualizar(ConsumidorDTO dto, Long id, Long idLoja){
         Consumidor consumidor = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Consumidor não encontrado"));
         if(!consumidor.getLoja().getIdLoja().equals(idLoja)){
-            throw new AccessDeniedException("Você não tem permissão para editar esse produto");
+            throw new AssociacaoInvalidaException("Você não tem permissão para editar esse consumidor");
         }
         dtoParaEntidade(dto, consumidor);
         return new ConsumidorDTO(repository.save(consumidor));
@@ -103,7 +106,7 @@ public class ConsumidorService {
     @Transactional
     public void remover(Long id, Long idLoja){
         if(!repository.existsById(id)){
-            throw new ResourceNotFoundException("Recurso não encontrado");
+            throw new ResourceNotFoundException("Consumidor não encontrado");
         }
         try {
             validarLojaConsumidor(idLoja, repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Consumidor não encontrado")));
@@ -115,10 +118,16 @@ public class ConsumidorService {
 
     @Transactional
     public void inativar(List<Long> ids, Long idLoja){
+        if(ids.isEmpty()) {
+            throw new IllegalStateException("Lista de ids vazia");
+        }
+
         List<Consumidor> consumidores = repository.findAllById(ids);
-        if(consumidores.stream().anyMatch(c -> !c.getLoja().getIdLoja().equals(idLoja))){
+
+        if (consumidores.stream().anyMatch(c -> !c.getLoja().getIdLoja().equals(idLoja))) {
             throw new AssociacaoInvalidaException("Você não tem permissão para editar um ou mais consumidores desta lista.");
         }
+
         consumidores.forEach(c -> c.setStatus(Status.INATIVO));
         repository.saveAll(consumidores);
     }
@@ -137,7 +146,7 @@ public class ConsumidorService {
 
     private void validarLojaConsumidor(Long idLoja, Consumidor consumidor){
         if(!consumidor.getLoja().getIdLoja().equals(idLoja)) {
-            throw new AssociacaoInvalidaException("Você não tem permissão para editar esse produto");
+            throw new AssociacaoInvalidaException("Você não tem permissão para editar esse consumido");
         }
     }
 }

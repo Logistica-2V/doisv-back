@@ -44,7 +44,7 @@ public class LojaService {
     public LojaDTO salvar(LojaDTO dto, MultipartFile logo) throws IOException, GeneralSecurityException {
         Loja loja = new Loja();
         dtoParaEntidade(dto, loja);
-        if(logo.getContentType() != null){
+        if(logo != null && logo.getContentType() != null){
             lojaRepository.save(loja);
             String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, loja.getIdLoja(), loja.getClass().getSimpleName());
             loja.setLogo(logoUrl.split("/")[5]);
@@ -55,14 +55,16 @@ public class LojaService {
     @Transactional
     public LojaDTO atualizar(Long id, LojaDTO dto, MultipartFile logo) throws IOException, GeneralSecurityException{
         try{
-            Loja loja = lojaRepository.getReferenceById(id);
+            Loja loja = lojaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrado"));
             dtoParaEntidade(dto, loja);
-            String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, id, "Loja");
-            loja.setLogo(logoUrl.split("/")[5]);
+            if(logo != null && logo.getContentType() != null){
+                String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, id, "Loja");
+                loja.setLogo(logoUrl.split("/")[5]);
+            }
             loja = lojaRepository.save(loja);
             return new LojaDTO(loja);
         }catch (EntityNotFoundException e){
-            throw new ResourceNotFoundException("Produto não encontrado");
+            throw new ResourceNotFoundException("Loja não encontrado");
         }
     }
 
@@ -89,7 +91,6 @@ public class LojaService {
         loja.setNome(dto.nome());
         loja.setEmail(dto.email());
         loja.setCnpj(dto.cnpj());
-        loja.setLogo(dto.logo());
         loja.setSegmento(dto.segmento());
         if(dto.status() != null && !dto.status().isBlank()) {
             loja.setStatus(Status.converterParaString(dto.status()));

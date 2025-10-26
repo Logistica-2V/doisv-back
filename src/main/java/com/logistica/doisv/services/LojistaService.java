@@ -7,6 +7,7 @@ import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.repositories.LojaRepository;
 import com.logistica.doisv.repositories.LojistaRepository;
 import com.logistica.doisv.services.exceptions.DatabaseException;
+import com.logistica.doisv.services.exceptions.RegraNegocioException;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -63,6 +64,7 @@ public class LojistaService {
         }
         return null;
     }
+
     @Transactional(readOnly = true)
     public LojistaDTO buscarPorId(Long id){
         return lojistaRepository.findById(id)
@@ -118,6 +120,10 @@ public class LojistaService {
 
     @Transactional
     public void inativar(List<Long> lojitasIds){
+        if(lojitasIds.isEmpty() || lojitasIds.contains(null)){
+            throw new RegraNegocioException("Lista de lojistas vazia ou contém valor nulo");
+        }
+
         var lojistas = lojistaRepository.findAllById(lojitasIds);
         lojistas.forEach(l -> l.setStatus(Status.INATIVO));
         lojistaRepository.saveAll(lojistas);

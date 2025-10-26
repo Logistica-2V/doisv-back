@@ -36,9 +36,12 @@ public class ProdutoService {
     }
 
     @Transactional(readOnly = true)
-    public ProdutoDTO buscarPorId(Long id){
+    public ProdutoDTO buscarPorId(Long id, Long idLoja){
         Produto produto = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
-        return new ProdutoDTO(produto);
+        if(produto.getLoja().getIdLoja().equals(idLoja)) {
+            return new ProdutoDTO(produto);
+        }
+        throw new AssociacaoInvalidaException("Você não pode buscar o produto com esse ID");
     }
 
     @Transactional
@@ -60,8 +63,10 @@ public class ProdutoService {
         Produto produto = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
         validarLojaProduto(idLoja, produto);
         dtoParaEntidade(dto, produto);
-        String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto(), produto.getClass().getSimpleName());
-        produto.setImagem(url.split("/")[5]);
+        if(imagem.getContentType() != null) {
+            String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto(), produto.getClass().getSimpleName());
+            produto.setImagem(url.split("/")[5]);
+        }
         produto = repository.save(produto);
         return new ProdutoDTO(produto);
     }
@@ -94,7 +99,6 @@ public class ProdutoService {
         produto.setDescricao(dto.descricao());
         produto.setUnidadeMedida(dto.unidadeMedida());
         produto.setPreco(dto.preco());
-        produto.setImagem(dto.imagem());
         if (dto.status() != null && !dto.status().isBlank()){
             produto.setStatus(Status.converterParaString(dto.status()));
         }

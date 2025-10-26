@@ -6,6 +6,7 @@ import com.logistica.doisv.dto.registro_venda.resposta.VendaDTO;
 import com.logistica.doisv.services.VendaService;
 import com.logistica.doisv.services.validacao.TokenService;
 import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,26 +34,27 @@ public class VendaController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<VendaDTO> buscarVendaPorId(@PathVariable Long id){
-        VendaDTO dto = service.buscarPorId(id);
+    public ResponseEntity<VendaDTO> buscarVendaPorId(@PathVariable Long id, @RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        VendaDTO dto = service.buscarPorId(id, acesso.getIdLoja());
         return ResponseEntity.ok(dto);
     }
 
     @GetMapping(value = "/me")
     public ResponseEntity<VendaDTO> buscarVendaPorToken(@RequestHeader String Authorization){
         AcessoDTO acesso = tokenService.validarToken(Authorization);
-        return ResponseEntity.ok(service.buscarPorId(acesso.getIdVenda()));
+        return ResponseEntity.ok(service.buscarPorId(acesso.getIdVenda(), acesso.getIdLoja()));
     }
 
     @PostMapping
-    public ResponseEntity<VendaDTO> criarVenda(@RequestBody RegistroVendaDTO dto, @RequestHeader String Authorization) throws MessagingException {
+    public ResponseEntity<VendaDTO> criarVenda(@Valid @RequestBody RegistroVendaDTO dto, @RequestHeader String Authorization) throws MessagingException {
         VendaDTO venda = service.salvar(dto, validarLoja(Authorization));
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(venda.idVenda()).toUri();
         return ResponseEntity.created(uri).body(venda);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<VendaDTO> atualizarVenda(@PathVariable Long id, @RequestBody RegistroVendaDTO dto, @RequestHeader String Authorization) throws MessagingException {
+    public ResponseEntity<VendaDTO> atualizarVenda(@PathVariable Long id, @Valid @RequestBody RegistroVendaDTO dto, @RequestHeader String Authorization) throws MessagingException {
         VendaDTO venda = service.atualizar(id, dto, validarLoja(Authorization));
         return ResponseEntity.ok(venda);
     }

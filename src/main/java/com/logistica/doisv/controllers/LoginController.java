@@ -1,6 +1,7 @@
 package com.logistica.doisv.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.logistica.doisv.dto.ConsumidorLoginDTO;
 import com.logistica.doisv.dto.LoginDTO;
 import com.logistica.doisv.dto.LoginResponse;
 import com.logistica.doisv.services.ConsumidorService;
@@ -35,8 +36,8 @@ public class LoginController {
     }
 
     @PostMapping(value = "/consumidores/login")
-    public ResponseEntity<?> loginConsumidor(@RequestBody JsonNode consumidorLogin){
-        String token = consumidorService.login(consumidorLogin.get("serial").asText(), consumidorLogin.get("senha").asText());
+    public ResponseEntity<?> loginConsumidor(@Valid @RequestBody ConsumidorLoginDTO dto){
+        String token = consumidorService.login(dto);
         if(token != null){
             return ResponseEntity.ok(new LoginResponse(token));
         }
