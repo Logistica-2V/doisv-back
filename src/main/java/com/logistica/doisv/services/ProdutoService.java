@@ -52,7 +52,7 @@ public class ProdutoService {
 
         if(imagem.getContentType() != null){
             repository.save(produto);
-            String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto(), produto.getClass().getSimpleName());
+            String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto().toString(), produto.getClass().getSimpleName());
             produto.setImagem(url.split("/")[5]);
         }
         return new ProdutoDTO(repository.save(produto));
@@ -64,7 +64,7 @@ public class ProdutoService {
         validarLojaProduto(idLoja, produto);
         dtoParaEntidade(dto, produto);
         if(imagem.getContentType() != null) {
-            String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto(), produto.getClass().getSimpleName());
+            String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto().toString(), produto.getClass().getSimpleName());
             produto.setImagem(url.split("/")[5]);
         }
         produto = repository.save(produto);

@@ -1,18 +1,17 @@
 package com.logistica.doisv.services.api;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.logistica.doisv.configuration.GoogleDriveConfig;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
 
 @Service
 public class GoogleDriveService {
@@ -24,14 +23,14 @@ public class GoogleDriveService {
         GoogleDriveService.appDistribuicao = distribuicao;
     }
    
-    public static String salvarArquivoDrive(MultipartFile arquivo, Long idItem, String nomePasta) throws IOException, GeneralSecurityException {
+    public static String salvarArquivoDrive(MultipartFile arquivo, String idItem, String nomePasta) throws IOException, GeneralSecurityException {
         Drive driveService = GoogleDriveConfig.getDriveService();
 
         //Obtém o ID da pasta desejada a cada chamada, em vez de usar uma variável estática.
         String idPasta = obterOuCriarPasta(driveService, nomePasta);
 
         //Busca o arquivo passando o ID da pasta correta como parâmetro.
-        String arquivoExistenteId = buscarArquivoPorNome(driveService, idItem.toString(), idPasta);
+        String arquivoExistenteId = buscarArquivoPorNome(driveService, idItem, idPasta);
 
         // Metadados do arquivo
         File metadadosArquivo = new File();

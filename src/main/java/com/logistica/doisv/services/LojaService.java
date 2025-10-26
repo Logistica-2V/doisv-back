@@ -46,7 +46,7 @@ public class LojaService {
         dtoParaEntidade(dto, loja);
         if(logo != null && logo.getContentType() != null){
             lojaRepository.save(loja);
-            String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, loja.getIdLoja(), loja.getClass().getSimpleName());
+            String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, loja.getIdLoja().toString(), loja.getClass().getSimpleName());
             loja.setLogo(logoUrl.split("/")[5]);
         }
         return new LojaDTO(lojaRepository.save(loja));
@@ -58,7 +58,7 @@ public class LojaService {
             Loja loja = lojaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrado"));
             dtoParaEntidade(dto, loja);
             if(logo != null && logo.getContentType() != null){
-                String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, id, "Loja");
+                String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, id.toString(), "Loja");
                 loja.setLogo(logoUrl.split("/")[5]);
             }
             loja = lojaRepository.save(loja);

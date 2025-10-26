@@ -44,8 +44,7 @@ public class Solicitacao {
     @JoinColumn(name = "idItemVenda", nullable = false)
     private ItemVenda itemVenda;
 
-    @OneToMany(mappedBy = "solicitacao")
+    @OneToMany(mappedBy = "solicitacao",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<AnexoSolicitacao> anexos = new ArrayList<>();
-
 
 }

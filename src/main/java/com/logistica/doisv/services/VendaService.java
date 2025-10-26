@@ -113,7 +113,7 @@ public class VendaService {
         if(venda.getStatusPedido().equals(StatusPedido.ENTREGUE)){
             emailService.enviarEmailAcessoConsumidor(venda);
         }
-        return  vendaDTO;
+        return vendaDTO;
     }
 
     @Transactional
