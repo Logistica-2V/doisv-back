@@ -47,4 +47,7 @@ public class Solicitacao {
     @OneToMany(mappedBy = "solicitacao",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<AnexoSolicitacao> anexos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "solicitacao",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<HistoricoSolicitacao> historicos = new ArrayList<>();
+
 }

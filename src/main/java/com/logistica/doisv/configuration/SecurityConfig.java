@@ -28,6 +28,8 @@ public class SecurityConfig {
                                 "v3/api-docs/**","swagger-resources/**").permitAll()
                         .requestMatchers("/doisv/vendas/me").hasRole("CONSUMIDOR")
                         .requestMatchers("/doisv/solicitacoes/criar").hasRole("CONSUMIDOR")
+                        .requestMatchers("/doisv/solicitacoes/aprovar/{id}").hasRole("LOJISTA")
+                        .requestMatchers("/doisv/solicitacoes/reprovar/{id}").hasRole("LOJISTA")
                         .requestMatchers("/doisv/produtos/**").hasRole("LOJISTA")
                         .requestMatchers("/doisv/consumidores/**").hasRole("LOJISTA")
                         .requestMatchers("/doisv/lojas/**").hasRole("LOJISTA")

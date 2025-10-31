@@ -25,7 +25,7 @@ public class SolicitacaoController {
     @Autowired
     private SolicitacaoService service;
 
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/criar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> criarSolicitacao(@Valid @RequestPart("solicitacao") CriarSolicitacaoDTO dto, @RequestPart("anexos") List<MultipartFile> anexos,
                                               @RequestHeader String Authorization) throws GeneralSecurityException, IOException {
         AcessoDTO acesso = tokenService.validarToken(Authorization);
@@ -33,4 +33,21 @@ public class SolicitacaoController {
 
         return ResponseEntity.ok("Solicitação de " + dto.tipo() + " realizada com sucesso!");
     }
+
+    @PutMapping(value = "/aprovar/{id}")
+    public ResponseEntity<?> aprovarSolicitacao(@PathVariable Long id, @RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        service.aprovarSolicitacao(id, acesso.getIdLoja());
+
+        return ResponseEntity.ok("Solicitação ID " + id + " aprovada com sucesso!");
+    }
+
+    @PutMapping(value = "/reprovar/{id}")
+    public ResponseEntity<?> reprovarSolicitacao(@PathVariable Long id, @RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        service.reprovarSolicitacao(id, acesso.getIdLoja());
+
+        return ResponseEntity.ok("Solicitação ID " + id + " reprovada!");
+    }
+
 }
