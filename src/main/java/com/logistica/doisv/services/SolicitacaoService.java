@@ -19,6 +19,8 @@ import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -51,7 +53,7 @@ public class SolicitacaoService {
         Solicitacao solicitacao = construirSolicitacao(dto, venda, itemVenda, tipoSolicitacao);
         solicitacao = repository.save(solicitacao);
 
-        processarAnexos(anexos, solicitacao);
+        processarAnexos(anexos, solicitacao.getId());
     }
 
     @Transactional
@@ -107,6 +109,28 @@ public class SolicitacaoService {
         repository.save(solicitacao);
     }
 
+    @Transactional
+    public void editarSolicitacao(Long id, CriarSolicitacaoDTO dto, List<MultipartFile> anexos, Long idLoja) throws GeneralSecurityException, IOException {
+        Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
+
+        validarAprovacaoSolicitacao(solicitacao, idLoja);
+        validarStatusVenda(solicitacao.getVenda(), solicitacao.getTipoSolicitacao().getDescricao().toLowerCase());
+        validarPrazoSolicitacao(solicitacao.getVenda(), solicitacao.getTipoSolicitacao());
+        validarQuantidade(dto.quantidade(), solicitacao.getQuantidade(), solicitacao.getTipoSolicitacao().getDescricao().toLowerCase());
+
+        TipoSolicitacao tipoSolicitacao = TipoSolicitacao.deString(dto.tipo());
+
+        ItemVenda itemVenda = buscarItemVendaPorId(dto.idItem(), solicitacao.getVenda().getItensVenda());
+
+        solicitacao.setItemVenda(itemVenda);
+        solicitacao.setQuantidade(dto.quantidade());
+        solicitacao.setTipoSolicitacao(tipoSolicitacao);
+        solicitacao.setMotivo(dto.motivo());
+
+        solicitacao = repository.save(solicitacao);
+
+        processarAnexos(anexos, solicitacao.getId());
+    }
 
 
 
@@ -130,7 +154,7 @@ public class SolicitacaoService {
 
     private void validarQuantidade(Double quantidadeSolicitada, Double quantidadeComprada, String tipo) {
         if (quantidadeSolicitada > quantidadeComprada) {
-            throw new RegraNegocioException(String.format("A quantidade selecionada para %s é maior que a quantidade comprada", tipo));
+            throw new RegraNegocioException(String.format("A quantidade selecionada para %s é maior que a quantidade comprada", tipo.toLowerCase()));
         }
     }
 
@@ -143,7 +167,9 @@ public class SolicitacaoService {
             throw new AssociacaoInvalidaException("Você não tem permissão para alterar essa solicitação.");
         }
         else if (validarStatusSolicitacao || validarStatus){
-            throw new RegraNegocioException(String.format("A solicitação ID %s não pode mais ser aprovada", solicitacao.getId()));
+            throw new RegraNegocioException(String.format("A solicitação  de %s ,ID %s não pode mais ser aprovada",
+                    solicitacao.getTipoSolicitacao().getDescricao().toLowerCase(),
+                    solicitacao.getId()));
         }
     }
 
@@ -154,22 +180,33 @@ public class SolicitacaoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Item não encontrado"));
     }
 
-    private void processarAnexos(List<MultipartFile> anexos, Solicitacao solicitacao) throws GeneralSecurityException, IOException {
-        if (anexos != null && !anexos.isEmpty()) {
-            List<ArquivoDTO> arquivos = anexos.stream()
-                    .filter(file -> file != null && !file.isEmpty())
-                    .map(file -> {
-                        try {
-                            return new ArquivoDTO(file.getBytes(), file.getOriginalFilename(), file.getContentType());
-                        } catch (IOException e) {
-                            throw new RuntimeException("Erro ao ler arquivo: " + file.getOriginalFilename());
-                        }
-                    })
-                    .toList();
+    private void processarAnexos(List<MultipartFile> anexos, Long idSolicitacao) throws GeneralSecurityException, IOException {
+        if (anexos == null || anexos.isEmpty()) {
+            return;
+        }
 
-            if (!arquivos.isEmpty()) {
-                anexoService.processarUploadAnexos(arquivos, solicitacao);
-            }
+        List<ArquivoDTO> arquivos = anexos.stream()
+                .filter(file -> file != null && !file.isEmpty())
+                .map(file -> {
+                    try {
+                        return new ArquivoDTO(file.getBytes(), file.getOriginalFilename(), file.getContentType());
+                    } catch (IOException e) {
+                        throw new RuntimeException("Erro ao ler arquivo: " + file.getOriginalFilename(), e);
+                    }
+                })
+                .toList();
+
+        if (!arquivos.isEmpty()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    try {
+                        anexoService.processarUploadAnexos(arquivos, idSolicitacao);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Erro ao processar anexos: " + e.getMessage(), e);
+                    }
+                }
+            });
         }
     }
 

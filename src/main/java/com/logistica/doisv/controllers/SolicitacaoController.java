@@ -50,4 +50,13 @@ public class SolicitacaoController {
         return ResponseEntity.ok("Solicitação ID " + id + " reprovada!");
     }
 
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<?> editarSolicitacao(@PathVariable Long id,@RequestPart("solicitacao") CriarSolicitacaoDTO dto,
+                                               @RequestPart("anexos") List<MultipartFile> anexos, @RequestHeader String Authorization) throws GeneralSecurityException, IOException {
+        AcessoDTO acessoDTO = tokenService.validarToken(Authorization);
+        service.editarSolicitacao(id, dto, anexos, acessoDTO.getIdLoja());
+
+        return ResponseEntity.ok("Solicitação ID " + id + " editada!");
+    }
+
 }

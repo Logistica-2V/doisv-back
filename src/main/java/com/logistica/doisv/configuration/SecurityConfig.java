@@ -4,6 +4,7 @@ import com.logistica.doisv.services.validacao.TokenAutenticacao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,6 +28,7 @@ public class SecurityConfig {
                         .requestMatchers("/doisv/login", "/doisv/consumidores/login", "/h2-console/**", "/swagger-ui/**", "swagger-ui.html",
                                 "v3/api-docs/**","swagger-resources/**").permitAll()
                         .requestMatchers("/doisv/vendas/me").hasRole("CONSUMIDOR")
+                        .requestMatchers(HttpMethod.PUT,"/doisv/solicitacoes/{id}").hasRole("CONSUMIDOR")
                         .requestMatchers("/doisv/solicitacoes/criar").hasRole("CONSUMIDOR")
                         .requestMatchers("/doisv/solicitacoes/aprovar/{id}").hasRole("LOJISTA")
                         .requestMatchers("/doisv/solicitacoes/reprovar/{id}").hasRole("LOJISTA")
