@@ -2,6 +2,7 @@ package com.logistica.doisv.controllers;
 
 import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.CriarSolicitacaoDTO;
+import com.logistica.doisv.dto.HistoricoSolicitacaoDTO;
 import com.logistica.doisv.services.SolicitacaoService;
 import com.logistica.doisv.services.validacao.TokenService;
 import jakarta.validation.Valid;
@@ -32,6 +33,17 @@ public class SolicitacaoController {
         service.registrarSolicitacao(dto, anexos ,acesso.getIdVenda());
 
         return ResponseEntity.ok("Solicitação de " + dto.tipo() + " realizada com sucesso!");
+    }
+
+    @PostMapping(value = "/atualizar/{id}")
+    public ResponseEntity<?> atualizarSolicitacao(@PathVariable Long id,
+                                                  @Valid @RequestPart("historico") HistoricoSolicitacaoDTO dto,
+                                                  @RequestPart(value = "idsNovosProdutos", required = false) List<Long> idsNovosProdutos,
+                                                  @RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        service.atualizarSolicitacao(id, dto, acesso.getIdLoja(), idsNovosProdutos);
+
+        return ResponseEntity.ok("Solicitação atualizada!");
     }
 
     @PutMapping(value = "/aprovar/{id}")

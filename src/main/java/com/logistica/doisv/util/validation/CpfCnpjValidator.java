@@ -57,15 +57,15 @@ public class CpfCnpjValidator implements ConstraintValidator<CpfCnpj, String> {
         for (int i = 0; i < 12; i++) {
             soma1 += digitos[i] * pesos1[i];
         }
-        int digitoVerificador1 = 11 - (soma1 % 11);
-        digitoVerificador1 = (digitoVerificador1 < 2) ? 0 : digitoVerificador1;
+        int resto1 = soma1 % 11;
+        int digitoVerificador1 = (resto1 < 2) ? 0 : (11 - resto1);
 
         int soma2 = 0;
         for (int i = 0; i < 13; i++) {
             soma2 += digitos[i] * pesos2[i];
         }
-        int digitoVerificador2 = 11 - (soma2 % 11);
-        digitoVerificador2 = (digitoVerificador2 < 2) ? 0 : digitoVerificador2;
+        int resto2 = soma2 % 11;
+        int digitoVerificador2 = (resto2 < 2) ? 0 : (11 - resto2);
 
         return digitos[12] == digitoVerificador1 && digitos[13] == digitoVerificador2;
     }

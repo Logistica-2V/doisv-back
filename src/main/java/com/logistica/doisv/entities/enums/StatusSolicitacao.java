@@ -1,10 +1,24 @@
 package com.logistica.doisv.entities.enums;
 
 public enum StatusSolicitacao {
-    PENDENTE,
-    APROVADO,
-    REJEITADO,
-    EM_ANDAMENTO,
-    EM_TRANSITO,
-    CONCLUIDO;
+    PENDENTE("Pendente"),
+    APROVADA("Aprovada"),
+    REJEITADA("Rejeitada"),
+    CANCELADA("Cancelada"),
+    EM_ANDAMENTO("Em andamento"),
+    EM_TRANSITO("Em trânsito"),
+    CONCLUIDA("Concluída");
+
+    private final String statusSolicitacao;
+
+    StatusSolicitacao(String status){this.statusSolicitacao = status;}
+
+    public static StatusSolicitacao deString(String status){
+        for(StatusSolicitacao s : StatusSolicitacao.values()){
+            if(s.statusSolicitacao.equalsIgnoreCase(status)){
+                return s;
+            }
+        }
+        throw new IllegalArgumentException("Status de Solicitação não localizado");
+    }
 }

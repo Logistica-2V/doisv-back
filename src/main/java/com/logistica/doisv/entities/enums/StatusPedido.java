@@ -5,7 +5,7 @@ public enum StatusPedido {
     EM_ANDAMENTO("Em Andamento"),
     CANCELADA("Cancelada");
 
-    private String statusPedido;
+    private final String statusPedido;
 
     StatusPedido(String status){
         this.statusPedido = status;

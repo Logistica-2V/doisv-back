@@ -2,20 +2,19 @@ package com.logistica.doisv.services;
 
 import com.logistica.doisv.dto.ArquivoDTO;
 import com.logistica.doisv.dto.CriarSolicitacaoDTO;
+import com.logistica.doisv.dto.HistoricoSolicitacaoDTO;
 import com.logistica.doisv.entities.HistoricoSolicitacao;
 import com.logistica.doisv.entities.ItemVenda;
 import com.logistica.doisv.entities.Solicitacao;
 import com.logistica.doisv.entities.Venda;
 import com.logistica.doisv.entities.enums.Status;
-import com.logistica.doisv.entities.enums.StatusPedido;
 import com.logistica.doisv.entities.enums.StatusSolicitacao;
 import com.logistica.doisv.entities.enums.TipoSolicitacao;
 import com.logistica.doisv.repositories.SolicitacaoRepository;
 import com.logistica.doisv.repositories.VendaRepository;
 import com.logistica.doisv.services.api.AnexoDriveService;
-import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
-import com.logistica.doisv.services.exceptions.RegraNegocioException;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
+import com.logistica.doisv.util.validation.SolicitacaoValidador;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -38,17 +35,18 @@ public class SolicitacaoService {
     private final SolicitacaoRepository repository;
     private final VendaRepository vendaRepository;
     private final AnexoDriveService anexoService;
+    private final SolicitacaoValidador validador;
 
     @Transactional
     public void registrarSolicitacao(CriarSolicitacaoDTO dto, List<MultipartFile> anexos, Long idVenda) throws GeneralSecurityException, IOException {
         Venda venda = vendaRepository.findById(idVenda).orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada"));
-        validarStatusVenda(venda, dto.tipo());
+        validador.validarStatusVenda(venda, dto.tipo());
 
         TipoSolicitacao tipoSolicitacao = TipoSolicitacao.deString(dto.tipo());
-        validarPrazoSolicitacao(venda, tipoSolicitacao);
+        validador.validarPrazoSolicitacao(venda, tipoSolicitacao);
 
         ItemVenda itemVenda = buscarItemVendaPorId(dto.idItem(), venda.getItensVenda());
-        validarQuantidade(dto.quantidade(), itemVenda.getQuantidade(), dto.tipo());
+        validador.validarQuantidade(dto.quantidade(), itemVenda.getQuantidade(), dto.tipo());
 
         Solicitacao solicitacao = construirSolicitacao(dto, venda, itemVenda, tipoSolicitacao);
         solicitacao = repository.save(solicitacao);
@@ -60,12 +58,12 @@ public class SolicitacaoService {
     public void aprovarSolicitacao(Long id, Long idLoja) {
         Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
 
-        validarAprovacaoSolicitacao(solicitacao, idLoja);
+        validador.validarAprovacaoSolicitacao(solicitacao, idLoja);
 
-        HistoricoSolicitacao historico = criarHistorico(StatusSolicitacao.APROVADO, solicitacao,
+        HistoricoSolicitacao historico = criarHistorico(StatusSolicitacao.APROVADA, solicitacao,
                 String.format("Solicitação de %s aprovada!", solicitacao.getTipoSolicitacao().getDescricao().toLowerCase()));
 
-        solicitacao.setStatusSolicitacao(StatusSolicitacao.APROVADO);
+        solicitacao.setStatusSolicitacao(StatusSolicitacao.APROVADA);
 
         ItemVenda itemVenda = buscarItemVendaPorId(solicitacao.getItemVenda().getId(), solicitacao.getVenda().getItensVenda());
 
@@ -95,13 +93,13 @@ public class SolicitacaoService {
     public void reprovarSolicitacao(Long id, Long idLoja) {
         Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
 
-        validarAprovacaoSolicitacao(solicitacao, idLoja);
+        validador.validarAprovacaoSolicitacao(solicitacao, idLoja);
 
-        HistoricoSolicitacao historico = criarHistorico(StatusSolicitacao.REJEITADO, solicitacao,
+        HistoricoSolicitacao historico = criarHistorico(StatusSolicitacao.REJEITADA, solicitacao,
                 String.format("Solicitação de %s reprovada!", solicitacao.getTipoSolicitacao().getDescricao().toLowerCase()));
 
         solicitacao.getHistoricos().add(historico);
-        solicitacao.setStatusSolicitacao(StatusSolicitacao.REJEITADO);
+        solicitacao.setStatusSolicitacao(StatusSolicitacao.REJEITADA);
         solicitacao.setStatus(Status.INATIVO);
         solicitacao.setDataAtualizacao(historico.getDataAtualizacao());
         solicitacao.getAnexos().clear();
@@ -113,10 +111,10 @@ public class SolicitacaoService {
     public void editarSolicitacao(Long id, CriarSolicitacaoDTO dto, List<MultipartFile> anexos, Long idLoja) throws GeneralSecurityException, IOException {
         Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
 
-        validarAprovacaoSolicitacao(solicitacao, idLoja);
-        validarStatusVenda(solicitacao.getVenda(), solicitacao.getTipoSolicitacao().getDescricao().toLowerCase());
-        validarPrazoSolicitacao(solicitacao.getVenda(), solicitacao.getTipoSolicitacao());
-        validarQuantidade(dto.quantidade(), solicitacao.getQuantidade(), solicitacao.getTipoSolicitacao().getDescricao().toLowerCase());
+        validador.validarAprovacaoSolicitacao(solicitacao, idLoja);
+        validador.validarStatusVenda(solicitacao.getVenda(), solicitacao.getTipoSolicitacao().getDescricao().toLowerCase());
+        validador.validarPrazoSolicitacao(solicitacao.getVenda(), solicitacao.getTipoSolicitacao());
+        validador.validarQuantidade(dto.quantidade(), solicitacao.getQuantidade(), solicitacao.getTipoSolicitacao().getDescricao().toLowerCase());
 
         TipoSolicitacao tipoSolicitacao = TipoSolicitacao.deString(dto.tipo());
 
@@ -132,46 +130,20 @@ public class SolicitacaoService {
         processarAnexos(anexos, solicitacao.getId());
     }
 
+    @Transactional
+    public void atualizarSolicitacao(Long idSolicitacao, HistoricoSolicitacaoDTO dto, Long idLoja, List<Long> idsNovosProdutos){
+        Solicitacao solicitacao = repository.findById(idSolicitacao).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
 
+        validador.validarStatusVenda(solicitacao.getVenda(), solicitacao.getTipoSolicitacao().getDescricao().toLowerCase());
+        validador.validarAtualizacao(solicitacao, idLoja);
 
-    private void validarStatusVenda(Venda venda, String tipo) {
-        if (venda.getStatusPedido() != StatusPedido.ENTREGUE || venda.getStatus() == Status.INATIVO) {
-            throw new RegraNegocioException(String.format("Não é possível realizar uma solicitação de %s com o status atual da venda", tipo));
-        }
+        HistoricoSolicitacao historico = criarHistorico(StatusSolicitacao.deString(dto.statusNovo()), solicitacao, dto.observacao());
+
+        solicitacao.setStatusSolicitacao(historico.getStatusAtual());
+        solicitacao.getHistoricos().add(historico);
     }
 
-    private void validarPrazoSolicitacao(Venda venda, TipoSolicitacao tipoSolicitacao) {
-        int prazo = tipoSolicitacao == TipoSolicitacao.TROCA ? venda.getPrazoTroca() : venda.getPrazoDevolucao();
 
-        LocalDate dataLimite = venda.getDataEntrega().plusDays(prazo);
-
-        if (LocalDate.now().isAfter(dataLimite)) {
-            throw new RegraNegocioException(String.format("Período para solicitar %s encerrou em %s",
-                            tipoSolicitacao.getDescricao(),
-                            dataLimite.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
-        }
-    }
-
-    private void validarQuantidade(Double quantidadeSolicitada, Double quantidadeComprada, String tipo) {
-        if (quantidadeSolicitada > quantidadeComprada) {
-            throw new RegraNegocioException(String.format("A quantidade selecionada para %s é maior que a quantidade comprada", tipo.toLowerCase()));
-        }
-    }
-
-    private void validarAprovacaoSolicitacao(Solicitacao solicitacao, Long idLoja){
-        var validarLojaSolicitacao = solicitacao.getVenda().getLoja().getIdLoja().equals(idLoja);
-        var validarStatusSolicitacao = solicitacao.getStatusSolicitacao() != StatusSolicitacao.PENDENTE;
-        var validarStatus = solicitacao.getStatus() == Status.INATIVO;
-
-        if (!validarLojaSolicitacao){
-            throw new AssociacaoInvalidaException("Você não tem permissão para alterar essa solicitação.");
-        }
-        else if (validarStatusSolicitacao || validarStatus){
-            throw new RegraNegocioException(String.format("A solicitação  de %s ,ID %s não pode mais ser aprovada",
-                    solicitacao.getTipoSolicitacao().getDescricao().toLowerCase(),
-                    solicitacao.getId()));
-        }
-    }
 
     private ItemVenda buscarItemVendaPorId(Long id, List<ItemVenda> itens){
         return itens.stream()
