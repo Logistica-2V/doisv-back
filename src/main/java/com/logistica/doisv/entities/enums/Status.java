@@ -1,9 +1,12 @@
 package com.logistica.doisv.entities.enums;
 
+import lombok.Getter;
+
 public enum Status {
     ATIVO("Ativo"),
     INATIVO("Inativo");
 
+    @Getter
     private String statusItem;
 
     Status(String statusItem){

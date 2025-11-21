@@ -1,8 +1,12 @@
 package com.logistica.doisv.services;
 
-import com.logistica.doisv.dto.ArquivoDTO;
-import com.logistica.doisv.dto.CriarSolicitacaoDTO;
-import com.logistica.doisv.dto.HistoricoSolicitacaoDTO;
+import com.logistica.doisv.dto.*;
+import com.logistica.doisv.dto.registro_solicitacao.CriarSolicitacaoDTO;
+import com.logistica.doisv.dto.registro_solicitacao.HistoricoSolicitacaoDTO;
+import com.logistica.doisv.dto.registro_solicitacao.SolicitacaoDetalhadaDTO;
+import com.logistica.doisv.dto.registro_solicitacao.SolicitacaoResumidaDTO;
+import com.logistica.doisv.dto.registro_venda.requisicao.ItemDTO;
+import com.logistica.doisv.dto.registro_venda.requisicao.RegistroVendaDTO;
 import com.logistica.doisv.entities.HistoricoSolicitacao;
 import com.logistica.doisv.entities.ItemVenda;
 import com.logistica.doisv.entities.Solicitacao;
@@ -15,7 +19,10 @@ import com.logistica.doisv.repositories.VendaRepository;
 import com.logistica.doisv.services.api.AnexoDriveService;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import com.logistica.doisv.util.validation.SolicitacaoValidador;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -26,6 +33,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -36,9 +44,23 @@ public class SolicitacaoService {
     private final VendaRepository vendaRepository;
     private final AnexoDriveService anexoService;
     private final SolicitacaoValidador validador;
+    private final VendaService vendaService;
+
+    @Transactional(readOnly = true)
+    public Page<SolicitacaoResumidaDTO> buscarTodos(Pageable pageable, Long idLoja){
+        return repository.listarSolicitacoesResumidas(pageable, idLoja);
+    }
+
+    @Transactional(readOnly = true)
+    public SolicitacaoDetalhadaDTO buscarPorId(Long id, Long idLoja){
+        Solicitacao solicitacao = repository.buscarCompletoPorId(id).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
+        validador.validarLoja(solicitacao, idLoja);
+
+        return new SolicitacaoDetalhadaDTO(solicitacao);
+    }
 
     @Transactional
-    public void registrarSolicitacao(CriarSolicitacaoDTO dto, List<MultipartFile> anexos, Long idVenda) throws GeneralSecurityException, IOException {
+    public SolicitacaoResumidaDTO registrarSolicitacao(CriarSolicitacaoDTO dto, List<MultipartFile> anexos, Long idVenda) throws GeneralSecurityException, IOException {
         Venda venda = vendaRepository.findById(idVenda).orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada"));
         validador.validarStatusVenda(venda, dto.tipo());
 
@@ -52,10 +74,12 @@ public class SolicitacaoService {
         solicitacao = repository.save(solicitacao);
 
         processarAnexos(anexos, solicitacao.getId());
+
+        return new SolicitacaoResumidaDTO(solicitacao);
     }
 
     @Transactional
-    public void aprovarSolicitacao(Long id, Long idLoja) {
+    public SolicitacaoResumidaDTO aprovarSolicitacao(Long id, Long idLoja) {
         Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
 
         validador.validarAprovacaoSolicitacao(solicitacao, idLoja);
@@ -86,11 +110,11 @@ public class SolicitacaoService {
         solicitacao.setDataAtualizacao(historico.getDataAtualizacao());
         solicitacao.setItemVenda(novoItemSolicitacao);
 
-        repository.save(solicitacao);
+        return new SolicitacaoResumidaDTO(repository.save(solicitacao));
     }
 
     @Transactional
-    public void reprovarSolicitacao(Long id, Long idLoja) {
+    public SolicitacaoResumidaDTO reprovarSolicitacao(Long id, Long idLoja) {
         Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
 
         validador.validarAprovacaoSolicitacao(solicitacao, idLoja);
@@ -104,11 +128,11 @@ public class SolicitacaoService {
         solicitacao.setDataAtualizacao(historico.getDataAtualizacao());
         solicitacao.getAnexos().clear();
 
-        repository.save(solicitacao);
+        return new SolicitacaoResumidaDTO(repository.save(solicitacao));
     }
 
     @Transactional
-    public void editarSolicitacao(Long id, CriarSolicitacaoDTO dto, List<MultipartFile> anexos, Long idLoja) throws GeneralSecurityException, IOException {
+    public SolicitacaoResumidaDTO editarSolicitacao(Long id, CriarSolicitacaoDTO dto, List<MultipartFile> anexos, Long idLoja) throws GeneralSecurityException, IOException {
         Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
 
         validador.validarAprovacaoSolicitacao(solicitacao, idLoja);
@@ -128,10 +152,12 @@ public class SolicitacaoService {
         solicitacao = repository.save(solicitacao);
 
         processarAnexos(anexos, solicitacao.getId());
+
+        return new SolicitacaoResumidaDTO(solicitacao);
     }
 
     @Transactional
-    public void atualizarSolicitacao(Long idSolicitacao, HistoricoSolicitacaoDTO dto, Long idLoja, List<Long> idsNovosProdutos){
+    public SolicitacaoDetalhadaDTO atualizarSolicitacao(Long idSolicitacao, HistoricoSolicitacaoDTO dto, Long idLoja, List<ItemDTO> novosProdutos) throws MessagingException {
         Solicitacao solicitacao = repository.findById(idSolicitacao).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
 
         validador.validarStatusVenda(solicitacao.getVenda(), solicitacao.getTipoSolicitacao().getDescricao().toLowerCase());
@@ -141,8 +167,36 @@ public class SolicitacaoService {
 
         solicitacao.setStatusSolicitacao(historico.getStatusAtual());
         solicitacao.getHistoricos().add(historico);
+
+        solicitacao = repository.save(solicitacao);
+        gerarVendaAposTroca(solicitacao, novosProdutos);
+
+        return new SolicitacaoDetalhadaDTO(solicitacao);
     }
 
+
+    @Transactional
+    public SolicitacaoResumidaDTO cancelarSolicitacao(Long idSolicitacao, CriarSolicitacaoDTO dto, Long idLoja){
+        Solicitacao solicitacao = repository.findById(idSolicitacao).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
+
+        validador.validarCancelamento(solicitacao, idLoja);
+
+        ItemVenda itemVenda = buscarItemVendaPorId(dto.idItem(), solicitacao.getVenda().getItensVenda());
+
+        HistoricoSolicitacao historico = criarHistorico(StatusSolicitacao.CANCELADA, solicitacao,
+                String.format("Solicitação cancelada - %s", LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))));
+
+        solicitacao.getHistoricos().add(historico);
+
+        itemVenda.setStatus(Status.ATIVO);
+        itemVenda.setDetalhes("");
+        //futuramente exclusão dos anexos
+        //solicitacao.getAnexos().clear();
+        solicitacao.setStatusSolicitacao(historico.getStatusAtual());
+        solicitacao.setStatus(Status.INATIVO);
+
+        return new SolicitacaoResumidaDTO(repository.save(solicitacao));
+    }
 
 
     private ItemVenda buscarItemVendaPorId(Long id, List<ItemVenda> itens){
@@ -202,5 +256,14 @@ public class SolicitacaoService {
                 .solicitacao(solicitacao)
                 .dataAtualizacao(LocalDateTime.now())
                 .build();
+    }
+
+    private void gerarVendaAposTroca(Solicitacao solicitacao, List<ItemDTO> novosProdutos) throws MessagingException {
+        var solicitacaoFinalizada = solicitacao.getStatusSolicitacao() == StatusSolicitacao.CONCLUIDA;
+        var temProdutosParaTroca = novosProdutos != null && !novosProdutos.isEmpty();
+
+        if(solicitacaoFinalizada && temProdutosParaTroca && solicitacao.getTipoSolicitacao() == TipoSolicitacao.TROCA){
+            vendaService.salvar(new RegistroVendaDTO(solicitacao, novosProdutos), solicitacao.getVenda().getLoja().getIdLoja());
+        }
     }
 }

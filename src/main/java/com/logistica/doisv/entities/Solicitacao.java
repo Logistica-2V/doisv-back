@@ -4,12 +4,15 @@ import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.entities.enums.StatusSolicitacao;
 import com.logistica.doisv.entities.enums.TipoSolicitacao;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_Solicitacao")
@@ -45,9 +48,9 @@ public class Solicitacao {
     private ItemVenda itemVenda;
 
     @OneToMany(mappedBy = "solicitacao",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<AnexoSolicitacao> anexos = new ArrayList<>();
+    private Set<AnexoSolicitacao> anexos = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "solicitacao",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<HistoricoSolicitacao> historicos = new ArrayList<>();
+    private Set<HistoricoSolicitacao> historicos = new LinkedHashSet<>();
 
 }

@@ -1,5 +1,7 @@
 package com.logistica.doisv.entities.enums;
 
+import lombok.Getter;
+
 public enum StatusSolicitacao {
     PENDENTE("Pendente"),
     APROVADA("Aprovada"),
@@ -9,6 +11,7 @@ public enum StatusSolicitacao {
     EM_TRANSITO("Em trânsito"),
     CONCLUIDA("Concluída");
 
+    @Getter
     private final String statusSolicitacao;
 
     StatusSolicitacao(String status){this.statusSolicitacao = status;}

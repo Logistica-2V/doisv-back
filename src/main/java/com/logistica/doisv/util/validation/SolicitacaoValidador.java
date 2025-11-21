@@ -77,6 +77,23 @@ public class SolicitacaoValidador {
                     solicitacao.getStatusSolicitacao().name(),
                     solicitacao.getStatus().name()));
         }
+    }
+    public void validarCancelamento(Solicitacao solicitacao, Long idLoja){
+        validarLoja(solicitacao, idLoja);
 
+        var validarStatus = solicitacao.getStatusSolicitacao() == StatusSolicitacao.EM_TRANSITO ||
+                solicitacao.getStatusSolicitacao() == StatusSolicitacao.CONCLUIDA ||
+                solicitacao.getStatusSolicitacao() == StatusSolicitacao.CANCELADA ||
+                solicitacao.getStatus() == Status.INATIVO;
+
+        if (validarStatus){
+            throw new RegraNegocioException(String.format("A solicitação de %s ID %s não pode mais ser cancelada no status atual: " +
+                            "\nStatus Solicitação: %s" +
+                            "\nStatus: %s.",
+                    solicitacao.getTipoSolicitacao().getDescricao().toLowerCase(),
+                    solicitacao.getId(),
+                    solicitacao.getStatusSolicitacao().name(),
+                    solicitacao.getStatus().name()));
+        }
     }
 }

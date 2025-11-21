@@ -1,10 +1,13 @@
 package com.logistica.doisv.entities.enums;
 
+import lombok.Getter;
+
 public enum StatusPedido {
     ENTREGUE("Entregue"),
     EM_ANDAMENTO("Em Andamento"),
     CANCELADA("Cancelada");
 
+    @Getter
     private final String statusPedido;
 
     StatusPedido(String status){

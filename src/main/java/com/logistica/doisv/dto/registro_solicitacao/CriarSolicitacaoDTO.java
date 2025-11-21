@@ -1,4 +1,4 @@
-package com.logistica.doisv.dto;
+package com.logistica.doisv.dto.registro_solicitacao;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
