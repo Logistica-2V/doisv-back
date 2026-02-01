@@ -20,7 +20,7 @@ import java.util.List;
 @RequestMapping("doisv/lojas")
 public class LojaController {
     @Autowired
-    LojaService lojaService;
+    private LojaService lojaService;
 
     @GetMapping
     public ResponseEntity<List<LojaDTO>> buscarTodasLojas() {

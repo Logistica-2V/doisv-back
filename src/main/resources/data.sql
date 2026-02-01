@@ -71,3 +71,111 @@ INSERT IGNORE INTO tb_Consumidor (id_consumidor, nome, cpf_cnpj, email, celular,
 (8, 'Patrícia Carvalho', '08448589009', 'patricia.carvalho@email.com', '(71) 92345-6789', NULL, 'Rua do Porto, 200 - Salvador/BA', 'ATIVO', 2),
 (9, 'Lucas Almeida', '26360658062', 'lucas.almeida@email.com', '(91) 99999-0000', NULL, 'Travessa Tucuruí, 55 - Belém/PA', 'ATIVO', 3),
 (10, 'Renata Figueiredo', '00415751055', 'renata.figueiredo@email.com', '(62) 98888-1234', '(62) 4002-8922', 'Av. Goiás, 1000 - Goiânia/GO', 'ATIVO', 1);
+
+--VENDAS
+INSERT IGNORE INTO tb_Venda
+(id, data_criacao, data_entrega, desconto, forma_pagamento, prazo_devolucao, prazo_troca, preco_total, senha, serial_venda, status, status_pedido, id_consumidor, id_loja)
+VALUES
+(1, '2025-06-15 10:15:00', '2025-06-20', 0.00, 'CREDITO', 7, 30, 3378.90, '$2a$10$QoIVIO3H/GjERAZhd8l2pOTK7pDrsNOi0wiNeMY1lUtlsHesJQSpS', '8f2e3d4a5c', 'ATIVO', 'ENTREGUE', 1, 1),
+(2, '2026-01-15 14:30:00', NULL, 10.00, 'PIX', 7, 30, 289.80, NULL, NULL, 'ATIVO', 'EM_ANDAMENTO', 2, 2),
+(3, '2025-12-20 09:00:00', NULL, 5.00, 'BOLETO', 7, 30, 64.80, NULL, NULL, 'ATIVO', 'EM_ANDAMENTO', 3, 3),
+(4, '2026-01-28 18:45:00', NULL, 0.00, 'PIX', 7, 30, 19.90, NULL, NULL, 'ATIVO', 'EM_ANDAMENTO', 4, 1),
+(5, '2025-09-12 11:20:00', '2025-09-15', 0.00, 'DEBITO', 7, 30, 139.90, '$2a$10$a1sX37tLUnP5XLJgEo8Nsu5O7oFmKaa1l0ChDbEtSEbodVC6DPS7m', 'b1c2d3e4f5', 'ATIVO', 'ENTREGUE', 5, 2),
+(6, '2025-07-05 16:10:00', NULL, 0.00, 'CREDITO', 7, 30, 34.90, NULL, NULL, 'INATIVO', 'CANCELADA', 6, 3),
+(7, '2025-08-20 13:00:00', '2025-08-25', 50.00, 'CREDITO', 7, 30, 1199.00, '$2a$10$MYXUFMXTkS/eJdxOphkKEudSTUCiNBbXmey2OpUy90BVIYrzmJHy2', '7a8b9c0d1e', 'ATIVO', 'ENTREGUE', 7, 1),
+(8, '2026-01-10 08:30:00', NULL, 0.00, 'PIX', 7, 30, 159.00, NULL, NULL, 'ATIVO', 'EM_ANDAMENTO', 8, 2),
+(9, '2025-03-15 09:45:00', '2025-03-18', 10.00, 'DEBITO', 7, 30, 82.80, '$2a$10$2MIi1J7AsF.OFN/u939a9eDSgl95980Wenk0RbLlG.evdjvX56RrO', '4f5e6d7c8b', 'ATIVO', 'ENTREGUE', 9, 3),
+(10, '2026-01-30 15:55:00', NULL, 0.00, 'CREDITO', 7, 30, 249.00, NULL, NULL, 'ATIVO', 'EM_ANDAMENTO', 10, 1);
+
+--ITENS VENDA
+INSERT IGNORE INTO tb_Item_Venda
+(id, detalhes, percentual_variacao, preco_original, preco_vendido, quantidade, status, id_produto, id_venda)
+VALUES
+-- Venda 1 (Total: 3378.90 | Loja Tech) -- Notebook Lenovo (3299.00) + Mouse (79.90) = 3378.90
+(1, 'Notebook para trabalho', 1.00, 3299.00, 3299.00, 1.0, 'ATIVO', 2, 1),
+(2, 'Acessório incluso', 1.00, 79.90, 79.90, 1.0, 'ATIVO', 1, 1),
+-- Venda 2 (Total: 289.80 | Loja Moda) -- 2 Tênis com leve ajuste de preço (144.90 * 2 = 289.80) | Orig: 139.90
+(3, 'Par de tênis promocional', 1.04, 139.90, 144.90, 2.0, 'ATIVO', 5, 2),
+-- Venda 3 (Total: 64.80 | Loja Livros) -- Dom Casmurro (34.90) + Pequeno Príncipe (29.90) = 64.80
+(4, 'Clássico Brasileiro', 1.00, 34.90, 34.90, 1.0, 'ATIVO', 9, 3),
+(5, 'Literatura Infantil', 1.00, 29.90, 29.90, 1.0, 'ATIVO', 7, 3),
+-- Venda 4 (Total: 19.90 | Loja Tech) -- Cabo USB (19.90)
+(6, 'Reposição de cabo', 1.00, 19.90, 19.90, 1.0, 'ATIVO', 3, 4),
+-- Venda 5 (Total: 139.90 | Loja Moda) -- Tênis Feminino (139.90)
+(7, 'Presente dia das mães', 1.00, 139.90, 139.90, 1.0, 'ATIVO', 5, 5),
+-- Venda 6 (Total: 34.90 | Loja Livros) -- Dom Casmurro (34.90)
+(8, 'Leitura escolar', 1.00, 34.90, 34.90, 1.0, 'ATIVO', 9, 6),
+-- Venda 7 (Total: 1199.00 | Loja Tech) -- Cadeira Gamer (1199.00)
+(9, 'Setup Home Office', 1.00, 1199.00, 1199.00, 1.0, 'ATIVO', 27, 7),
+-- Venda 8 (Total: 159.00 | Loja Moda) -- Blazer Feminino (159.00)
+(10, 'Roupa social', 1.00, 159.00, 159.00, 1.0, 'ATIVO', 22, 8),
+-- Venda 9 (Total: 82.80 | Loja Livros) -- 2 Livros O Hobbit com desconto (Orig: 44.90 -> Vendido: 41.40 * 2 = 82.80)
+(11, 'Combo Fantasia', 0.92, 44.90, 41.40, 2.0, 'ATIVO', 20, 9),
+-- Venda 10 (Total: 249.00 | Loja Tech) -- Smartwatch (249.00)
+(12, 'Relógio Inteligente', 1.00, 249.00, 249.00, 1.0, 'ATIVO', 12, 10);
+
+-- SOLICITACAO
+INSERT IGNORE INTO tb_Solicitacao
+(id, data_atualizacao, data_solicitacao, motivo, quantidade, status, status_solicitacao, tipo_solicitacao, id_consumidor, id_item_venda, id_venda)
+VALUES
+-- 1. Venda 1 (Junho/2025) - Troca Concluída
+(1, '2025-06-25 10:00:00', '2025-06-21 09:30:00', 'Tela apresentando pixels mortos', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 1, 1, 1),
+-- 2. Venda 1 (Junho/2025) - Devolução Concluída
+(2, '2025-06-26 14:20:00', '2025-06-22 11:00:00', 'Mouse muito pequeno para minha mão', 1.0, 'ATIVO', 'CONCLUIDA', 'DEVOLUCAO', 1, 2, 1),
+-- 3. Venda 5 (Setembro/2025) - Troca Aprovada/Concluída
+(3, '2025-09-20 16:00:00', '2025-09-16 08:45:00', 'Ficou apertado, solicito troca pelo 37', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 5, 7, 5),
+-- 4. Venda 5 (Setembro/2025) - Solicitação duplicada/errada Cancelada
+(4, '2025-09-16 08:50:00', '2025-09-16 08:40:00', 'Cliquei errado, desconsiderar', 1.0, 'INATIVO', 'CANCELADA', 'TROCA', 5, 7, 5),
+-- 5. Venda 7 (Agosto/2025) - Devolução Rejeitada
+(5, '2025-09-01 10:00:00', '2025-08-30 15:00:00', 'A cor não combinou com o quarto', 1.0, 'INATIVO', 'REJEITADA', 'DEVOLUCAO', 7, 9, 7),
+-- 6. Venda 7 (Agosto/2025) - Troca Concluída
+(6, '2025-09-05 11:30:00', '2025-09-02 09:00:00', 'Pistão de gás descendo sozinho', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 7, 9, 7),
+-- 7. Venda 9 (Março/2025) - Troca Concluída
+(7, '2025-03-20 13:00:00', '2025-03-19 10:00:00', 'Chegou com a capa rasgada', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 9, 11, 9),
+-- 8. Venda 9 (Março/2025) - Troca Rejeitada
+(8, '2025-06-15 08:00:00', '2025-06-14 20:00:00', 'Folhas amarelando muito rápido', 1.0, 'INATIVO', 'REJEITADA', 'TROCA', 9, 11, 9);
+
+-- HISTORICO SOLICITACAO
+INSERT IGNORE INTO tb_Historico_Solicitacao
+(id, data_atualizacao, observacao, status_anterior, status_atual, id_solicitacao)
+VALUES
+-- SOLICITAÇÃO 1
+(1, '2025-06-22 14:00:00', 'Solicitação de troca aprovada! Aguardando envio.', 'PENDENTE', 'APROVADA', 1),
+(2, '2025-06-23 09:30:00', 'Produto postado pelo cliente. Código de rastreio recebido.', 'APROVADA', 'EM_TRANSITO', 1),
+(3, '2025-06-25 10:00:00', 'Produto recebido e verificado. Troca autorizada e finalizada.', 'EM_TRANSITO', 'CONCLUIDA', 1),
+-- SOLICITAÇÃO 2
+(4, '2025-06-22 15:00:00', 'Solicitação de devolução aprovada!', 'PENDENTE', 'APROVADA', 2),
+(5, '2025-06-26 14:20:00', 'Produto recebido em perfeito estado. Estorno solicitado.', 'APROVADA', 'CONCLUIDA', 2),
+-- SOLICITAÇÃO 3
+(6, '2025-09-16 10:00:00', 'Solicitação de troca aprovada!', 'PENDENTE', 'APROVADA', 3),
+(7, '2025-09-20 16:00:00', 'Troca de numeração efetuada com sucesso.', 'APROVADA', 'CONCLUIDA', 3),
+-- SOLICITAÇÃO 4
+(8, '2025-09-16 08:50:00', 'Solicitação cancelada - 16/09/2025 08:50', 'PENDENTE', 'CANCELADA', 4),
+-- SOLICITAÇÃO 5
+(9, '2025-09-01 10:00:00', 'Solicitação de devolução reprovada! Motivo: Fora do prazo legal de 7 dias e sem defeito técnico.', 'PENDENTE', 'REJEITADA', 5),
+-- SOLICITAÇÃO 6
+(10, '2025-09-02 10:00:00', 'Solicitação de troca aprovada! Agendando coleta.', 'PENDENTE', 'APROVADA', 6),
+(11, '2025-09-05 11:30:00', 'Troca realizada. Pistão substituído.', 'APROVADA', 'CONCLUIDA', 6),
+-- SOLICITAÇÃO 7
+(12, '2025-03-19 14:00:00', 'Solicitação de troca aprovada!', 'PENDENTE', 'APROVADA', 7),
+(13, '2025-03-20 13:00:00', 'Novo exemplar enviado ao cliente.', 'APROVADA', 'CONCLUIDA', 7),
+-- SOLICITAÇÃO 8
+(14, '2025-06-15 08:00:00', 'Solicitação de troca reprovada! Produto adquirido há mais de 3 meses.', 'PENDENTE', 'REJEITADA', 8);
+
+-- FEEDBACKS
+INSERT IGNORE INTO tb_feedback
+(id_feedback, comentario, data_feedback, nota, status, tipo_feedback, id_consumidor, id_loja, id_solicitacao)
+VALUES
+-- SOLICITAÇÃO 1 (Venda da Loja 1 - CenterTech)
+(1, 'Processo de troca foi muito rápido e transparente. O novo notebook está perfeito.', '2025-06-26', 5, 'ATIVO', 'SOLICITACAO', 1, 1, 1),
+(2, 'Sempre compro na CenterTech e nunca decepcionam, mesmo quando dá problema.', '2025-06-26', 5, 'ATIVO', 'LOJA', 1, 1, 1),
+-- SOLICITAÇÃO 2 (Venda da Loja 1 - CenterTech)
+(3, 'A devolução funcionou, mas o estorno demorou um pouco para cair no cartão.', '2025-06-28', 3, 'ATIVO', 'SOLICITACAO', 1, 1, 2),
+-- SOLICITAÇÃO 3 (Venda da Loja 2 - Estilo&Cia)
+(4, 'A Estilo&Cia tem as melhores roupas. O atendimento da Carla foi excelente.', '2025-09-21', 5, 'ATIVO', 'LOJA', 5, 2, 3),
+-- SOLICITAÇÃO 6 (Venda da Loja 1 - CenterTech)
+(5, 'Tive que insistir muito no chat para conseguirem aprovar a troca.', '2025-09-06', 2, 'ATIVO', 'LOJA', 7, 1, 6),
+(6, 'Pelo menos a cadeira nova veio sem defeito no pistão. Resolveram o problema.', '2025-09-06', 4, 'ATIVO', 'SOLICITACAO', 7, 1, 6),
+-- SOLICITAÇÃO 7 (Venda da Loja 3 - MundoLivros)
+(7, 'Enviam livros sem proteção adequada. É a segunda vez que chega amassado.', '2025-03-21', 1, 'ATIVO', 'LOJA', 9, 3, 7),
+(8, 'Sistema de troca confuso, pede muitas fotos e demora para validar.', '2025-03-21', 2, 'ATIVO', 'SOLICITACAO', 9, 3, 7);

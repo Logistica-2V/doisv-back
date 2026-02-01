@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> {
@@ -34,4 +36,16 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
     WHERE s.id = :id
     """)
     Optional<Solicitacao> buscarCompletoPorId(@Param("id") Long id);
+
+
+    @Query(value = """
+            SELECT s.* FROM tb_solicitacao s
+            JOIN tb_venda v
+            ON s.id_venda = v.id
+            WHERE v.id_loja = :idLoja
+            AND DATE(s.data_Solicitacao) BETWEEN :inicio and :fim
+            """, nativeQuery = true)
+    List<Solicitacao> buscarSolicitacaoPorLojaEPeriodo(@Param("idLoja") Long idLoja,
+                                                       @Param("inicio") LocalDate inicio,
+                                                       @Param("fim") LocalDate fim);
 }

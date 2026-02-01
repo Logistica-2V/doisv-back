@@ -1,6 +1,6 @@
 package com.logistica.doisv.controllers;
 
-import com.logistica.doisv.dto.*;
+import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.registro_solicitacao.CriarSolicitacaoDTO;
 import com.logistica.doisv.dto.registro_solicitacao.HistoricoSolicitacaoDTO;
 import com.logistica.doisv.dto.registro_solicitacao.SolicitacaoDetalhadaDTO;
@@ -78,7 +78,8 @@ public class SolicitacaoController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<SolicitacaoResumidaDTO> editarSolicitacao(@PathVariable Long id, @RequestPart("solicitacao") CriarSolicitacaoDTO dto,
+    public ResponseEntity<SolicitacaoResumidaDTO> editarSolicitacao(@PathVariable Long id,
+                                                                    @Valid @RequestPart("solicitacao") CriarSolicitacaoDTO dto,
                                                                     @RequestPart("anexos") List<MultipartFile> anexos,
                                                                     @RequestHeader String Authorization) throws GeneralSecurityException, IOException {
         AcessoDTO acessoDTO = tokenService.validarToken(Authorization);
@@ -88,7 +89,7 @@ public class SolicitacaoController {
 
     @PutMapping(value = "/cancelar/{id}")
     public ResponseEntity<SolicitacaoResumidaDTO> cancelarSolicitacao(@PathVariable Long id,
-                                                                      @RequestBody CriarSolicitacaoDTO dto,
+                                                                      @Valid @RequestBody CriarSolicitacaoDTO dto,
                                                                       @RequestHeader String Authorization){
         AcessoDTO acessoDTO = tokenService.validarToken(Authorization);
 

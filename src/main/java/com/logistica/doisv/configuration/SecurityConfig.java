@@ -25,21 +25,28 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/doisv/login", "/doisv/consumidores/login", "/h2-console/**", "/swagger-ui/**", "swagger-ui.html",
-                                "v3/api-docs/**","swagger-resources/**").permitAll()
+                        .requestMatchers("/doisv/login", "/doisv/consumidores/login",
+                                "/doisv/metricas/publicas", "/doisv/feedbacks/lojas/{id}",
+                                "/h2-console/**",
+                                "/swagger-ui/**", "swagger-ui.html", "v3/api-docs/**","swagger-resources/**").permitAll()
                         .requestMatchers("/doisv/vendas/me").hasRole("CONSUMIDOR")
                         .requestMatchers(HttpMethod.PUT,"/doisv/solicitacoes/{id}").hasRole("CONSUMIDOR")
                         .requestMatchers("/doisv/solicitacoes/criar").hasRole("CONSUMIDOR")
                         .requestMatchers("/doisv/solicitacoes/cancelar/{id}").hasRole("CONSUMIDOR")
+                        .requestMatchers(HttpMethod.GET, "/doisv/feedbacks/solicitacoes/{id}").hasAnyRole("LOJISTA", "CONSUMIDOR")
                         .requestMatchers("/doisv/solicitacoes/aprovar/{id}").hasRole("LOJISTA")
                         .requestMatchers("/doisv/solicitacoes/reprovar/{id}").hasRole("LOJISTA")
                         .requestMatchers("/doisv/solicitacoes/atualizar/{id}").hasRole("LOJISTA")
                         .requestMatchers(HttpMethod.GET ,"/doisv/solicitacoes").hasRole("LOJISTA")
+                        .requestMatchers("/doisv/metricas/privadas").hasRole("LOJISTA")
+                        .requestMatchers("/doisv/metricas/solicitacoes/por-status").hasRole("LOJISTA")
                         .requestMatchers("/doisv/produtos/**").hasRole("LOJISTA")
                         .requestMatchers("/doisv/consumidores/**").hasRole("LOJISTA")
                         .requestMatchers("/doisv/lojas/**").hasRole("LOJISTA")
                         .requestMatchers("/doisv/lojistas/**").hasRole("LOJISTA")
                         .requestMatchers("/doisv/vendas/**").hasRole("LOJISTA")
+                        .requestMatchers("/doisv/feedbacks/{id}").hasRole("LOJISTA")
+                        .requestMatchers(HttpMethod.POST, "/doisv/feedbacks").hasRole("CONSUMIDOR")
                         .anyRequest().authenticated()
                 ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(tokenAutenticacao, UsernamePasswordAuthenticationFilter.class);

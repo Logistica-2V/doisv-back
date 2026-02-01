@@ -44,5 +44,8 @@ public class Consumidor {
     @JsonIgnore
     private List<Solicitacao> solicitacoes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "consumidor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Feedback> feedbacks = new ArrayList<>();
 
 }

@@ -1,4 +1,4 @@
-package com.logistica.doisv.util.validation;
+package com.logistica.doisv.util.validacao;
 
 import com.logistica.doisv.entities.Solicitacao;
 import com.logistica.doisv.entities.Venda;

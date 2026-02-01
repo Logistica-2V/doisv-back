@@ -1,7 +1,7 @@
 package com.logistica.doisv.dto;
 
 import com.logistica.doisv.entities.Lojista;
-import com.logistica.doisv.util.validation.CpfCnpj;
+import com.logistica.doisv.util.validacao.CpfCnpj;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

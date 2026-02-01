@@ -1,5 +1,6 @@
 package com.logistica.doisv.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.entities.enums.StatusSolicitacao;
 import com.logistica.doisv.entities.enums.TipoSolicitacao;
@@ -11,6 +12,7 @@ import lombok.Setter;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -35,7 +37,7 @@ public class Solicitacao {
     @Enumerated(EnumType.STRING)
     private Status status = Status.ATIVO;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idVenda")
     private Venda venda;
 
@@ -47,10 +49,14 @@ public class Solicitacao {
     @JoinColumn(name = "idItemVenda", nullable = false)
     private ItemVenda itemVenda;
 
-    @OneToMany(mappedBy = "solicitacao",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "solicitacao", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<AnexoSolicitacao> anexos = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "solicitacao",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "solicitacao", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<HistoricoSolicitacao> historicos = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "solicitacao", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<Feedback> feedbacks = new HashSet<>();
 
 }

@@ -1,4 +1,4 @@
-package com.logistica.doisv.util.validation;
+package com.logistica.doisv.util.validacao;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

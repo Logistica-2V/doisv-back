@@ -18,7 +18,7 @@ import com.logistica.doisv.repositories.SolicitacaoRepository;
 import com.logistica.doisv.repositories.VendaRepository;
 import com.logistica.doisv.services.api.AnexoDriveService;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
-import com.logistica.doisv.util.validation.SolicitacaoValidador;
+import com.logistica.doisv.util.validacao.SolicitacaoValidador;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -61,7 +61,7 @@ public class SolicitacaoService {
 
     @Transactional
     public SolicitacaoResumidaDTO registrarSolicitacao(CriarSolicitacaoDTO dto, List<MultipartFile> anexos, Long idVenda) throws GeneralSecurityException, IOException {
-        Venda venda = vendaRepository.findById(idVenda).orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada"));
+        Venda venda = vendaRepository.buscarVendaPorId(idVenda).orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada"));
         validador.validarStatusVenda(venda, dto.tipo());
 
         TipoSolicitacao tipoSolicitacao = TipoSolicitacao.deString(dto.tipo());
