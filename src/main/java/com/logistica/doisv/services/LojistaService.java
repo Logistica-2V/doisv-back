@@ -9,6 +9,7 @@ import com.logistica.doisv.repositories.LojistaRepository;
 import com.logistica.doisv.services.exceptions.DatabaseException;
 import com.logistica.doisv.services.exceptions.RegraNegocioException;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
+import com.logistica.doisv.services.exceptions.UsuarioInativoException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.persistence.EntityNotFoundException;
@@ -44,8 +45,14 @@ public class LojistaService {
 
     @Transactional(readOnly = true)
     public String login (String email, String password) {
-        Lojista lojista = lojistaRepository.findByEmail(email);
-        if (lojista != null && encoder.matches(password, lojista.getPassword())){
+        Lojista lojista = lojistaRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
+
+        if(!lojista.getStatus().equals(Status.ATIVO)){
+            throw new UsuarioInativoException("Usuário inativo, entre em contato com o admin para reativa-lo.");
+        }
+
+        if (encoder.matches(password, lojista.getPassword())){
             Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
             Date dataCriacao = new Date();

@@ -1,10 +1,7 @@
 package com.logistica.doisv.controllers.exceptions;
 
 import com.logistica.doisv.dto.ErroCustomizado;
-import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
-import com.logistica.doisv.services.exceptions.EdicaoNaoPermitidaException;
-import com.logistica.doisv.services.exceptions.RegraNegocioException;
-import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
+import com.logistica.doisv.services.exceptions.*;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -117,4 +114,11 @@ public class ControllerException {
         ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.CONFLICT.value(), e.getMessage(), requisicao.getRequestURI());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
+
+    @ExceptionHandler(UsuarioInativoException.class)
+    public ResponseEntity<?> ErroDeUsuarioInativo(UsuarioInativoException e, HttpServletRequest requisicao){
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.UNAUTHORIZED.value(), e.getMessage(), requisicao.getRequestURI());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(erro);
+    }
+
 }
