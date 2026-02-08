@@ -94,7 +94,7 @@ public class ControllerException {
     @ExceptionHandler(RegraNegocioException.class)
     public ResponseEntity<?> ErroNaRegraDeNegocio (RegraNegocioException e, HttpServletRequest requisicao){
         ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.CONFLICT.value(), e.getMessage(), requisicao.getRequestURI());
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(erro);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -121,4 +121,15 @@ public class ControllerException {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(erro);
     }
 
+    @ExceptionHandler(CodigoExpiradoException.class)
+    public ResponseEntity<?> ErroCodigoRecuperacaoExpirado(CodigoExpiradoException e, HttpServletRequest requisicao){
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.GONE.value(), e.getMessage(), requisicao.getRequestURI());
+        return ResponseEntity.status(HttpStatus.GONE).body(erro);
+    }
+
+    @ExceptionHandler(SenhaFracaException.class)
+    public ResponseEntity<?> ErroSenhaFraca(SenhaFracaException e, HttpServletRequest requisicao){
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.BAD_REQUEST.value(), e.getMessage(), requisicao.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
 }

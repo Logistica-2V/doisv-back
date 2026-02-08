@@ -34,8 +34,7 @@ public class ConsumidorService {
     @Autowired
     private LojaRepository lojaRepository;
 
-    @Autowired
-    private VendaRepository vendaRepository;
+
 
     @Autowired
     private PasswordEncoder encoder;
@@ -46,30 +45,7 @@ public class ConsumidorService {
     @Value("${jwt.consumidor.expiration}")
     private long validadeToken;
 
-    @Transactional(readOnly = true)
-    public String login(ConsumidorLoginDTO dto){
-        Venda venda = vendaRepository.findBySerialVendaIgnoreCase(dto.serial()).orElseThrow(() -> new ResourceNotFoundException("Venda não localizada"));
-        if(venda != null && encoder.matches(dto.senha(),venda.getSenha())){
-            Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
-            Date dataCriacao = new Date();
-            Date dataExpiracao = new Date(dataCriacao.getTime() + validadeToken);
-
-            return Jwts.builder()
-                    .setSubject(venda.getConsumidor().getEmail())
-                    .claim("tipo", "CONSUMIDOR")
-                    .claim("idConsumidor", venda.getConsumidor().getIdConsumidor())
-                    .claim("nome", venda.getConsumidor().getNome())
-                    .claim("serialVenda", venda.getSerialVenda())
-                    .claim("idVenda", venda.getId())
-                    .claim("idLoja", venda.getLoja().getIdLoja())
-                    .setIssuedAt(dataCriacao)
-                    .setExpiration(dataExpiracao)
-                    .signWith(key)
-                    .compact();
-        }
-        return null;
-    }
 
     @Transactional(readOnly = true)
     public List<ConsumidorDTO> buscarTodos(Long id){

@@ -25,7 +25,9 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/doisv/login", "/doisv/consumidores/login",
+                        .requestMatchers("/doisv/login", "/doisv/login/consumidores",
+                                "/doisv/login/lojista/recuperar-senha", "/doisv/login/lojista/validar-recuperacao",
+                                "/doisv/login/lojista/atualizar-senha",
                                 "/doisv/metricas/publicas", "/doisv/feedbacks/lojas/{id}",
                                 "/h2-console/**",
                                 "/swagger-ui/**", "swagger-ui.html", "v3/api-docs/**","swagger-resources/**").permitAll()

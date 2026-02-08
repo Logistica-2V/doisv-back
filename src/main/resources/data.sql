@@ -23,7 +23,7 @@ INSERT IGNORE INTO tb_Lojista (id_lojista, nome, cpf, email, senha, status, id_l
 (12, 'Aline Costa', '95154875010', 'aline.costa@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 3),
 (13, 'Rafael Teixeira', '97495750081', 'rafael.teixeira@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 1),
 (14, 'Camila Duarte', '29724618005', 'camila.duarte@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 2),
-(15, 'Diego Ramos', '50282985050', 'diego.ramos@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 3),
+(15, 'Diego Ramos', '50282985050', 'marcelo_willian@icloud.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 3),
 (16, 'Marina Lopes', '82764720017', 'marina.lopes@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 1);
 
 -- PRODUTOS

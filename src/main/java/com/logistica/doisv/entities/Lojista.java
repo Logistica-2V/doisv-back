@@ -1,8 +1,12 @@
 package com.logistica.doisv.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.logistica.doisv.entities.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_Lojista")
@@ -27,4 +31,7 @@ public class Lojista {
     @JoinColumn(name = "idLoja")
     private Loja loja;
 
+    @OneToMany(mappedBy = "lojista", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<RecuperarSenha> recuperacoesSenha = new ArrayList<>();
 }

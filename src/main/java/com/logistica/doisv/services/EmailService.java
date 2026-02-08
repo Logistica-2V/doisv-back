@@ -1,5 +1,6 @@
 package com.logistica.doisv.services;
 
+import com.logistica.doisv.entities.Lojista;
 import com.logistica.doisv.entities.Venda;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -191,6 +192,183 @@ public class EmailService {
                 "2V Logística",
                 LocalDate.now().getYear(),
                 "2V Logística"
+        );
+
+        helper.setText(corpoEmail, true);
+        mailSender.send(mensagem);
+    }
+
+    @Async
+    public void enviarEmailRecuperacaoSenha(Lojista lojista, String codigoRecuperacao) throws MessagingException{
+        String corpoHtmlRecuperacaoSenha = """
+                <!DOCTYPE html>
+                <html lang="pt-br">
+                <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Recuperação de Senha - %s</title>
+                <style>
+                    /* Estilos Gerais */
+                    body {
+                        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                        background-color: #f1f4f8;
+                    }
+                    .container {
+                        width: 100%%;
+                        max-width: 600px;
+                        margin: 20px auto;
+                        background-color: #ffffff;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                        border: 1px solid #dee2e6;
+                    }
+                
+                    /* Cabeçalho */
+                    .header {
+                        padding: 25px;
+                        text-align: center;
+                        background-color: #f8f9fa;
+                        border-bottom: 1px solid #dee2e6;
+                    }
+                    .header img {
+                        max-width: 120px;
+                        height: auto;
+                        margin-bottom: 10px;
+                    }
+                    .header h2 {
+                        margin: 0;
+                        color: #343a40;
+                        font-size: 22px;
+                        font-weight: 600;
+                    }
+                
+                    /* Conteúdo */
+                    .content {
+                        padding: 35px;
+                        color: #000000;
+                        line-height: 1.7;
+                        font-size: 16px;
+                    }
+                    .content h1 {
+                        color: #212529;
+                        font-size: 26px;
+                        font-weight: 700;
+                        margin-bottom: 20px;
+                    }
+                    .content p {
+                        margin: 15px 0;
+                    }
+                
+                    /* Caixa de Código */
+                    .code-box {
+                        background-color: #5583e7;
+                        border-left: 5px solid #3c6adb;
+                        padding: 30px 20px;
+                        margin: 30px 0;
+                        text-align: center;
+                    }
+                    .code-box p {
+                        margin: 8px 0;
+                        font-size: 15px;
+                        color: #ffffff;
+                        font-weight: 600;
+                    }
+                    .code-box span {
+                        font-weight: bold;
+                        font-size: 32px;
+                        color: #5583e7;
+                        background-color: #ffffff;
+                        padding: 15px 40px;
+                        border-radius: 8px;
+                        font-family: 'Courier New', Courier, monospace;
+                        display: inline-block;
+                        margin-top: 12px;
+                        letter-spacing: 8px;
+                        border: 1px solid #e0e0e0;
+                    }
+                    
+                    /* Aviso de Segurança */
+                    .security-warning {
+                        background-color: #fff3cd;
+                        border-left: 4px solid #ffc107;
+                        padding: 15px;
+                        margin: 25px 0;
+                        border-radius: 6px;
+                    }
+                    .security-warning p {
+                        margin: 5px 0;
+                        color: #856404;
+                        font-size: 14px;
+                    }
+                
+                    /* Rodapé */
+                    .footer {
+                        background-color: #f8f9fa;
+                        padding: 20px;
+                        text-align: center;
+                        font-size: 13px;
+                        color: #6c757d;
+                        border-top: 1px solid #dee2e6;
+                    }
+                    .footer p {
+                        margin: 5px 0;
+                    }
+                    .disclaimer {
+                        font-size: 11px;
+                        color: #adb5bd;
+                    }
+                </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <img src="https://lh3.googleusercontent.com/d/%s" alt="Logo de %s">
+                            <h2>%s</h2>
+                        </div>
+                        <div class="content">
+                            <h1>Olá, %s,</h1>
+                            <p>Recebemos uma solicitação de recuperação de senha para sua conta. Utilize o código de verificação abaixo para redefinir sua senha:</p>
+                            <div class="code-box">
+                                <p>CÓDIGO DE VERIFICAÇÃO</p>
+                                <span>%s</span>
+                            </div>
+                            <div class="security-warning">
+                                <p><strong>⚠️ Importante:</strong></p>
+                                <p>• Este código é válido por 30 minutos</p>
+                                <p>• Não compartilhe este código com ninguém</p>
+                                <p>• Se você não solicitou esta recuperação, ignore este e-mail</p>
+                            </div>
+                            <p>Após inserir o código, você poderá criar uma nova senha de acesso ao sistema.</p>
+                            <p style="margin-top: 30px;">Atenciosamente,<br>Equipe %s</p>
+                        </div>
+                        <div class="footer">
+                            <p>© %d %s. Todos os direitos reservados.</p>
+                            <p class="disclaimer">Este é um e-mail automático. Por favor, não o responda se não precisar de suporte.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """;
+
+        MimeMessage mensagem = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mensagem, true, "UTF-8");
+
+        helper.setTo(lojista.getEmail());
+        helper.setSubject("Recuperação de Senha");
+
+        String corpoEmail = String.format(corpoHtmlRecuperacaoSenha,
+                lojista.getLoja().getNome(),
+                lojista.getLoja().getLogo(),
+                lojista.getLoja().getNome(),
+                lojista.getLoja().getNome(),
+                lojista.getNome(),
+                codigoRecuperacao,
+                lojista.getLoja().getNome(),
+                LocalDate.now().getYear(),
+                lojista.getLoja().getNome()
         );
 
         helper.setText(corpoEmail, true);

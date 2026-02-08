@@ -9,19 +9,13 @@ import com.logistica.doisv.repositories.LojistaRepository;
 import com.logistica.doisv.services.exceptions.DatabaseException;
 import com.logistica.doisv.services.exceptions.RegraNegocioException;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
-import com.logistica.doisv.services.exceptions.UsuarioInativoException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Key;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,41 +30,6 @@ public class LojistaService {
 
     @Autowired
     private PasswordEncoder encoder;
-
-    @Value("${jwt.secret}")
-    private String secretKey;
-
-    @Value("${jwt.lojista.expiration}")
-    private long validadeToken;
-
-    @Transactional(readOnly = true)
-    public String login (String email, String password) {
-        Lojista lojista = lojistaRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
-
-        if(!lojista.getStatus().equals(Status.ATIVO)){
-            throw new UsuarioInativoException("Usuário inativo, entre em contato com o admin para reativa-lo.");
-        }
-
-        if (encoder.matches(password, lojista.getPassword())){
-            Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
-
-            Date dataCriacao = new Date();
-            Date dataExpiracao = new Date(dataCriacao.getTime() + validadeToken);
-
-                return Jwts.builder()
-                        .setSubject(email)
-                        .claim("tipo", "LOJISTA")
-                        .claim("idLojista", lojista.getIdLojista())
-                        .claim("nome",lojista.getNome())
-                        .claim("idLoja", lojista.getLoja().getIdLoja())
-                        .setIssuedAt(dataCriacao)
-                        .setExpiration(dataExpiracao)
-                        .signWith(key)
-                        .compact();
-        }
-        return null;
-    }
 
     @Transactional(readOnly = true)
     public LojistaDTO buscarPorId(Long id){
