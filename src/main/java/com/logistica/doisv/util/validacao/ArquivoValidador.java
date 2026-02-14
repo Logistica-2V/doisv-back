@@ -30,6 +30,12 @@ public class ArquivoValidador {
         validarTipo(arquivo, categoriasPermitidas);
     }
 
+    public void validarEstruturaCsv(String linha){
+        if(linha == null || !linha.contains(";") || linha.split(";").length > 3){
+            throw new TipoArquivoInvalidoException("Erro ao validar a estrutura do CSV: " + linha);
+        }
+    }
+
     private void validarTipo(MultipartFile arquivo, Set<CategoriaArquivoPermitida> categoriasPermitidas){
         String tipoDetectado = detectarTipoReal(arquivo);
 
@@ -68,6 +74,7 @@ public class ArquivoValidador {
 
     private boolean isCsv(String tipoDetectado){
         return tipoDetectado.equals("text/csv")
+                || tipoDetectado.equals("text/plain")
                 || tipoDetectado.equals("application/csv")
                 || tipoDetectado.equals("application/vnd.ms-excel");
     }

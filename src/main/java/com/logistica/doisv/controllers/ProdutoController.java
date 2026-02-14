@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +52,13 @@ public class ProdutoController {
         dto = service.salvar(dto, imagem, acesso.getIdLoja());
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.idProduto()).toUri();
         return ResponseEntity.created(uri).body(dto);
+    }
+
+    @PostMapping(value = "/importar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<List<ProdutoDTO>> importarProdutos(@RequestPart(value = "produtosCsv") MultipartFile produtosCsv,
+                                                             @RequestHeader String Authorization){
+        AcessoDTO acessoDTO = tokenService.validarToken(Authorization);
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.importarProdutos(produtosCsv, acessoDTO.getIdLoja()));
     }
 
     @PutMapping(value = "/{id}")

@@ -1,15 +1,15 @@
 package com.logistica.doisv.services;
 
 import com.logistica.doisv.dto.ProdutoDTO;
+import com.logistica.doisv.entities.Loja;
 import com.logistica.doisv.entities.Produto;
 import com.logistica.doisv.entities.enums.CategoriaArquivoPermitida;
 import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.repositories.LojaRepository;
 import com.logistica.doisv.repositories.ProdutoRepository;
 import com.logistica.doisv.services.api.GoogleDriveService;
-import com.logistica.doisv.services.exceptions.AssociacaoInvalidaException;
-import com.logistica.doisv.services.exceptions.DatabaseException;
-import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
+import com.logistica.doisv.services.exceptions.*;
+import com.logistica.doisv.util.conversao.PaginacaoUtil;
 import com.logistica.doisv.util.validacao.ArquivoValidador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,8 +19,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -111,6 +115,35 @@ public class ProdutoService {
         repository.saveAll(produtos);
     }
 
+    @Transactional
+    public List<ProdutoDTO> importarProdutos(MultipartFile produtosCsv, Long idLoja){
+        arquivoValidador.validarObrigatorio(produtosCsv, Set.of(CategoriaArquivoPermitida.CSV));
+
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(produtosCsv.getInputStream()))){
+            String linha = reader.readLine();
+            arquivoValidador.validarEstruturaCsv(linha);
+
+            List<Produto> produtos = new ArrayList<>();
+
+            while (linha != null){
+                linha = reader.readLine();
+
+                if(linha != null){
+                    arquivoValidador.validarEstruturaCsv(linha);
+                    produtos.add(converterLinhaParaProduto(linha, idLoja));
+                }
+            }
+
+            return repository.saveAll(produtos)
+                    .stream()
+                    .map(ProdutoDTO::new)
+                    .toList();
+
+        }catch (IOException e){
+            throw new TipoArquivoInvalidoException("Erro ao validar estrutura do CSV.");
+        }
+    }
+
 
     private void dtoParaEntidade(ProdutoDTO dto, Produto produto){
         produto.setDescricao(dto.descricao());
@@ -124,6 +157,39 @@ public class ProdutoService {
     private void validarLojaProduto(Long idLoja, Produto produto) {
         if(!produto.getLoja().getIdLoja().equals(idLoja)) {
             throw new AssociacaoInvalidaException("Você não tem permissão para editar esse produto");
+        }
+    }
+
+    private Produto converterLinhaParaProduto(String linha, Long idLoja){
+        String[] campos = linha.split(";");
+
+        if (campos.length < 3) {
+            throw new RegraNegocioException("Linha do CSV com formato inválido: " + linha);
+        }
+
+        try {
+            String descricao = campos[0].trim();
+            String unidadeMedida = campos[1].trim();
+
+            String precoTexto = campos[2].replace(",",".");
+            BigDecimal preco = new BigDecimal(precoTexto);
+
+            if(preco.compareTo(BigDecimal.ZERO) < 0){
+                throw new RegraNegocioException("O valor não poder ser negativo: " + linha);
+            }
+
+            Produto produto = new Produto();
+            produto.setDescricao(descricao);
+            produto.setUnidadeMedida(unidadeMedida);
+            produto.setPreco(preco);
+
+            Loja loja = new Loja();
+            loja.setIdLoja(idLoja);
+            produto.setLoja(loja);
+
+            return produto;
+        }catch (NumberFormatException e) {
+            throw new RegraNegocioException("Preço inválido na linha: " + linha);
         }
     }
 }
