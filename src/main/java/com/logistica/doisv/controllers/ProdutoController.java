@@ -4,6 +4,7 @@ import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.ProdutoDTO;
 import com.logistica.doisv.services.ProdutoService;
 import com.logistica.doisv.services.validacao.TokenService;
+import com.logistica.doisv.util.validacao.ArquivoValidador;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

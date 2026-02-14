@@ -3,10 +3,13 @@ package com.logistica.doisv.services;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.logistica.doisv.entities.enums.CategoriaArquivoPermitida;
 import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.services.exceptions.DatabaseException;
+import com.logistica.doisv.util.validacao.ArquivoValidador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,9 @@ public class LojaService {
     @Autowired
     private LojaRepository lojaRepository;
 
+    @Autowired
+    private ArquivoValidador arquivoValidador;
+
     @Transactional(readOnly = true)
     public LojaDTO buscarPorId(Long id) {
         return lojaRepository.findById(id)
@@ -42,13 +48,17 @@ public class LojaService {
 
     @Transactional
     public LojaDTO salvar(LojaDTO dto, MultipartFile logo) throws IOException, GeneralSecurityException {
+        arquivoValidador.validarOpcional(logo, Set.of(CategoriaArquivoPermitida.IMAGEM));
+
         Loja loja = new Loja();
         dtoParaEntidade(dto, loja);
+
         if(logo != null && logo.getContentType() != null){
             lojaRepository.save(loja);
             String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, loja.getIdLoja().toString(), loja.getClass().getSimpleName());
             loja.setLogo(logoUrl.split("/")[5]);
         }
+
         return new LojaDTO(lojaRepository.save(loja));
     }
 
@@ -56,12 +66,17 @@ public class LojaService {
     public LojaDTO atualizar(Long id, LojaDTO dto, MultipartFile logo) throws IOException, GeneralSecurityException{
         try{
             Loja loja = lojaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrado"));
+
+            arquivoValidador.validarOpcional(logo, Set.of(CategoriaArquivoPermitida.IMAGEM));
             dtoParaEntidade(dto, loja);
+
             if(logo != null && logo.getContentType() != null){
                 String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, id.toString(), "Loja");
                 loja.setLogo(logoUrl.split("/")[5]);
             }
+
             loja = lojaRepository.save(loja);
+
             return new LojaDTO(loja);
         }catch (EntityNotFoundException e){
             throw new ResourceNotFoundException("Loja não encontrado");

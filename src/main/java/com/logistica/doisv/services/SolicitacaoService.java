@@ -11,6 +11,7 @@ import com.logistica.doisv.entities.HistoricoSolicitacao;
 import com.logistica.doisv.entities.ItemVenda;
 import com.logistica.doisv.entities.Solicitacao;
 import com.logistica.doisv.entities.Venda;
+import com.logistica.doisv.entities.enums.CategoriaArquivoPermitida;
 import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.entities.enums.StatusSolicitacao;
 import com.logistica.doisv.entities.enums.TipoSolicitacao;
@@ -18,6 +19,7 @@ import com.logistica.doisv.repositories.SolicitacaoRepository;
 import com.logistica.doisv.repositories.VendaRepository;
 import com.logistica.doisv.services.api.AnexoDriveService;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
+import com.logistica.doisv.util.validacao.ArquivoValidador;
 import com.logistica.doisv.util.validacao.SolicitacaoValidador;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +48,7 @@ public class SolicitacaoService {
     private final AnexoDriveService anexoService;
     private final SolicitacaoValidador validador;
     private final VendaService vendaService;
+    private final ArquivoValidador arquivoValidador;
 
     @Transactional(readOnly = true)
     public Page<SolicitacaoResumidaDTO> buscarTodos(Pageable pageable, Long idLoja){
@@ -61,6 +65,8 @@ public class SolicitacaoService {
 
     @Transactional
     public SolicitacaoResumidaDTO registrarSolicitacao(CriarSolicitacaoDTO dto, List<MultipartFile> anexos, Long idVenda) throws GeneralSecurityException, IOException {
+        validarTipoAnexo(anexos);
+
         Venda venda = vendaRepository.buscarVendaPorId(idVenda).orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada"));
         validador.validarStatusVenda(venda, dto.tipo());
 
@@ -133,6 +139,8 @@ public class SolicitacaoService {
 
     @Transactional
     public SolicitacaoResumidaDTO editarSolicitacao(Long id, CriarSolicitacaoDTO dto, List<MultipartFile> anexos, Long idLoja) throws GeneralSecurityException, IOException {
+        validarTipoAnexo(anexos);
+
         Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
 
         validador.validarAprovacaoSolicitacao(solicitacao, idLoja);
@@ -265,5 +273,16 @@ public class SolicitacaoService {
         if(solicitacaoFinalizada && temProdutosParaTroca && solicitacao.getTipoSolicitacao() == TipoSolicitacao.TROCA){
             vendaService.salvar(new RegistroVendaDTO(solicitacao, novosProdutos), solicitacao.getVenda().getLoja().getIdLoja());
         }
+    }
+
+    private void validarTipoAnexo(List<MultipartFile> anexos){
+        if (anexos == null || anexos.isEmpty()) {
+            return;
+        }
+
+        Set<CategoriaArquivoPermitida> categoriasPermitidas =
+                Set.of(CategoriaArquivoPermitida.IMAGEM, CategoriaArquivoPermitida.VIDEO);
+
+        anexos.forEach(arquivo -> arquivoValidador.validarOpcional(arquivo, categoriasPermitidas));
     }
 }
