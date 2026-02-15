@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "tb_Lojista")
+@Table(name = "tb_Lojista", uniqueConstraints = @UniqueConstraint(columnNames = {"idLoja", "cpf"}))
 @Getter
 @Setter
 @NoArgsConstructor

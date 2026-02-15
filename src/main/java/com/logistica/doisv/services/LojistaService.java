@@ -9,7 +9,6 @@ import com.logistica.doisv.repositories.LojistaRepository;
 import com.logistica.doisv.services.exceptions.DatabaseException;
 import com.logistica.doisv.services.exceptions.RegraNegocioException;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,8 +31,8 @@ public class LojistaService {
     private PasswordEncoder encoder;
 
     @Transactional(readOnly = true)
-    public LojistaDTO buscarPorId(Long id){
-        return lojistaRepository.findById(id)
+    public LojistaDTO buscarPorId(Long id, Long idLoja){
+        return lojistaRepository.findByIdLojistaAndLojaIdLoja(id, idLoja)
                 .map(LojistaDTO::new)
                 .orElseThrow(() -> new ResourceNotFoundException("Lojista não encontrado"));
     }
@@ -53,29 +52,31 @@ public class LojistaService {
     }
 
     @Transactional
-    public LojistaDTO salvar(LojistaDTO dto){
+    public LojistaDTO salvar(LojistaDTO dto, Long idLoja){
         Lojista lojista = new Lojista();
-        Loja loja = lojaRepository.findById(dto.idLoja()).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrada"));
+        Loja loja = lojaRepository.findById(idLoja).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrada"));
+
         dtoParaEntidade(dto, lojista);
         lojista.setLoja(loja);
+
         return new LojistaDTO(lojistaRepository.save(lojista));
     }
 
     @Transactional
-    public LojistaDTO atualizar(Long id, LojistaDTO dto){
-        try {
-            Lojista lojista = lojistaRepository.getReferenceById(id);
-            dtoParaEntidade(dto, lojista);
-            lojista = lojistaRepository.save(lojista);
-            return new LojistaDTO(lojista);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Lojista não encontrado");
-        }
+    public LojistaDTO atualizar(Long id, LojistaDTO dto, Long idLoja){
+        Lojista lojista = lojistaRepository.findByIdLojistaAndLojaIdLoja(id, idLoja)
+                    .orElseThrow(() -> new ResourceNotFoundException("Lojista não encontrado."));
+
+        dtoParaEntidade(dto, lojista);
+        lojista = lojistaRepository.save(lojista);
+
+        return new LojistaDTO(lojista);
+
     }
 
     @Transactional
-    public void remover(Long id){
-        if(!lojistaRepository.existsById(id)){
+    public void remover(Long id, Long idLoja){
+        if(!lojistaRepository.existsByIdLojistaAndLojaIdLoja(id, idLoja)){
             throw new ResourceNotFoundException("Lojista não encontrado");
         }try {
             lojistaRepository.deleteById(id);
@@ -85,12 +86,17 @@ public class LojistaService {
     }
 
     @Transactional
-    public void inativar(List<Long> lojitasIds){
+    public void inativar(List<Long> lojitasIds, Long idLoja){
         if(lojitasIds.isEmpty() || lojitasIds.contains(null)){
             throw new RegraNegocioException("Lista de lojistas vazia ou contém valor nulo");
         }
 
-        var lojistas = lojistaRepository.findAllById(lojitasIds);
+        var lojistas = lojistaRepository.findAllByIdLojistaInAndLojaIdLoja(lojitasIds, idLoja);
+
+        if(lojistas.isEmpty()){
+            throw new ResourceNotFoundException("Nenhum lojista encontrado para os IDs: " + lojitasIds);
+        }
+
         lojistas.forEach(l -> l.setStatus(Status.INATIVO));
         lojistaRepository.saveAll(lojistas);
     }

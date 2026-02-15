@@ -23,47 +23,54 @@ public class LojistaController {
     private TokenService tokenService;
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<LojistaDTO> buscarLojistaPorId(@PathVariable Long id){
-        return ResponseEntity.ok(lojistaService.buscarPorId(id));
+    public ResponseEntity<LojistaDTO> buscarLojistaPorId(@PathVariable Long id, @RequestHeader String Authorization){
+        AcessoDTO acessoDTO = tokenService.validarToken(Authorization);
+        return ResponseEntity.ok(lojistaService.buscarPorId(id, acessoDTO.getIdLoja()));
     }
 
     @GetMapping(value = "/profile")
     public ResponseEntity<LojistaDTO> buscarLojistaPorToken(@RequestHeader String Authorization){
         AcessoDTO acesso = tokenService.validarToken(Authorization);
-        return ResponseEntity.ok(lojistaService.buscarPorId(acesso.getIdLojista()));
+        return ResponseEntity.ok(lojistaService.buscarPorId(acesso.getIdLojista(), acesso.getIdLoja()));
     }
+
+//    @GetMapping
+//    public ResponseEntity<List<LojistaDTO>> buscarTodosLojistas(){
+//        return ResponseEntity.ok(lojistaService.buscarTodos());
+//    }
 
     @GetMapping
-    public ResponseEntity<List<LojistaDTO>> buscarTodosLojistas(){
-        return ResponseEntity.ok(lojistaService.buscarTodos());
-    }
-
-    @GetMapping(params = "lojaId")
-    public ResponseEntity<List<LojistaDTO>> buscarLojistaPorLoja(@RequestParam Long lojaId){
-        return ResponseEntity.ok(lojistaService.buscarLojistaPorLoja(lojaId));
+    public ResponseEntity<List<LojistaDTO>> buscarTodosLojistasPorLoja(@RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        return ResponseEntity.ok(lojistaService.buscarLojistaPorLoja(acesso.getIdLoja()));
     }
 
     @PostMapping
-    public ResponseEntity<LojistaDTO> criarLojista(@Valid @RequestBody LojistaDTO dto){
+    public ResponseEntity<LojistaDTO> criarLojista(@Valid @RequestBody LojistaDTO dto, @RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
-        return ResponseEntity.created(uri).body(lojistaService.salvar(dto));
+        return ResponseEntity.created(uri).body(lojistaService.salvar(dto, acesso.getIdLoja()));
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<LojistaDTO> atualizarLojista(@PathVariable Long id, @Valid @RequestBody LojistaDTO dto){
-        dto = lojistaService.atualizar(id, dto);
+    public ResponseEntity<LojistaDTO> atualizarLojista(@PathVariable Long id, @Valid @RequestBody LojistaDTO dto,
+                                                       @RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        dto = lojistaService.atualizar(id, dto, acesso.getIdLoja());
         return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping(value = "/{id}/permanent")
-    public ResponseEntity<Void> deletarLojista(@PathVariable Long id){
-        lojistaService.remover(id);
+    public ResponseEntity<Void> deletarLojista(@PathVariable Long id, @RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        lojistaService.remover(id, acesso.getIdLoja());
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> desativarLojistas(@RequestBody List<Long> lojistasIds){
-        lojistaService.inativar(lojistasIds);
+    public ResponseEntity<Void> desativarLojistas(@RequestBody List<Long> lojistasIds, @RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        lojistaService.inativar(lojistasIds, acesso.getIdLoja());
         return ResponseEntity.noContent().build();
     }
 }

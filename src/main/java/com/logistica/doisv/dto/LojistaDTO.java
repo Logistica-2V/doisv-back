@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record LojistaDTO(Long id, @NotBlank String nome, @CpfCnpj @NotNull String cpf, @NotBlank @Email String email, @NotBlank String password,
-                         @NotNull Long idLoja, String status) {
+                         Long idLoja, String status) {
 
     public LojistaDTO {
         cpf = cpf != null ? cpf.replaceAll("[^0-9A-Za-z]", "").toUpperCase() : null;

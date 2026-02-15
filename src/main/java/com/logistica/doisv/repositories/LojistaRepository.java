@@ -15,4 +15,9 @@ public interface LojistaRepository extends JpaRepository<Lojista,Long> {
 
     List<Lojista> findAllByLoja_IdLoja(Long idLoja);
 
+    Optional<Lojista> findByIdLojistaAndLojaIdLoja(Long idLojista, Long idLoja);
+
+    boolean existsByIdLojistaAndLojaIdLoja(Long idLojista, Long idLoja);
+
+    List<Lojista> findAllByIdLojistaInAndLojaIdLoja(Iterable<Long> ids, Long idLoja);
 }
