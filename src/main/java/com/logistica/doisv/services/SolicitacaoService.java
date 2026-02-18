@@ -7,10 +7,7 @@ import com.logistica.doisv.dto.registro_solicitacao.SolicitacaoDetalhadaDTO;
 import com.logistica.doisv.dto.registro_solicitacao.SolicitacaoResumidaDTO;
 import com.logistica.doisv.dto.registro_venda.requisicao.ItemDTO;
 import com.logistica.doisv.dto.registro_venda.requisicao.RegistroVendaDTO;
-import com.logistica.doisv.entities.HistoricoSolicitacao;
-import com.logistica.doisv.entities.ItemVenda;
-import com.logistica.doisv.entities.Solicitacao;
-import com.logistica.doisv.entities.Venda;
+import com.logistica.doisv.entities.*;
 import com.logistica.doisv.entities.enums.CategoriaArquivoPermitida;
 import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.entities.enums.StatusSolicitacao;
@@ -18,6 +15,7 @@ import com.logistica.doisv.entities.enums.TipoSolicitacao;
 import com.logistica.doisv.repositories.SolicitacaoRepository;
 import com.logistica.doisv.repositories.VendaRepository;
 import com.logistica.doisv.services.api.AnexoDriveService;
+import com.logistica.doisv.services.api.GoogleDriveService;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import com.logistica.doisv.util.validacao.ArquivoValidador;
 import com.logistica.doisv.util.validacao.SolicitacaoValidador;
@@ -120,7 +118,7 @@ public class SolicitacaoService {
     }
 
     @Transactional
-    public SolicitacaoResumidaDTO reprovarSolicitacao(Long id, Long idLoja) {
+    public SolicitacaoResumidaDTO reprovarSolicitacao(Long id, Long idLoja) throws GeneralSecurityException, IOException {
         Solicitacao solicitacao = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
 
         validador.validarAprovacaoSolicitacao(solicitacao, idLoja);
@@ -132,7 +130,8 @@ public class SolicitacaoService {
         solicitacao.setStatusSolicitacao(StatusSolicitacao.REJEITADA);
         solicitacao.setStatus(Status.INATIVO);
         solicitacao.setDataAtualizacao(historico.getDataAtualizacao());
-        solicitacao.getAnexos().clear();
+
+        excluirAnexos(solicitacao);
 
         return new SolicitacaoResumidaDTO(repository.save(solicitacao));
     }
@@ -184,7 +183,7 @@ public class SolicitacaoService {
 
 
     @Transactional
-    public SolicitacaoResumidaDTO cancelarSolicitacao(Long idSolicitacao, CriarSolicitacaoDTO dto, Long idLoja){
+    public SolicitacaoResumidaDTO cancelarSolicitacao(Long idSolicitacao, CriarSolicitacaoDTO dto, Long idLoja) throws GeneralSecurityException, IOException {
         Solicitacao solicitacao = repository.findById(idSolicitacao).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
 
         validador.validarCancelamento(solicitacao, idLoja);
@@ -198,10 +197,10 @@ public class SolicitacaoService {
 
         itemVenda.setStatus(Status.ATIVO);
         itemVenda.setDetalhes("");
-        //futuramente exclusão dos anexos
-        //solicitacao.getAnexos().clear();
         solicitacao.setStatusSolicitacao(historico.getStatusAtual());
         solicitacao.setStatus(Status.INATIVO);
+
+        excluirAnexos(solicitacao);
 
         return new SolicitacaoResumidaDTO(repository.save(solicitacao));
     }
@@ -242,6 +241,15 @@ public class SolicitacaoService {
                 }
             });
         }
+    }
+
+    private void excluirAnexos(Solicitacao solicitacao) throws GeneralSecurityException, IOException {
+        List<String> idsAnexos = solicitacao.getAnexos().stream()
+                .map(anexo -> solicitacao.getId() + "_" + anexo.getId()).toList();
+
+        solicitacao.getAnexos().clear();
+
+        anexoService.processarExclusaoAnexos(idsAnexos, solicitacao.getClass().getSimpleName());
     }
 
     private Solicitacao construirSolicitacao(CriarSolicitacaoDTO dto, Venda venda, ItemVenda itemVenda, TipoSolicitacao tipo) {

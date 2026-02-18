@@ -9,7 +9,6 @@ import com.logistica.doisv.repositories.LojaRepository;
 import com.logistica.doisv.repositories.ProdutoRepository;
 import com.logistica.doisv.services.api.GoogleDriveService;
 import com.logistica.doisv.services.exceptions.*;
-import com.logistica.doisv.util.conversao.PaginacaoUtil;
 import com.logistica.doisv.util.validacao.ArquivoValidador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -93,15 +92,18 @@ public class ProdutoService {
 
     @Transactional
     public void remover(Long id, Long idLoja){
-        if(!repository.existsById(id)){
-            throw new ResourceNotFoundException("Recurso não encontrado");
-        }
-
         try {
-            validarLojaProduto(idLoja, repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado")));
+            Produto produto = repository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+            validarLojaProduto(idLoja, produto);
+
+            excluirImagemProduto(produto);
+
             repository.deleteById(id);
         }catch(DataIntegrityViolationException e){
             throw new DatabaseException("Falha na integridade referencial");
+        } catch (GeneralSecurityException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -191,5 +193,9 @@ public class ProdutoService {
         }catch (NumberFormatException e) {
             throw new RegraNegocioException("Preço inválido na linha: " + linha);
         }
+    }
+
+    private void excluirImagemProduto(Produto produto) throws GeneralSecurityException, IOException {
+        GoogleDriveService.excluirArquivoDrive(produto.getIdProduto().toString(), produto.getClass().getSimpleName());
     }
 }

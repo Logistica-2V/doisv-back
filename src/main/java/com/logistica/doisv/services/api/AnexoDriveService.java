@@ -48,4 +48,11 @@ public class AnexoDriveService {
 
         solicitacaoRepository.save(solicitacao);
     }
+
+    @Async
+    public void processarExclusaoAnexos(List<String> idsItem, String nomePasta) throws GeneralSecurityException, IOException {
+        for (String id : idsItem) {
+            GoogleDriveService.excluirArquivoDrive(id, nomePasta);
+        }
+    }
 }

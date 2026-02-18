@@ -71,7 +71,7 @@ public class SolicitacaoController {
     }
 
     @PutMapping(value = "/reprovar/{id}")
-    public ResponseEntity<SolicitacaoResumidaDTO> reprovarSolicitacao(@PathVariable Long id, @RequestHeader String Authorization){
+    public ResponseEntity<SolicitacaoResumidaDTO> reprovarSolicitacao(@PathVariable Long id, @RequestHeader String Authorization) throws GeneralSecurityException, IOException {
         AcessoDTO acesso = tokenService.validarToken(Authorization);
 
         return ResponseEntity.ok(service.reprovarSolicitacao(id, acesso.getIdLoja()));
@@ -90,7 +90,7 @@ public class SolicitacaoController {
     @PutMapping(value = "/cancelar/{id}")
     public ResponseEntity<SolicitacaoResumidaDTO> cancelarSolicitacao(@PathVariable Long id,
                                                                       @Valid @RequestBody CriarSolicitacaoDTO dto,
-                                                                      @RequestHeader String Authorization){
+                                                                      @RequestHeader String Authorization) throws GeneralSecurityException, IOException {
         AcessoDTO acessoDTO = tokenService.validarToken(Authorization);
 
         return ResponseEntity.ok(service.cancelarSolicitacao(id, dto, acessoDTO.getIdLoja()));

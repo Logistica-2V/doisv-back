@@ -95,4 +95,21 @@ public class GoogleDriveService {
 
         return resultado.getFiles().isEmpty() ? null : resultado.getFiles().get(0).getId();
     }
+
+    public static void excluirArquivoDrive(String idItem, String nomePasta) throws GeneralSecurityException, IOException {
+        Drive driveService = GoogleDriveConfig.getDriveService();
+
+        //Obtém o ID da pasta desejada a cada chamada, em vez de usar uma variável estática.
+        String idPasta = obterOuCriarPasta(driveService, nomePasta);
+
+        //Busca o arquivo passando o ID da pasta correta como parâmetro.
+        String arquivoExistenteId = buscarArquivoPorNome(driveService, idItem, idPasta);
+
+//        // Metadados do arquivo
+//        File metadadosArquivo = new File();
+//
+//        File arquivoSalvo;
+
+        driveService.files().delete(arquivoExistenteId).execute();
+    }
 }
