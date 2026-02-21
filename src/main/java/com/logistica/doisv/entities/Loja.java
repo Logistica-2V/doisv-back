@@ -5,10 +5,7 @@ import com.logistica.doisv.entities.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_Loja")
@@ -20,6 +17,8 @@ public class Loja {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idLoja;
+    @Column(unique = true, nullable = false, updatable = false)
+    private UUID idPublico = UUID.randomUUID();
     private String nome;
     private String cnpj;
     private String segmento;

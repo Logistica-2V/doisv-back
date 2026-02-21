@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class FeedbackService {
@@ -59,13 +60,13 @@ public class FeedbackService {
     }
 
     @Transactional(readOnly = true)
-    public Page<FeedbackResumidoDTO> buscarTodosPorLoja(Pageable pageable, Long idLoja, Integer periodo){
+    public Page<FeedbackResumidoDTO> buscarTodosPorLoja(Pageable pageable, UUID idPublicoLoja, Integer periodo){
         LocalDate inicio = LocalDate.now().minusDays(periodo);
         LocalDate fim = LocalDate.now();
 
-        List<FeedbackResumidoDTO> feedbacks = repository.buscarFeedbacksPorLojaEPeriodo(idLoja, inicio, fim)
+        List<FeedbackResumidoDTO> feedbacks = repository.buscarFeedbacksPublicosPorLojaEPeriodo(idPublicoLoja, inicio, fim)
                 .stream()
-                .map(f -> new FeedbackResumidoDTO(f.getIdFeedback(),
+                .map(f -> new FeedbackResumidoDTO(null,
                         null,
                         f.getComentario(),
                         f.getNota(),

@@ -15,6 +15,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("doisv/feedbacks")
@@ -40,7 +41,7 @@ public class FeedbackController {
     }
 
     @GetMapping("/lojas/{idLoja}")
-    public ResponseEntity<Page<FeedbackResumidoDTO>> buscarFeedbacksPorLoja(@PathVariable Long idLoja,
+    public ResponseEntity<Page<FeedbackResumidoDTO>> buscarFeedbacksPorLoja(@PathVariable UUID idLoja,
                                                                             @RequestParam(defaultValue = "180") Integer periodo,
                                                                             Pageable pageable){
         return ResponseEntity.ok(service.buscarTodosPorLoja(pageable, idLoja, periodo));

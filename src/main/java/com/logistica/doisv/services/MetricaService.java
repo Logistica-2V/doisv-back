@@ -113,7 +113,7 @@ public class MetricaService {
                             feedbacksPorLoja.getOrDefault(l.getIdLoja(), Collections.emptyList());
 
                     return new MetricasPublicasLojaDTO(
-                            l.getIdLoja(),
+                            l.getIdPublico(),
                             l.getNome(),
                             l.getLogo(),
                             l.getSegmento(),

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
@@ -40,6 +41,17 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
         AND f.dataFeedback BETWEEN :inicio and :fim
         """)
     List<Feedback> buscarFeedbacksPorLojaEPeriodo(@Param("idLoja") Long idLoja,
+                                                  @Param("inicio") LocalDate inicio,
+                                                  @Param("fim") LocalDate fim);
+
+    @Query("""
+        SELECT f FROM Feedback f
+        JOIN FETCH f.solicitacao s
+        JOIN FETCH s.venda
+        WHERE f.loja.idPublico = :idPublicoLoja
+        AND f.dataFeedback BETWEEN :inicio and :fim
+        """)
+    List<Feedback> buscarFeedbacksPublicosPorLojaEPeriodo(@Param("idPublicoLoja") UUID idPublicoLoja,
                                                   @Param("inicio") LocalDate inicio,
                                                   @Param("fim") LocalDate fim);
 

@@ -1,8 +1,8 @@
 -- LOJAS
-INSERT IGNORE INTO tb_Loja (id_loja, nome, cnpj, segmento, logo, email, status) VALUES
-(1, 'Loja CenterTech', 'RKO5GZPX000178', 'Tecnologia', '1qHS3CjGqHF0C3rTDLuMU_dG8dCzYgXrv', 'contato@centertech.com', 'ATIVO'),
-(2, 'Loja Estilo&Cia', '35420723000124', 'Moda', '1qQist6b6FVov1d5LbBVddDY3U6IAD264', 'contato@estilocia.com', 'ATIVO'),
-(3, 'Loja MundoLivros', 'NWFO17KR000186', 'Livros', '1ua9emAVgEZIraJIHVhgpcMO0XL6qn8e5', 'contato@mundolivros.com', 'ATIVO');
+INSERT IGNORE INTO tb_Loja (id_loja, nome, cnpj, segmento, logo, email, status, id_publico) VALUES
+(1, 'Loja CenterTech', 'RKO5GZPX000178', 'Tecnologia', '1qHS3CjGqHF0C3rTDLuMU_dG8dCzYgXrv', 'contato@centertech.com', 'ATIVO', UUID()),
+(2, 'Loja Estilo&Cia', '35420723000124', 'Moda', '1qQist6b6FVov1d5LbBVddDY3U6IAD264', 'contato@estilocia.com', 'ATIVO', UUID()),
+(3, 'Loja MundoLivros', 'NWFO17KR000186', 'Livros', '1ua9emAVgEZIraJIHVhgpcMO0XL6qn8e5', 'contato@mundolivros.com', 'ATIVO', UUID());
 
 -- ADMIN
 INSERT IGNORE INTO tb_Lojista (id_lojista, nome, cpf, email, senha, status, id_loja) VALUES

@@ -2,8 +2,9 @@ package com.logistica.doisv.dto;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.UUID;
 
-public record MetricasPublicasLojaDTO(Long idLoja,
+public record MetricasPublicasLojaDTO(UUID idLoja,
                                       String nomeLoja,
                                       String logo,
                                       String segmento,
