@@ -179,3 +179,9 @@ VALUES
 -- SOLICITAÇÃO 7 (Venda da Loja 3 - MundoLivros)
 (7, 'Enviam livros sem proteção adequada. É a segunda vez que chega amassado.', '2025-03-21', 1, 'ATIVO', 'LOJA', 9, 3, 7),
 (8, 'Sistema de troca confuso, pede muitas fotos e demora para validar.', '2025-03-21', 2, 'ATIVO', 'SOLICITACAO', 9, 3, 7);
+
+-- LICENCAS
+INSERT IGNORE INTO tb_licenca (id_licenca, validade, status, id_loja) VALUES
+('31323635-3133-3064-2d31-3464622d3131', '2026-12-31', 'ATIVO', 1),
+('31323635-3163-3634-2d31-3464622d3131', '2026-10-15', 'ATIVO', 2),
+('31323635-3165-3330-2d31-3464622d3131', '2026-08-20', 'ATIVO', 3);

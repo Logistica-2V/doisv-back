@@ -2,6 +2,7 @@ package com.logistica.doisv.services.validacao;
 
 import java.security.Key;
 
+import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.repositories.VendaRepository;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,9 @@ public class TokenService {
                     .idLoja(claims.get("idLoja", Long.class));
 
             if(tipoUsuario == AcessoDTO.TipoUsuario.LOJISTA){
-                if(!lojistaRepository.existsById(claims.get("idLojista", Long.class))){
+                Long idLojista = claims.get("idLojista", Long.class);
+
+                if(!lojistaRepository.existsByIdLojistaAndLoja_Status(idLojista, Status.ATIVO)){
                     throw new ResourceNotFoundException("Lojista do token não localizado");
                 }
 

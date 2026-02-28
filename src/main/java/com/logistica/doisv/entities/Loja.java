@@ -48,4 +48,8 @@ public class Loja {
     @JsonIgnore
     private List<Feedback> feedbacks = new ArrayList<>();
 
+    @OneToMany(mappedBy = "loja", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Licenca> licencas = new ArrayList<>();
+
 }

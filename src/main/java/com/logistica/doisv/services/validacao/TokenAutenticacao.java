@@ -47,7 +47,7 @@ public class TokenAutenticacao extends OncePerRequestFilter{
 
             }catch(Exception e){
                 resposta.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                resposta.getWriter().write("Token inválido ou acesso não autorizado");
+                resposta.getWriter().write("Token inválido ou licença expirada");
                 return;
             }
         }

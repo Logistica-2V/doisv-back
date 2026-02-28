@@ -1,6 +1,7 @@
 package com.logistica.doisv.services;
 
 import com.logistica.doisv.dto.ConsumidorLoginDTO;
+import com.logistica.doisv.entities.Loja;
 import com.logistica.doisv.entities.Lojista;
 import com.logistica.doisv.entities.RecuperarSenha;
 import com.logistica.doisv.entities.Venda;
@@ -54,9 +55,9 @@ public class AutenticacaoService {
         Lojista lojista = lojistaRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
 
-        if(!lojista.getStatus().equals(Status.ATIVO)){
-            throw new UsuarioInativoException("Usuário inativo, entre em contato com o admin para reativa-lo.");
-        }
+        validarLojaAtiva(lojista.getLoja());
+
+        validarLojistaAtivo(lojista);
 
         if (encoder.matches(password, lojista.getPassword())){
             Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
@@ -137,7 +138,7 @@ public class AutenticacaoService {
     }
 
     @Transactional
-    private void cancelarRecuperacoesAnteriores(String email, String codigoRecuperacao){
+    protected void cancelarRecuperacoesAnteriores(String email, String codigoRecuperacao){
         recuperarSenhaRepository.cancelarCodigoRecuperacaoAnteriores(email, codigoRecuperacao);
     }
 
@@ -176,6 +177,18 @@ public class AutenticacaoService {
     private void validarForcaSenha(String senha) {
         if (senha == null || senha.length() < 8) {
             throw new SenhaFracaException("A senha deve ter no mínimo 8 caracteres");
+        }
+    }
+
+    private void validarLojaAtiva(Loja loja){
+        if(loja.getStatus().equals(Status.INATIVO)){
+            throw new UsuarioInativoException("A Licença da Loja vencida, reative para ter acesso as funcionalidades.");
+        }
+    }
+
+    private void validarLojistaAtivo(Lojista lojista){
+        if(!lojista.getStatus().equals(Status.ATIVO)){
+            throw new UsuarioInativoException("Usuário inativo, entre em contato com o admin para reativa-lo.");
         }
     }
 }
