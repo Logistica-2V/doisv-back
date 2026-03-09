@@ -58,7 +58,7 @@ public class ConsumidorController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping
+    @PatchMapping
     public ResponseEntity<Void> desativarConsumidor(@RequestBody List<Long> consumidoresIds, @RequestHeader String Authorization){
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         consumidorService.inativar(consumidoresIds, acesso.getIdLoja());

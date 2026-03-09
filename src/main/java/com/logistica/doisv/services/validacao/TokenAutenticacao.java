@@ -39,7 +39,8 @@ public class TokenAutenticacao extends OncePerRequestFilter{
             try{
                 AcessoDTO acesso = tokenService.validarToken(token);
 
-                UsernamePasswordAuthenticationToken autenticacao = new UsernamePasswordAuthenticationToken(acesso, null, acesso.getPermissao());
+                UsernamePasswordAuthenticationToken autenticacao =
+                        new UsernamePasswordAuthenticationToken(acesso, null, acesso.getPermissao());
 
                 autenticacao.setDetails(new WebAuthenticationDetailsSource().buildDetails(requisicao));
 

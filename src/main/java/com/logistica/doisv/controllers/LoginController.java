@@ -46,7 +46,7 @@ public class LoginController {
         String email = body.path("email").asText(null);
         autenticacaoService.recuperarSenhaLojista(email);
 
-        return ResponseEntity.ok(String.format("Consigo de recuperação enviado para o email %s", email));
+        return ResponseEntity.ok(String.format("Código de recuperação enviado para o email %s", email));
     }
 
     @PostMapping(value = "/lojista/validar-recuperacao")

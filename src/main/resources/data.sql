@@ -4,27 +4,27 @@ INSERT IGNORE INTO tb_Loja (id_loja, nome, cnpj, segmento, logo, email, status, 
 (2, 'Loja Estilo&Cia', '35420723000124', 'Moda', '1qQist6b6FVov1d5LbBVddDY3U6IAD264', 'contato@estilocia.com', 'ATIVO', UUID()),
 (3, 'Loja MundoLivros', 'NWFO17KR000186', 'Livros', '1ua9emAVgEZIraJIHVhgpcMO0XL6qn8e5', 'contato@mundolivros.com', 'ATIVO', UUID());
 
--- ADMIN
-INSERT IGNORE INTO tb_Lojista (id_lojista, nome, cpf, email, senha, status, id_loja) VALUES
-(1, 'Usuário Administrador', '03032792061', 'admin@doisv.com', '$2a$10$s/w9pVrBTGP9MWhfF1c68eorYnBB4wGK.eZ2iHGZGW01X71qkcKxq', 'ATIVO', 1);
+-- ADMIN (admin = true)
+INSERT IGNORE INTO tb_Lojista (id_lojista, nome, cpf, email, senha, status, admin, id_loja) VALUES
+(1, 'Usuário Administrador', '03032792061', 'admin@doisv.com', '$2a$10$s/w9pVrBTGP9MWhfF1c68eorYnBB4wGK.eZ2iHGZGW01X71qkcKxq', 'ATIVO', true, 1);
 
--- LOJISTAS (senha = 'teste')
-INSERT IGNORE INTO tb_Lojista (id_lojista, nome, cpf, email, senha, status, id_loja) VALUES
-(2, 'Carla Souza', '76196945017', 'carla.souza@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 2),
-(3, 'Pedro Lima', '35749998010', 'pedro.lima@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 3),
-(4, 'Juliana Martins', '08233781010', 'juliana.martins@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 1),
-(5, 'Bruno Rocha', '50543505006', 'bruno.rocha@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 2),
-(6, 'Renata Alves', '51340979098', 'renata.alves@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 3),
-(7, 'Luciano Mendes', '53828563031', 'luciano.mendes@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 1),
-(8, 'Patrícia Freitas', '68835673054', 'patricia.freitas@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 2),
-(9, 'Eduardo Silva', '79567695075', 'eduardo.silva@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 3),
-(10, 'Fernanda Oliveira', '93549921020', 'fernanda.oliveira@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 1),
-(11, 'João Vieira', '03882210036', 'joao.vieira@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 2),
-(12, 'Aline Costa', '95154875010', 'aline.costa@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 3),
-(13, 'Rafael Teixeira', '97495750081', 'rafael.teixeira@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 1),
-(14, 'Camila Duarte', '29724618005', 'camila.duarte@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 2),
-(15, 'Diego Ramos', '50282985050', 'marcelo_willian@icloud.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 3),
-(16, 'Marina Lopes', '82764720017', 'marina.lopes@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', 1);
+-- LOJISTAS (todos com admin = false)
+INSERT IGNORE INTO tb_Lojista (id_lojista, nome, cpf, email, senha, status, admin, id_loja) VALUES
+(2, 'Carla Souza', '76196945017', 'carla.souza@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 2),
+(3, 'Pedro Lima', '35749998010', 'pedro.lima@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 3),
+(4, 'Juliana Martins', '08233781010', 'juliana.martins@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 1),
+(5, 'Bruno Rocha', '50543505006', 'bruno.rocha@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 2),
+(6, 'Renata Alves', '51340979098', 'renata.alves@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 3),
+(7, 'Luciano Mendes', '53828563031', 'luciano.mendes@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 1),
+(8, 'Patrícia Freitas', '68835673054', 'patricia.freitas@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 2),
+(9, 'Eduardo Silva', '79567695075', 'eduardo.silva@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 3),
+(10, 'Fernanda Oliveira', '93549921020', 'fernanda.oliveira@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 1),
+(11, 'João Vieira', '03882210036', 'joao.vieira@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 2),
+(12, 'Aline Costa', '95154875010', 'aline.costa@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 3),
+(13, 'Rafael Teixeira', '97495750081', 'rafael.teixeira@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 1),
+(14, 'Camila Duarte', '29724618005', 'camila.duarte@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 2),
+(15, 'Diego Ramos', '50282985050', 'marcelo_willian@icloud.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 3),
+(16, 'Marina Lopes', '82764720017', 'marina.lopes@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 1);
 
 -- PRODUTOS
 INSERT IGNORE INTO tb_Produto (id_produto, descricao, unidade_medida, preco, status, id_loja, imagem) VALUES

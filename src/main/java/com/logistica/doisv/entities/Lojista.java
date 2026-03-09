@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Lojista {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +27,8 @@ public class Lojista {
     private String password;
     @Enumerated(EnumType.STRING)
     private Status status = Status.ATIVO;
+    @Column(nullable = false)
+    private Boolean admin = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idLoja")

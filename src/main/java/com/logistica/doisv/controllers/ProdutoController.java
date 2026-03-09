@@ -76,7 +76,7 @@ public class ProdutoController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping
+    @PatchMapping
     public ResponseEntity<Void> desativarProduto(@RequestBody List<Long> produtosIds, @RequestHeader String Authorization){
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         service.inativar(produtosIds, acesso.getIdLoja());

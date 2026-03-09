@@ -1,6 +1,7 @@
 package com.logistica.doisv.services;
 
 import com.logistica.doisv.entities.Licenca;
+import com.logistica.doisv.entities.Loja;
 import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.repositories.LicencaRepository;
 import jakarta.transaction.Transactional;
@@ -19,11 +20,20 @@ public class LicencaService {
 
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
-    protected void validarLicenca(){
+    protected void desativarLicencasExpiradas(){
         List<Licenca> licencas = licencaRepository.findAllByStatus(Status.ATIVO);
 
         licencas.stream()
                 .filter(l -> l.getValidade().isBefore(LocalDate.now()))
                 .forEach(l -> l.setStatus(Status.INATIVO));
+    }
+
+    @Transactional
+    public void cadastrarLicenca(Loja loja, Integer periodoValidade){
+        Licenca licenca = new Licenca();
+        licenca.setValidade(LocalDate.now().plusDays(periodoValidade));
+        licenca.setLoja(loja);
+
+        licencaRepository.save(licenca);
     }
 }

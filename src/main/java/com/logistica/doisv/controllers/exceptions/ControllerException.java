@@ -35,7 +35,7 @@ public class ControllerException {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
     }
 
-    //Valores incorretos(tipo), tentar cadastrar item único mais de uma vez, relacionamento inexistente -> 409
+    //Valores incorretos(permissoes), tentar cadastrar item único mais de uma vez, relacionamento inexistente -> 409
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<?> ViolacaoDeIntegridade(DataIntegrityViolationException e, HttpServletRequest requisicao) {
         ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.CONFLICT.value(), e.getMessage(), requisicao.getRequestURI());

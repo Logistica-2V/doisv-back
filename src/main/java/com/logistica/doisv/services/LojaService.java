@@ -1,28 +1,27 @@
 package com.logistica.doisv.services;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.logistica.doisv.dto.LojaDTO;
+import com.logistica.doisv.entities.Loja;
 import com.logistica.doisv.entities.enums.CategoriaArquivoPermitida;
 import com.logistica.doisv.entities.enums.Status;
+import com.logistica.doisv.repositories.LojaRepository;
+import com.logistica.doisv.services.api.GoogleDriveService;
 import com.logistica.doisv.services.exceptions.DatabaseException;
+import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import com.logistica.doisv.util.validacao.ArquivoValidador;
+import jakarta.mail.MessagingException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.logistica.doisv.dto.LojaDTO;
-import com.logistica.doisv.entities.Loja;
-import com.logistica.doisv.repositories.LojaRepository;
-import com.logistica.doisv.services.api.GoogleDriveService;
-import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
-
-import jakarta.persistence.EntityNotFoundException;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class LojaService {
@@ -30,7 +29,15 @@ public class LojaService {
     private LojaRepository lojaRepository;
 
     @Autowired
+    private LojistaService lojistaService;
+
+    @Autowired
+    private LicencaService licencaService;
+
+    @Autowired
     private ArquivoValidador arquivoValidador;
+
+    private final Integer VALIDADE_PADRAO_LICENCA = 30;
 
     @Transactional(readOnly = true)
     public LojaDTO buscarPorId(Long id) {
@@ -47,7 +54,7 @@ public class LojaService {
     }
 
     @Transactional
-    public LojaDTO salvar(LojaDTO dto, MultipartFile logo) throws IOException, GeneralSecurityException {
+    public LojaDTO salvar(LojaDTO dto, MultipartFile logo) throws IOException, GeneralSecurityException, MessagingException {
         arquivoValidador.validarOpcional(logo, Set.of(CategoriaArquivoPermitida.IMAGEM));
 
         Loja loja = new Loja();
@@ -55,11 +62,18 @@ public class LojaService {
 
         if(logo != null && logo.getContentType() != null){
             lojaRepository.save(loja);
-            String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, loja.getIdLoja().toString(), loja.getClass().getSimpleName());
+            String logoUrl = GoogleDriveService.salvarArquivoDrive(logo, loja.getIdLoja().toString(),
+                    loja.getClass().getSimpleName());
             loja.setLogo(logoUrl.split("/")[5]);
         }
 
-        return new LojaDTO(lojaRepository.save(loja));
+        loja = lojaRepository.save(loja);
+
+        licencaService.cadastrarLicenca(loja, VALIDADE_PADRAO_LICENCA);
+        lojistaService.cadastrarLojistaAdmin(loja);
+        lojistaService.cadastrarLojistaMaster(loja);
+
+        return new LojaDTO(loja);
     }
 
     @Transactional
@@ -101,6 +115,8 @@ public class LojaService {
         loja.setStatus(Status.INATIVO);
         lojaRepository.save(loja);
     }
+
+    @Transactional
 
     public void dtoParaEntidade(LojaDTO dto, Loja loja) {
         loja.setNome(dto.nome());

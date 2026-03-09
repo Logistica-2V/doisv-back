@@ -49,7 +49,7 @@ public class ArquivoValidador {
         try {
             return tika.detect(arquivo.getInputStream());
         }catch (IOException e){
-            throw new TipoArquivoInvalidoException("Erro ao detectar tipo do arquivo.");
+            throw new TipoArquivoInvalidoException("Erro ao detectar permissoes do arquivo.");
         }
     }
 

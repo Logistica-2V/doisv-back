@@ -1,6 +1,7 @@
 package com.logistica.doisv.services.validacao;
 
 import java.security.Key;
+import java.util.*;
 
 import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.repositories.VendaRepository;
@@ -40,18 +41,17 @@ public class TokenService {
                     .build().parseClaimsJws(token)
                     .getBody();
 
-            String tipo = claims.get("tipo", String.class);
-            if (tipo == null) {
-                throw new SecurityException("Claim 'tipo' não encontrada no token.");
-            }
-            AcessoDTO.TipoUsuario tipoUsuario = AcessoDTO.TipoUsuario.valueOf(tipo);
+            @SuppressWarnings("unchecked")
+            List<AcessoDTO.TipoUsuario> permissoes = validarPermissoesUsuario(
+                   claims.get("permissoes", ArrayList.class));
+
             AcessoDTO.AcessoDTOBuilder builder = AcessoDTO.builder()
-                    .tipo(tipoUsuario)
+                    .permissoes(permissoes)
                     .subject(claims.getSubject())
                     .nome(claims.get("nome", String.class))
                     .idLoja(claims.get("idLoja", Long.class));
 
-            if(tipoUsuario == AcessoDTO.TipoUsuario.LOJISTA){
+            if(permissoes.contains(AcessoDTO.TipoUsuario.LOJISTA)){
                 Long idLojista = claims.get("idLojista", Long.class);
 
                 if(!lojistaRepository.existsByIdLojistaAndLoja_Status(idLojista, Status.ATIVO)){
@@ -62,7 +62,7 @@ public class TokenService {
                         .idLojista(claims.get("idLojista", Long.class))
                         .build();
             }
-            else if(tipoUsuario == AcessoDTO.TipoUsuario.CONSUMIDOR){
+            else if(permissoes.contains(AcessoDTO.TipoUsuario.CONSUMIDOR)){
                 if(!vendaRepository.existsById(claims.get("idVenda", Long.class))){
                     throw new ResourceNotFoundException("Venda do token não localizada");
                 }
@@ -80,5 +80,19 @@ public class TokenService {
         }catch(Exception e){
             throw new SecurityException("Token inválido ou experirado");
         }
-    }      
+    }
+
+    private List<AcessoDTO.TipoUsuario> validarPermissoesUsuario(List<String> permissoes){
+        if (permissoes.isEmpty()) {
+            throw new SecurityException("Claim 'permissoes' não encontrada no token.");
+        }
+
+        List<AcessoDTO.TipoUsuario> permissoesUsuario = new ArrayList<>();
+
+        for(String p : permissoes){
+            permissoesUsuario.add(AcessoDTO.TipoUsuario.valueOf(p));
+        }
+
+        return permissoesUsuario;
+    }
 }

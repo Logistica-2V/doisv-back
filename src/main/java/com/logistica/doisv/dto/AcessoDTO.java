@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Data
 @Builder
@@ -16,7 +17,7 @@ import java.util.Collections;
 @AllArgsConstructor
 public class AcessoDTO {
 
-    private TipoUsuario tipo;
+    private List<TipoUsuario> permissoes;
     private String subject;
     private String nome;
     private Long idLoja;
@@ -28,13 +29,19 @@ public class AcessoDTO {
 
     public enum TipoUsuario{
         LOJISTA,
-        CONSUMIDOR
+        CONSUMIDOR,
+        ADMIN,
+        MASTER
     }
 
     public Collection<? extends GrantedAuthority> getPermissao(){
-        if(this.tipo == null){
+        if(this.permissoes == null){
             return Collections.emptyList();
         }
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.tipo.name()));
+
+        return this.permissoes.stream()
+                .map(permissao -> new SimpleGrantedAuthority("ROLE_" + permissao.name()))
+                .toList();
+//        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.permissoes.name()));
     }
 }

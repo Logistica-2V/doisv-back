@@ -9,7 +9,10 @@ import com.logistica.doisv.repositories.LojistaRepository;
 import com.logistica.doisv.services.exceptions.DatabaseException;
 import com.logistica.doisv.services.exceptions.RegraNegocioException;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
+import com.logistica.doisv.util.geracao.GeradorSenhaAleatoria;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,7 +31,13 @@ public class LojistaService {
     private LojaRepository lojaRepository;
 
     @Autowired
+    private EmailService emailService;
+
+    @Autowired
     private PasswordEncoder encoder;
+
+    @Value("${app.dominio.cnpj}")
+    private String cnpjDominio;
 
     @Transactional(readOnly = true)
     public LojistaDTO buscarPorId(Long id, Long idLoja){
@@ -60,6 +69,28 @@ public class LojistaService {
         lojista.setLoja(loja);
 
         return new LojistaDTO(lojistaRepository.save(lojista));
+    }
+
+    @Transactional
+    protected void cadastrarLojistaAdmin(Loja loja) throws MessagingException {
+        String senhaInicial = GeradorSenhaAleatoria.gerarSenha();
+
+        Lojista lojistaAdmin = gerarAcessoAdmin(loja, senhaInicial);
+
+        lojistaRepository.save(lojistaAdmin);
+
+        emailService.enviarEmailCadastroLoja(lojistaAdmin, senhaInicial);
+    }
+
+    @Transactional
+    protected void cadastrarLojistaMaster(Loja loja) throws MessagingException {
+        String senhaInicial = GeradorSenhaAleatoria.gerarSenha();
+
+        Lojista lojistaMaster = gerarAcessoMaster(loja, senhaInicial);
+
+        lojistaRepository.save(lojistaMaster);
+
+        emailService.enviarEmailUsuarioMasterSuporte(lojistaMaster.getEmail(), senhaInicial, loja.getNome());
     }
 
     @Transactional
@@ -101,7 +132,7 @@ public class LojistaService {
         lojistaRepository.saveAll(lojistas);
     }
 
-    public void dtoParaEntidade(LojistaDTO dto, Lojista lojista){
+    private void dtoParaEntidade(LojistaDTO dto, Lojista lojista){
         lojista.setNome(dto.nome());
         lojista.setCpf(dto.cpf());
         lojista.setEmail(dto.email());
@@ -109,5 +140,30 @@ public class LojistaService {
         if (dto.status() != null && !dto.status().isBlank()) {
             lojista.setStatus(Status.converterParaString(dto.status()));
         }
+    }
+
+    private Lojista gerarAcessoAdmin(Loja loja, String senhaInicial){
+
+        return Lojista.builder()
+                .nome(loja.getNome())
+                .email(loja.getEmail())
+                .cpf(loja.getCnpj())
+                .password(encoder.encode(senhaInicial))
+                .status(Status.ATIVO)
+                .admin(true)
+                .loja(loja)
+                .build();
+    }
+
+    private Lojista gerarAcessoMaster(Loja loja, String senhaInicial){
+        return Lojista.builder()
+                .nome(loja.getNome() + " MASTER")
+                .email(loja.getCnpj() + "@doisv.com")
+                .cpf(cnpjDominio)
+                .password(encoder.encode(senhaInicial))
+                .status(Status.ATIVO)
+                .admin(true)
+                .loja(loja)
+                .build();
     }
 }

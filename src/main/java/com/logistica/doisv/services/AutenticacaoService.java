@@ -22,10 +22,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 @Service
 public class AutenticacaoService {
+
+    @Value("${app.dominio.email}")
+    private String emailDominio;
+
     @Autowired
     private LojistaRepository lojistaRepository;
 
@@ -65,9 +71,11 @@ public class AutenticacaoService {
             Date dataCriacao = new Date();
             Date dataExpiracao = new Date(dataCriacao.getTime() + validadeToken);
 
+            Set<String> permissoesAcesso = verificarPermissoesDeAcessoLojista(lojista);
+
             return Jwts.builder()
                     .setSubject(email)
-                    .claim("tipo", "LOJISTA")
+                    .claim("permissoes", permissoesAcesso)
                     .claim("idLojista", lojista.getIdLojista())
                     .claim("nome",lojista.getNome())
                     .claim("idLoja", lojista.getLoja().getIdLoja())
@@ -115,7 +123,7 @@ public class AutenticacaoService {
         Venda venda = vendaRepository.findBySerialVendaIgnoreCase(dto.serial())
                 .orElseThrow(() -> new ResourceNotFoundException("Venda não localizada"));
 
-        if(venda != null && encoder.matches(dto.senha(),venda.getSenha())){
+        if(encoder.matches(dto.senha(),venda.getSenha())){
             Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
             Date dataCriacao = new Date();
@@ -123,7 +131,7 @@ public class AutenticacaoService {
 
             return Jwts.builder()
                     .setSubject(venda.getConsumidor().getEmail())
-                    .claim("tipo", "CONSUMIDOR")
+                    .claim("permissoes", "CONSUMIDOR")
                     .claim("idConsumidor", venda.getConsumidor().getIdConsumidor())
                     .claim("nome", venda.getConsumidor().getNome())
                     .claim("serialVenda", venda.getSerialVenda())
@@ -190,5 +198,21 @@ public class AutenticacaoService {
         if(!lojista.getStatus().equals(Status.ATIVO)){
             throw new UsuarioInativoException("Usuário inativo, entre em contato com o admin para reativa-lo.");
         }
+    }
+
+    private Set<String> verificarPermissoesDeAcessoLojista(Lojista lojista){
+        Set<String> permissoes = new HashSet<>();
+
+        permissoes.add("LOJISTA");
+
+        if(lojista.getAdmin()){
+            permissoes.add("ADMIN");
+        }
+
+        if(lojista.getEmail().contains(emailDominio)){
+            permissoes.add("MASTER");
+        }
+
+        return permissoes;
     }
 }

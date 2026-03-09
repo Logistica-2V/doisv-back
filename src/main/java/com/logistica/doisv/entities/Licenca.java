@@ -2,10 +2,7 @@
 
     import com.logistica.doisv.entities.enums.Status;
     import jakarta.persistence.*;
-    import lombok.AllArgsConstructor;
-    import lombok.Getter;
-    import lombok.NoArgsConstructor;
-    import lombok.Setter;
+    import lombok.*;
 
     import java.time.LocalDate;
     import java.util.UUID;
@@ -16,8 +13,10 @@
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
+    @Builder
     public class Licenca {
         @Id
+        @GeneratedValue(strategy = GenerationType.UUID)
         private UUID idLicenca;
         private LocalDate validade;
         @Enumerated(EnumType.STRING)
