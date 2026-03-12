@@ -98,6 +98,8 @@ public class LojistaService {
         Lojista lojista = lojistaRepository.findByIdLojistaAndLojaIdLoja(id, idLoja)
                     .orElseThrow(() -> new ResourceNotFoundException("Lojista não encontrado."));
 
+        impedirEdicaoDeUsuarioPrivilegiado(lojista.getAdmin());
+
         dtoParaEntidade(dto, lojista);
         lojista = lojistaRepository.save(lojista);
 
@@ -107,10 +109,11 @@ public class LojistaService {
 
     @Transactional
     public void remover(Long id, Long idLoja){
-        if(!lojistaRepository.existsByIdLojistaAndLojaIdLoja(id, idLoja)){
-            throw new ResourceNotFoundException("Lojista não encontrado");
-        }try {
-            lojistaRepository.deleteById(id);
+        Lojista lojista = lojistaRepository.findByIdLojistaAndLojaIdLoja(id, idLoja)
+                .orElseThrow(() -> new ResourceNotFoundException("Lojista não encontrado."));
+        try {
+            impedirEdicaoDeUsuarioPrivilegiado(lojista.getAdmin());
+            lojistaRepository.delete(lojista);
         }catch(DataIntegrityViolationException e){
             throw new DatabaseException("Falha na integridade referencial");
         }
@@ -127,7 +130,6 @@ public class LojistaService {
         if(lojistas.isEmpty()){
             throw new ResourceNotFoundException("Nenhum lojista encontrado para os IDs: " + lojitasIds);
         }
-
         lojistas.forEach(l -> l.setStatus(Status.INATIVO));
         lojistaRepository.saveAll(lojistas);
     }
@@ -165,5 +167,11 @@ public class LojistaService {
                 .admin(true)
                 .loja(loja)
                 .build();
+    }
+
+    private void impedirEdicaoDeUsuarioPrivilegiado(boolean isUsuarioPrivilegiado){
+        if(isUsuarioPrivilegiado){
+            throw new RegraNegocioException("Não é possível editar ou excluir usuário ADMIN ou MASTER.");
+        }
     }
 }

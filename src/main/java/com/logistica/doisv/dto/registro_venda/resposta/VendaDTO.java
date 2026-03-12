@@ -15,7 +15,7 @@ public record VendaDTO (Long idVenda, String serial, BigDecimal precoTotal, Stri
         this(venda.getId(),
                 venda.getSerialVenda(),
                 venda.getPrecoTotal(),
-                venda.getStatusPedido().toString(),
+                venda.getStatusPedido().getStatusPedido(),
                 venda.getDesconto(),
                 venda.getFormaPagamento(),
                 venda.getPrazoTroca(),
