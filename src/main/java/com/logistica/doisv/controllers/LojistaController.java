@@ -60,17 +60,17 @@ public class LojistaController {
         return ResponseEntity.ok(dto);
     }
 
-    @DeleteMapping(value = "/{id}/permanent")
-    public ResponseEntity<Void> deletarLojista(@PathVariable Long id, @RequestHeader String Authorization){
-        AcessoDTO acesso = tokenService.validarToken(Authorization);
-        lojistaService.remover(id, acesso.getIdLoja());
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping
+    @PatchMapping
     public ResponseEntity<Void> desativarLojistas(@RequestBody List<Long> lojistasIds, @RequestHeader String Authorization){
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         lojistaService.inativar(lojistasIds, acesso.getIdLoja());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> deletarLojista(@PathVariable Long id, @RequestHeader String Authorization){
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        lojistaService.remover(id, acesso.getIdLoja());
         return ResponseEntity.noContent().build();
     }
 }

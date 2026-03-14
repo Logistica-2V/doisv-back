@@ -44,16 +44,15 @@ public class LojaController {
         return ResponseEntity.ok().body(lojaService.atualizar(id, dto, logo));
     }
 
-    @DeleteMapping(value = "/{id}/permanent")
-    public ResponseEntity<Void> deletarLoja(@PathVariable Long id) {
-        lojaService.remover(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @PatchMapping(value = "/{id}")
     public ResponseEntity<Void> desativarLoja(@PathVariable Long id){
         lojaService.inativar(id);
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> deletarLoja(@PathVariable Long id) {
+        lojaService.remover(id);
+        return ResponseEntity.noContent().build();
+    }
 }

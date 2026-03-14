@@ -51,17 +51,17 @@ public class ConsumidorController {
         return ResponseEntity.ok().body(consumidorService.atualizar(dto, id, acesso.getIdLoja()));
     }
 
-    @DeleteMapping(value = "/{id}/permanent")
-    public ResponseEntity<Void> deletarConsumidor(@PathVariable Long id, @RequestHeader String Authorization) {
-        AcessoDTO acesso = tokenService.validarToken(Authorization);
-        consumidorService.remover(id, acesso.getIdLoja());
-        return ResponseEntity.noContent().build();
-    }
-
     @PatchMapping
     public ResponseEntity<Void> desativarConsumidor(@RequestBody List<Long> consumidoresIds, @RequestHeader String Authorization){
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         consumidorService.inativar(consumidoresIds, acesso.getIdLoja());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> deletarConsumidor(@PathVariable Long id, @RequestHeader String Authorization) {
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        consumidorService.remover(id, acesso.getIdLoja());
         return ResponseEntity.noContent().build();
     }
 }

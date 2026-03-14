@@ -69,17 +69,17 @@ public class ProdutoController {
         return ResponseEntity.ok(dto);
     }
 
-    @DeleteMapping(value = "/{id}/permanent")
-    public ResponseEntity<Void> deletarProduto(@PathVariable Long id, @RequestHeader String Authorization) {
-        AcessoDTO acesso = tokenService.validarToken(Authorization);
-        service.remover(id, acesso.getIdLoja());
-        return ResponseEntity.noContent().build();
-    }
-
     @PatchMapping
     public ResponseEntity<Void> desativarProduto(@RequestBody List<Long> produtosIds, @RequestHeader String Authorization){
         AcessoDTO acesso = tokenService.validarToken(Authorization);
         service.inativar(produtosIds, acesso.getIdLoja());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> deletarProduto(@PathVariable Long id, @RequestHeader String Authorization) {
+        AcessoDTO acesso = tokenService.validarToken(Authorization);
+        service.remover(id, acesso.getIdLoja());
         return ResponseEntity.noContent().build();
     }
 }

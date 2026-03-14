@@ -91,6 +91,7 @@ public class GoogleDriveService {
         FileList resultado = driveService.files().list()
                 .setQ(query)
                 .setSpaces("drive")
+                .setFields("files(id, name)")
                 .execute();
 
         return resultado.getFiles().isEmpty() ? null : resultado.getFiles().get(0).getId();
@@ -105,11 +106,8 @@ public class GoogleDriveService {
         //Busca o arquivo passando o ID da pasta correta como parâmetro.
         String arquivoExistenteId = buscarArquivoPorNome(driveService, idItem, idPasta);
 
-//        // Metadados do arquivo
-//        File metadadosArquivo = new File();
-//
-//        File arquivoSalvo;
-
-        driveService.files().delete(arquivoExistenteId).execute();
+        if(arquivoExistenteId != null) {
+            driveService.files().delete(arquivoExistenteId).execute();
+        }
     }
 }

@@ -196,6 +196,10 @@ public class ProdutoService {
     }
 
     private void excluirImagemProduto(Produto produto) throws GeneralSecurityException, IOException {
+        if (produto.getImagem() == null || produto.getImagem().isBlank()) {
+            return;
+        }
+
         GoogleDriveService.excluirArquivoDrive(produto.getIdProduto().toString(), produto.getClass().getSimpleName());
     }
 }
