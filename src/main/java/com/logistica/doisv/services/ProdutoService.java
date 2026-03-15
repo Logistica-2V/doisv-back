@@ -40,13 +40,13 @@ public class ProdutoService {
 
     @Transactional(readOnly = true)
     public Page<ProdutoDTO> buscarTodos(Pageable pageable, Long idLoja){
-        Page<Produto> produtos = repository.findAllByLoja_IdLoja(pageable, idLoja);
+        Page<Produto> produtos = repository.findAllByLojaComFetch(idLoja, pageable);
         return produtos.map(ProdutoDTO::new);
     }
 
     @Transactional(readOnly = true)
     public ProdutoDTO buscarPorId(Long id, Long idLoja){
-        Produto produto = repository.findByIdProdutoAndLoja_IdLoja(id, idLoja)
+        Produto produto = repository.findByIdProdutoAndLojaIdLoja(id, idLoja)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
         return new ProdutoDTO(produto);
@@ -61,7 +61,9 @@ public class ProdutoService {
         dtoParaEntidade(dto, produto);
         produto.setLoja(lojaRepository.findById(idLoja).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrada")));
 
-        if(imagem.getContentType() != null){
+        validarProdutoUnico(produto, null);
+
+        if(!imagem.isEmpty()){
             repository.save(produto);
             String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto().toString(), produto.getClass().getSimpleName());
             produto.setImagem(url.split("/")[5]);
@@ -71,13 +73,15 @@ public class ProdutoService {
     }
 
     @Transactional
-    public ProdutoDTO atualizar(Long id, ProdutoDTO dto, Long idLoja, MultipartFile imagem) throws IOException, GeneralSecurityException{
-        Produto produto = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+    public ProdutoDTO atualizar(Long idProduto, ProdutoDTO dto, Long idLoja, MultipartFile imagem) throws IOException, GeneralSecurityException{
+        Produto produto = repository.findByIdProdutoAndLojaIdLoja(idProduto, idLoja)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
         arquivoValidador.validarOpcional(imagem, Set.of(CategoriaArquivoPermitida.IMAGEM));
 
-        validarLojaProduto(idLoja, produto);
         dtoParaEntidade(dto, produto);
+
+        validarProdutoUnico(produto, produto.getIdProduto());
 
         if(imagem.getContentType() != null) {
             String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto().toString(), produto.getClass().getSimpleName());
@@ -90,15 +94,14 @@ public class ProdutoService {
     }
 
     @Transactional
-    public void remover(Long id, Long idLoja){
+    public void remover(Long idProduto, Long idLoja){
         try {
-            Produto produto = repository.findById(id)
+            Produto produto = repository.findByIdProdutoAndLojaIdLoja(idProduto, idLoja)
                     .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
-            validarLojaProduto(idLoja, produto);
 
             excluirImagemProduto(produto);
 
-            repository.deleteById(id);
+            repository.delete(produto);
         }catch(DataIntegrityViolationException e){
             throw new DatabaseException("Falha na integridade referencial");
         } catch (GeneralSecurityException | IOException e) {
@@ -108,12 +111,11 @@ public class ProdutoService {
 
     @Transactional
     public void inativar(List<Long> ids, Long idLoja){
-        List<Produto> produtos = repository.findAllById(ids);
-        if (produtos.stream().anyMatch(p -> !p.getLoja().getIdLoja().equals(idLoja))){
-            throw new AssociacaoInvalidaException("Você não tem permissão para editar um ou mais produtos desta lista.");
+        int produtosInativados = repository.atualizarStatusProdutos(ids, idLoja, Status.INATIVO);
+
+        if (produtosInativados <= 0) {
+            throw new RegraNegocioException("Nenhum produto encontrado para inativação com os IDs informados para esta loja.");
         }
-        produtos.forEach(p -> p.setStatus(Status.INATIVO));
-        repository.saveAll(produtos);
     }
 
     @Transactional
@@ -155,12 +157,6 @@ public class ProdutoService {
         }
     }
 
-    private void validarLojaProduto(Long idLoja, Produto produto) {
-        if(!produto.getLoja().getIdLoja().equals(idLoja)) {
-            throw new AssociacaoInvalidaException("Você não tem permissão para editar esse produto");
-        }
-    }
-
     private Produto converterLinhaParaProduto(String linha, Long idLoja){
         String[] campos = linha.split(";");
 
@@ -188,6 +184,8 @@ public class ProdutoService {
             loja.setIdLoja(idLoja);
             produto.setLoja(loja);
 
+            validarProdutoUnico(produto, null);
+
             return produto;
         }catch (NumberFormatException e) {
             throw new RegraNegocioException("Preço inválido na linha: " + linha);
@@ -200,5 +198,23 @@ public class ProdutoService {
         }
 
         GoogleDriveService.excluirArquivoDrive(produto.getIdProduto().toString(), produto.getClass().getSimpleName());
+    }
+
+    private void validarProdutoUnico(Produto produto, Long idIgnorar){
+        boolean existeProduto;
+
+        if(idIgnorar == null){
+            existeProduto = repository
+                    .existsByDescricaoAndLojaIdLoja(produto.getDescricao(), produto.getLoja().getIdLoja());
+        }else{
+            existeProduto = repository
+                    .existsByDescricaoAndLojaIdLojaAndIdProdutoNot(produto.getDescricao(),
+                            produto.getLoja().getIdLoja(), idIgnorar);
+        }
+
+        if(existeProduto){
+            throw new EntidadeDuplicadaException(String
+                    .format("Já existe produto com descrição '%s' cadastrado no sistema", produto.getDescricao()));
+        }
     }
 }

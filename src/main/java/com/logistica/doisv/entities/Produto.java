@@ -30,7 +30,7 @@ public class Produto {
     @JoinColumn(name = "idLoja")
     private Loja loja;
 
-    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemVenda> itensVenda = new ArrayList<>();
+//    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ItemVenda> itensVenda = new ArrayList<>();
 
 }
