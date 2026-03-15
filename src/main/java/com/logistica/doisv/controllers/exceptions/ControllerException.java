@@ -84,8 +84,10 @@ public class ControllerException {
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<?> requisicaoSemParametro(MissingServletRequestPartException e,
                                                     HttpServletRequest requisicao) {
+        String mensagem = String.format("A parte '%s' da requisição não está presente.", e.getRequestPartName());
+
         ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.BAD_REQUEST.value(),
-                e.getMessage(), requisicao.getRequestURI());
+                mensagem, requisicao.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
@@ -204,5 +206,15 @@ public class ControllerException {
                 e.getMessage(), requisicao.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
+    }
+
+    @ExceptionHandler(EntidadeDuplicadaException.class)
+    public ResponseEntity<ErroCustomizado> entidadeDuplicada(EntidadeDuplicadaException e,
+                                               HttpServletRequest requisicao) {
+
+        ErroCustomizado erro = new ErroCustomizado(Instant.now(), HttpStatus.CONFLICT.value(),
+                e.getMessage(), requisicao.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
     }
 }
