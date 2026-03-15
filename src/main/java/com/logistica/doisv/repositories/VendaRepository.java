@@ -3,6 +3,7 @@ package com.logistica.doisv.repositories;
 import com.logistica.doisv.entities.Venda;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +15,7 @@ import java.util.Optional;
 public interface VendaRepository extends JpaRepository<Venda, Long> {
     Page<Venda> findAllByLoja_idLoja(Pageable pageable, Long idLoja);
 
+    @EntityGraph(attributePaths = "consumidor")
     Optional<Venda> findBySerialVendaIgnoreCase(String serialVenda);
 
     @Query("""

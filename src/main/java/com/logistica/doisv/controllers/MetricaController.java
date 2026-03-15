@@ -9,7 +9,11 @@
     import org.springframework.data.domain.Page;
     import org.springframework.data.domain.Pageable;
     import org.springframework.http.ResponseEntity;
-    import org.springframework.web.bind.annotation.*;
+    import org.springframework.security.core.annotation.AuthenticationPrincipal;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RequestParam;
+    import org.springframework.web.bind.annotation.RestController;
 
     import java.util.Map;
 
@@ -25,9 +29,9 @@
 
         @GetMapping("/privadas")
         public ResponseEntity<MetricasPrivadasDTO> buscarMetricasPrivadas(@RequestParam(defaultValue = "365") Integer periodo,
-                                                                          @RequestHeader String Authorization){
-            AcessoDTO acesso = tokenService.validarToken(Authorization);
-            return ResponseEntity.ok(metricaService.metricasPrivadasPorLojaEPeriodo(acesso.getIdLoja(), periodo));
+                                                                          @AuthenticationPrincipal AcessoDTO usuarioLogado){
+
+            return ResponseEntity.ok(metricaService.metricasPrivadasPorLojaEPeriodo(usuarioLogado.getIdLoja(), periodo));
         }
 
         @GetMapping("/publicas")
@@ -37,8 +41,8 @@
 
         @GetMapping("/solicitacoes/por-status")
         public ResponseEntity<Map<String, Integer>> buscarQuantidadeSolicitacoesPorStatus(@RequestParam(value = "periodo", defaultValue = "365") Integer periodo,
-                                                                                          @RequestHeader String Authorization){
-            AcessoDTO acessoDTO = tokenService.validarToken(Authorization);
-            return ResponseEntity.ok(metricaService.obterQuantidadeSolicitacoes(acessoDTO.getIdLoja(), periodo));
+                                                                                          @AuthenticationPrincipal AcessoDTO usuarioLogado){
+
+            return ResponseEntity.ok(metricaService.obterQuantidadeSolicitacoes(usuarioLogado.getIdLoja(), periodo));
         }
     }

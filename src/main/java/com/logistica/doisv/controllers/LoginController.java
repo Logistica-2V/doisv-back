@@ -5,13 +5,15 @@ import com.logistica.doisv.dto.ConsumidorLoginDTO;
 import com.logistica.doisv.dto.LoginDTO;
 import com.logistica.doisv.dto.LoginResponse;
 import com.logistica.doisv.services.AutenticacaoService;
-import com.logistica.doisv.services.ConsumidorService;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/doisv/login")
@@ -19,9 +21,6 @@ public class LoginController {
 
     @Autowired
     private AutenticacaoService autenticacaoService;
-
-    @Autowired
-    private ConsumidorService consumidorService;
 
     @PostMapping
     public ResponseEntity<?> loginLojista(@Valid @RequestBody LoginDTO dto) {

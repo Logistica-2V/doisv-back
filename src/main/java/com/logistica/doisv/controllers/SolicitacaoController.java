@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,67 +34,60 @@ public class SolicitacaoController {
     private SolicitacaoService service;
 
     @GetMapping
-    public ResponseEntity<Page<SolicitacaoResumidaDTO>> buscarTodasSolicitacoes(Pageable pageable, @RequestHeader String Authorization){
-        AcessoDTO acessoDTO = tokenService.validarToken(Authorization);
-        return ResponseEntity.ok(service.buscarTodos(pageable, acessoDTO.getIdLoja()));
+    public ResponseEntity<Page<SolicitacaoResumidaDTO>> buscarTodasSolicitacoes(Pageable pageable, @AuthenticationPrincipal AcessoDTO usuarioLogado){
+
+        return ResponseEntity.ok(service.buscarTodos(pageable, usuarioLogado.getIdLoja()));
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<SolicitacaoDetalhadaDTO> buscarSolicitacaoPorId(@PathVariable Long id, @RequestHeader String Authorization){
-        AcessoDTO acessoDTO = tokenService.validarToken(Authorization);
-        return ResponseEntity.ok(service.buscarPorId(id, acessoDTO.getIdLoja()));
+    public ResponseEntity<SolicitacaoDetalhadaDTO> buscarSolicitacaoPorId(@PathVariable Long id, @AuthenticationPrincipal AcessoDTO usuarioLogado){
+
+        return ResponseEntity.ok(service.buscarPorId(id, usuarioLogado.getIdLoja()));
     }
 
     @PostMapping(value = "/criar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SolicitacaoResumidaDTO> criarSolicitacao(@Valid @RequestPart("solicitacao") CriarSolicitacaoDTO dto,
                                                                    @RequestPart("anexos") List<MultipartFile> anexos,
-                                                                   @RequestHeader String Authorization) throws GeneralSecurityException, IOException {
-        AcessoDTO acesso = tokenService.validarToken(Authorization);
+                                                                   @AuthenticationPrincipal AcessoDTO usuarioLogado) throws GeneralSecurityException, IOException {
 
-        return ResponseEntity.ok(service.registrarSolicitacao(dto, anexos ,acesso.getIdVenda()));
+        return ResponseEntity.ok(service.registrarSolicitacao(dto, anexos, usuarioLogado.getIdVenda()));
     }
 
     @PostMapping(value = "/atualizar/{id}")
     public ResponseEntity<SolicitacaoDetalhadaDTO> atualizarSolicitacao(@PathVariable Long id,
                                                   @Valid @RequestPart("historico") HistoricoSolicitacaoDTO dto,
                                                   @RequestPart(value = "novosProdutos", required = false) List<ItemDTO> novosProdutos,
-                                                  @RequestHeader String Authorization) throws MessagingException {
-        AcessoDTO acesso = tokenService.validarToken(Authorization);
+                                                  @AuthenticationPrincipal AcessoDTO usuarioLogado) throws MessagingException {
 
-        return ResponseEntity.ok(service.atualizarSolicitacao(id, dto, acesso.getIdLoja(), novosProdutos));
+        return ResponseEntity.ok(service.atualizarSolicitacao(id, dto, usuarioLogado.getIdLoja(), novosProdutos));
     }
 
     @PutMapping(value = "/aprovar/{id}")
-    public ResponseEntity<SolicitacaoResumidaDTO> aprovarSolicitacao(@PathVariable Long id, @RequestHeader String Authorization){
-        AcessoDTO acesso = tokenService.validarToken(Authorization);
+    public ResponseEntity<SolicitacaoResumidaDTO> aprovarSolicitacao(@PathVariable Long id, @AuthenticationPrincipal AcessoDTO usuarioLogado){
 
-        return ResponseEntity.ok(service.aprovarSolicitacao(id, acesso.getIdLoja()));
+        return ResponseEntity.ok(service.aprovarSolicitacao(id, usuarioLogado.getIdLoja()));
     }
 
     @PutMapping(value = "/reprovar/{id}")
-    public ResponseEntity<SolicitacaoResumidaDTO> reprovarSolicitacao(@PathVariable Long id, @RequestHeader String Authorization) throws GeneralSecurityException, IOException {
-        AcessoDTO acesso = tokenService.validarToken(Authorization);
+    public ResponseEntity<SolicitacaoResumidaDTO> reprovarSolicitacao(@PathVariable Long id, @AuthenticationPrincipal AcessoDTO usuarioLogado) throws GeneralSecurityException, IOException {
 
-        return ResponseEntity.ok(service.reprovarSolicitacao(id, acesso.getIdLoja()));
+        return ResponseEntity.ok(service.reprovarSolicitacao(id, usuarioLogado.getIdLoja()));
     }
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<SolicitacaoResumidaDTO> editarSolicitacao(@PathVariable Long id,
                                                                     @Valid @RequestPart("solicitacao") CriarSolicitacaoDTO dto,
                                                                     @RequestPart("anexos") List<MultipartFile> anexos,
-                                                                    @RequestHeader String Authorization) throws GeneralSecurityException, IOException {
-        AcessoDTO acessoDTO = tokenService.validarToken(Authorization);
+                                                                    @AuthenticationPrincipal AcessoDTO usuarioLogado) throws GeneralSecurityException, IOException {
 
-        return ResponseEntity.ok(service.editarSolicitacao(id, dto, anexos, acessoDTO.getIdLoja()));
+        return ResponseEntity.ok(service.editarSolicitacao(id, dto, anexos, usuarioLogado.getIdLoja()));
     }
 
     @PutMapping(value = "/cancelar/{id}")
     public ResponseEntity<SolicitacaoResumidaDTO> cancelarSolicitacao(@PathVariable Long id,
                                                                       @Valid @RequestBody CriarSolicitacaoDTO dto,
-                                                                      @RequestHeader String Authorization) throws GeneralSecurityException, IOException {
-        AcessoDTO acessoDTO = tokenService.validarToken(Authorization);
+                                                                      @AuthenticationPrincipal AcessoDTO usuarioLogado) throws GeneralSecurityException, IOException {
 
-        return ResponseEntity.ok(service.cancelarSolicitacao(id, dto, acessoDTO.getIdLoja()));
+        return ResponseEntity.ok(service.cancelarSolicitacao(id, dto, usuarioLogado.getIdLoja()));
     }
-
 }

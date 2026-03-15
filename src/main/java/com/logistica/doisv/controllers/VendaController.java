@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,44 +29,42 @@ public class VendaController {
     private TokenService tokenService;
 
     @GetMapping
-    public ResponseEntity<Page<VendaDTO>> buscarTodasVendas(Pageable pageable, @RequestHeader String Authorization){
-        Page<VendaDTO> dto = service.buscarTodasVendasPorLoja(pageable, extrairIdLoja(Authorization));
+    public ResponseEntity<Page<VendaDTO>> buscarTodasVendas(Pageable pageable, @AuthenticationPrincipal AcessoDTO usuarioLogado){
+        Page<VendaDTO> dto = service.buscarTodasVendasPorLoja(pageable, usuarioLogado.getIdLoja());
         return ResponseEntity.ok(dto);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<VendaDTO> buscarVendaPorId(@PathVariable Long id, @RequestHeader String Authorization){
-        VendaDTO dto = service.buscarPorId(id, extrairIdLoja(Authorization));
+    public ResponseEntity<VendaDTO> buscarVendaPorId(@PathVariable Long id, @AuthenticationPrincipal AcessoDTO usuarioLogado){
+        VendaDTO dto = service.buscarPorId(id, usuarioLogado.getIdLoja());
         return ResponseEntity.ok(dto);
     }
 
     @GetMapping(value = "/me")
-    public ResponseEntity<VendaDTO> buscarVendaPorToken(@RequestHeader String Authorization){
-        AcessoDTO acesso = tokenService.validarToken(Authorization);
-        return ResponseEntity.ok(service.buscarPorId(acesso.getIdVenda(), extrairIdLoja(Authorization)));
+    public ResponseEntity<VendaDTO> buscarVendaPorToken(@AuthenticationPrincipal AcessoDTO usuarioLogado){
+
+        return ResponseEntity.ok(service.buscarPorId(usuarioLogado.getIdVenda(), usuarioLogado.getIdLoja()));
     }
 
     @PostMapping
-    public ResponseEntity<VendaDTO> criarVenda(@Valid @RequestBody RegistroVendaDTO dto, @RequestHeader String Authorization) throws MessagingException {
-        VendaDTO venda = service.salvar(dto, extrairIdLoja(Authorization));
+    public ResponseEntity<VendaDTO> criarVenda(@Valid @RequestBody RegistroVendaDTO dto,
+                                               @AuthenticationPrincipal AcessoDTO usuarioLogado) throws MessagingException {
+        VendaDTO venda = service.salvar(dto, usuarioLogado.getIdLoja());
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(venda.idVenda()).toUri();
         return ResponseEntity.created(uri).body(venda);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<VendaDTO> atualizarVenda(@PathVariable Long id, @Valid @RequestBody RegistroVendaDTO dto, @RequestHeader String Authorization) throws MessagingException {
-        VendaDTO venda = service.atualizar(id, dto, extrairIdLoja(Authorization));
+    public ResponseEntity<VendaDTO> atualizarVenda(@PathVariable Long id, @Valid @RequestBody RegistroVendaDTO dto,
+                                                   @AuthenticationPrincipal AcessoDTO usuarioLogado) throws MessagingException {
+        VendaDTO venda = service.atualizar(id, dto, usuarioLogado.getIdLoja());
         return ResponseEntity.ok(venda);
     }
 
     @PatchMapping
-    public ResponseEntity<Void> desativarVenda(@RequestBody List<Long> vendasIds, @RequestHeader String Authorization){
-        service.inativar(vendasIds, extrairIdLoja(Authorization));
+    public ResponseEntity<Void> desativarVenda(@RequestBody List<Long> vendasIds,
+                                               @AuthenticationPrincipal AcessoDTO usuarioLogado){
+        service.inativar(vendasIds, usuarioLogado.getIdLoja());
         return ResponseEntity.noContent().build();
-    }
-
-    private Long extrairIdLoja(String token){
-        AcessoDTO acesso = tokenService.validarToken(token);
-        return acesso.getIdLoja();
     }
 }

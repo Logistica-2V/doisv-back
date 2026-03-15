@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,16 +29,16 @@ public class FeedbackController {
 
     @GetMapping("/{id}")
     public ResponseEntity<FeedbackDTO> buscarFeedbackPorId(@PathVariable Long id,
-                                                           @RequestHeader String Authorization){
-        AcessoDTO acesso = tokenService.validarToken(Authorization);
-        return ResponseEntity.ok(service.buscarPorId(id, acesso.getIdLoja()));
+                                                           @AuthenticationPrincipal AcessoDTO usuarioLogado){
+
+        return ResponseEntity.ok(service.buscarPorId(id, usuarioLogado.getIdLoja()));
     }
 
     @GetMapping("/solicitacoes/{idSolicitacao}")
     public ResponseEntity<List<FeedbackDTO>> buscarFeedbacksPorSolicitacao(@PathVariable Long idSolicitacao,
-                                                                           @RequestHeader String Authorization){
-        AcessoDTO acesso = tokenService.validarToken(Authorization);
-        return ResponseEntity.ok(service.buscarPorIdSolicitacao(idSolicitacao, acesso));
+                                                                           @AuthenticationPrincipal AcessoDTO usuarioLogado){
+
+        return ResponseEntity.ok(service.buscarPorIdSolicitacao(idSolicitacao, usuarioLogado));
     }
 
     @GetMapping("/lojas/{idLoja}")
@@ -49,9 +50,8 @@ public class FeedbackController {
 
     @PostMapping
     public ResponseEntity<FeedbackDTO> criarFeedback(@Valid @RequestBody FeedbackDTO dto,
-                                                     @RequestHeader String Authorization){
-        AcessoDTO acesso = tokenService.validarToken(Authorization);
-        dto = service.salvar(dto, acesso.getIdConsumidor());
+                                                     @AuthenticationPrincipal AcessoDTO usuarioLogado){
+        dto = service.salvar(dto, usuarioLogado.getIdConsumidor());
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.idFeedback()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }

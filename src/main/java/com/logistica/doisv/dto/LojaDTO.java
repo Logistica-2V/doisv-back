@@ -6,8 +6,15 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record LojaDTO (Long idLoja, @NotBlank String nome, @CpfCnpj @NotNull String cnpj,
-                       @NotBlank String segmento, String logo, @Email @NotBlank String email, String status){
+public record LojaDTO (Long idLoja,
+                       @NotBlank(message = "O nome da loja é obrigatório.") String nome,
+                       @CpfCnpj(message = "Informe um CNPJ válido.")
+                       @NotNull(message = "O CNPJ é obrigatório.") String cnpj,
+                       @NotBlank(message = "O segmento da loja é obrigatório.") String segmento,
+                       String logo,
+                       @Email(message = "Informe um e-mail válido.")
+                       @NotBlank(message = "O e-mail da loja é obrigatório.") String email,
+                       String status){
 
     public LojaDTO {
         cnpj = cnpj.replaceAll("[^0-9A-Za-z]", "").toUpperCase();

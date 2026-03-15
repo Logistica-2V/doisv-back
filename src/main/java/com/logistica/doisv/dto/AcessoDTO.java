@@ -42,6 +42,5 @@ public class AcessoDTO {
         return this.permissoes.stream()
                 .map(permissao -> new SimpleGrantedAuthority("ROLE_" + permissao.name()))
                 .toList();
-//        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.permissoes.name()));
     }
 }

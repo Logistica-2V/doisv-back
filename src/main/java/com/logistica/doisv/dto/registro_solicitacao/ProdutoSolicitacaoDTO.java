@@ -9,6 +9,7 @@ public record ProdutoSolicitacaoDTO(Long idItemVenda, Long idProduto, String des
 
     public ProdutoSolicitacaoDTO(ItemVenda itemVenda){
         this(itemVenda.getId(), itemVenda.getProduto().getIdProduto(), itemVenda.getProduto().getDescricao(),
-                itemVenda.getProduto().getUnidadeMedida(), itemVenda.getPrecoVendido(), itemVenda.getProduto().getImagem());
+                itemVenda.getProduto().getUnidadeMedida(), itemVenda.getPrecoVendido(),
+                itemVenda.getProduto().getImagem());
     }
 }

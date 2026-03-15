@@ -10,15 +10,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public record FeedbackDTO(Long idFeedback,
-                          @NotBlank(message = "Tipo de Feedback é obrigatório.") String tipoFeedback,
-                          @Min(value = 1, message = "O valor minímo da nota é 1.")
-                          @Max(value = 5, message = "O valor máximo da nota é 5.") Integer nota,
+                          @NotBlank(message = "O tipo de feedback é obrigatório.") String tipoFeedback,
+                          @Min(value = 1, message = "A nota mínima é 1.")
+                          @Max(value = 5, message = "A nota máxima é 5.") Integer nota,
                           String comentario,
                           String dataFeedback,
                           Long idConsumidor,
                           String nomeConsumidor,
-                          @NotNull(message = "Necessário o ID da Loja.") Long idLoja,
-                          @NotNull(message = "Necessário o ID da Solicitação.") Long idSolicitacao
+                          @NotNull(message = "O ID da loja é obrigatório.") Long idLoja,
+                          @NotNull(message = "O ID da solicitação é obrigatório.") Long idSolicitacao
                           ) {
 
 

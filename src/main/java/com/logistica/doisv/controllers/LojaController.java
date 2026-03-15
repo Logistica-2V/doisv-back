@@ -34,13 +34,16 @@ public class LojaController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<LojaDTO> criarLoja(@Valid @RequestPart("loja") LojaDTO dto, @RequestPart("logo") MultipartFile logo) throws GeneralSecurityException, IOException, MessagingException {
+    public ResponseEntity<LojaDTO> criarLoja(@Valid @RequestPart("loja") LojaDTO dto,
+                                             @RequestPart("logo") MultipartFile logo) throws GeneralSecurityException, IOException, MessagingException {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.idLoja()).toUri();
         return ResponseEntity.created(uri).body(lojaService.salvar(dto, logo));
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<?> atualizarLoja(@PathVariable Long id, @Valid @RequestPart("loja") LojaDTO dto, @RequestPart("logo") MultipartFile logo) throws GeneralSecurityException, IOException {
+    public ResponseEntity<?> atualizarLoja(@PathVariable Long id,
+                                           @Valid @RequestPart("loja") LojaDTO dto,
+                                           @RequestPart("logo") MultipartFile logo) throws GeneralSecurityException, IOException {
         return ResponseEntity.ok().body(lojaService.atualizar(id, dto, logo));
     }
 

@@ -46,11 +46,10 @@ public class ProdutoService {
 
     @Transactional(readOnly = true)
     public ProdutoDTO buscarPorId(Long id, Long idLoja){
-        Produto produto = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
-        if(produto.getLoja().getIdLoja().equals(idLoja)) {
-            return new ProdutoDTO(produto);
-        }
-        throw new AssociacaoInvalidaException("Você não pode buscar o produto com esse ID");
+        Produto produto = repository.findByIdProdutoAndLoja_IdLoja(id, idLoja)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+
+        return new ProdutoDTO(produto);
     }
 
     @Transactional
