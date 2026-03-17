@@ -65,6 +65,7 @@ public class ConsumidorService {
     public ConsumidorDTO salvar(ConsumidorDTO dto, Long idLoja){
         Consumidor consumidor = new Consumidor();
         dtoParaEntidade(dto, consumidor);
+        
         consumidor.setLoja(lojaRepository.findById(idLoja).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrada")));
         return new ConsumidorDTO(repository.save(consumidor));
     }
@@ -112,12 +113,19 @@ public class ConsumidorService {
         consumidor.setNome(dto.nome());
         consumidor.setCpf_cnpj(dto.cpf_cnpj());
         consumidor.setEmail(dto.email());
-        consumidor.setCelular(dto.celular());
-        consumidor.setTelefone(dto.telefone());
+        consumidor.setCelular(somenteNumeros(dto.celular()));
+        consumidor.setTelefone(somenteNumeros(dto.telefone()));
         consumidor.setEndereco(dto.endereco());
         if(dto.status() != null && !dto.status().isBlank()){
             consumidor.setStatus(Status.converterParaString(dto.status()));
         }
+    }
+
+    private String somenteNumeros(String valor) {
+        if (valor == null) {
+            return null;
+        }
+        return valor.replaceAll("\\D", "");
     }
 
     private void validarLojaConsumidor(Long idLoja, Consumidor consumidor){
