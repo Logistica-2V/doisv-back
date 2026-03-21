@@ -32,7 +32,7 @@ public class Consumidor {
     @Enumerated(EnumType.STRING)
     private Status status = Status.ATIVO;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "idLoja")
     private Loja loja;
 

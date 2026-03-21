@@ -11,12 +11,12 @@ INSERT IGNORE INTO tb_Lojista (id_lojista, nome, cpf, email, senha, status, admi
 -- LOJISTAS (todos com admin = false)
 INSERT IGNORE INTO tb_Lojista (id_lojista, nome, cpf, email, senha, status, admin, id_loja) VALUES
 (2, 'Carla Souza', '76196945017', 'carla.souza@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 2),
-(3, 'Pedro Lima', '35749998010', 'pedro.lima@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 3),
+(3, 'Pedro Lima', '35749998010', 'pedro.lima@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', true, 3),
 (4, 'Juliana Martins', '08233781010', 'juliana.martins@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 1),
 (5, 'Bruno Rocha', '50543505006', 'bruno.rocha@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 2),
 (6, 'Renata Alves', '51340979098', 'renata.alves@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 3),
 (7, 'Luciano Mendes', '53828563031', 'luciano.mendes@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 1),
-(8, 'Patrícia Freitas', '68835673054', 'patricia.freitas@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 2),
+(8, 'Patrícia Freitas', '68835673054', 'patricia.freitas@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', true, 2),
 (9, 'Eduardo Silva', '79567695075', 'eduardo.silva@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 3),
 (10, 'Fernanda Oliveira', '93549921020', 'fernanda.oliveira@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 1),
 (11, 'João Vieira', '03882210036', 'joao.vieira@email.com', '$2a$10$GVrZrk.vF0EA9dcblX.Q8.PBtsQEMrWUzrGq6YBn5IrRJ2h5eC0zu', 'ATIVO', false, 2),
@@ -61,16 +61,16 @@ INSERT IGNORE INTO tb_Produto (id_produto, descricao, unidade_medida, preco, sta
 
 -- CONSUMIDORES
 INSERT IGNORE INTO tb_Consumidor (id_consumidor, nome, cpf_cnpj, email, celular, telefone, endereco, status, id_loja) VALUES
-(1, 'Carlos Henrique', '82771935058', 'carlos.henrique@email.com', '(11) 98765-4321', '(11) 3456-7890', 'Rua das Flores, 123 - São Paulo/SP', 'ATIVO', 1),
-(2, 'Juliana Mendes', '73466938090', 'juliana.mendes@email.com', '(21) 99876-5432', NULL, 'Av. Brasil, 456 - Rio de Janeiro/RJ', 'ATIVO', 2),
-(3, 'Fernando Silva', '71831158019', 'fernando.silva@email.com', '(31) 91234-5678', '(31) 3222-1111', 'Rua Minas Gerais, 789 - Belo Horizonte/MG', 'ATIVO', 3),
-(4, 'Ana Beatriz', '02546517040', 'ana.beatriz@email.com', '(51) 98700-1122', NULL, 'Rua João Goulart, 321 - Porto Alegre/RS', 'ATIVO', 1),
-(5, 'Rafael Gomes', '21101893044', 'rafael.gomes@email.com', '(41) 99888-7766', '(41) 3030-2020', 'Rua XV de Novembro, 654 - Curitiba/PR', 'ATIVO', 2),
-(6, 'Camila Rocha', '28912505084', 'camila.rocha@email.com', '(61) 91919-1919', NULL, 'SQS 305 Bloco E - Brasília/DF', 'ATIVO', 3),
-(7, 'Marcelo William', '85515937066', 'marcelo.sousa@uscsonline.com.br', '(85) 98787-1212', '(85) 3222-3333', 'Av. Beira Mar, 800 - Fortaleza/CE', 'ATIVO', 1),
-(8, 'Patrícia Carvalho', '08448589009', 'patricia.carvalho@email.com', '(71) 92345-6789', NULL, 'Rua do Porto, 200 - Salvador/BA', 'ATIVO', 2),
-(9, 'Lucas Almeida', '26360658062', 'lucas.almeida@email.com', '(91) 99999-0000', NULL, 'Travessa Tucuruí, 55 - Belém/PA', 'ATIVO', 3),
-(10, 'Renata Figueiredo', '00415751055', 'renata.figueiredo@email.com', '(62) 98888-1234', '(62) 4002-8922', 'Av. Goiás, 1000 - Goiânia/GO', 'ATIVO', 1);
+(1, 'Carlos Henrique', '82771935058', 'carlos.henrique@email.com', '11987654321', '1134567890', 'Rua das Flores, 123 - São Paulo/SP', 'ATIVO', 1),
+(2, 'Juliana Mendes', '73466938090', 'juliana.mendes@email.com', '21998765432', NULL, 'Av. Brasil, 456 - Rio de Janeiro/RJ', 'ATIVO', 2),
+(3, 'Fernando Silva', '71831158019', 'fernando.silva@email.com', '31912345678', '3132221111', 'Rua Minas Gerais, 789 - Belo Horizonte/MG', 'ATIVO', 3),
+(4, 'Ana Beatriz', '02546517040', 'ana.beatriz@email.com', '51987001122', NULL, 'Rua João Goulart, 321 - Porto Alegre/RS', 'ATIVO', 1),
+(5, 'Rafael Gomes', '21101893044', 'rafael.gomes@email.com', '41998887766', '4130302020', 'Rua XV de Novembro, 654 - Curitiba/PR', 'ATIVO', 2),
+(6, 'Camila Rocha', '28912505084', 'camila.rocha@email.com', '61919191919', NULL, 'SQS 305 Bloco E - Brasília/DF', 'ATIVO', 3),
+(7, 'Marcelo William', '85515937066', 'marcelo.sousa@uscsonline.com.br', '85987871212', '8532223333', 'Av. Beira Mar, 800 - Fortaleza/CE', 'ATIVO', 1),
+(8, 'Patrícia Carvalho', '08448589009', 'patricia.carvalho@email.com', '71923456789', NULL, 'Rua do Porto, 200 - Salvador/BA', 'ATIVO', 2),
+(9, 'Lucas Almeida', '26360658062', 'lucas.almeida@email.com', '91999990000', NULL, 'Travessa Tucuruí, 55 - Belém/PA', 'ATIVO', 3),
+(10, 'Renata Figueiredo', '00415751055', 'renata.figueiredo@email.com', '62988881234', '6240028922', 'Av. Goiás, 1000 - Goiânia/GO', 'ATIVO', 1);
 
 --VENDAS
 INSERT IGNORE INTO tb_Venda
