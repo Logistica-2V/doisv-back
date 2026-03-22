@@ -47,6 +47,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "doisv/lojas/{id}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/doisv/**").hasRole("ADMIN")
 
+                        // ===================== ROTAS CONSUMIDOR =====================
+                        .requestMatchers("/doisv/vendas/me").hasRole("CONSUMIDOR")
+                        .requestMatchers(HttpMethod.PUT, "/doisv/solicitacoes/{id}").hasRole("CONSUMIDOR")
+                        .requestMatchers("/doisv/solicitacoes/criar").hasRole("CONSUMIDOR")
+                        .requestMatchers("/doisv/solicitacoes/cancelar/{id}").hasRole("CONSUMIDOR")
+                        .requestMatchers(HttpMethod.POST, "/doisv/feedbacks").hasRole("CONSUMIDOR")
+
                         // ===================== ROTAS LOJISTA =====================
                         .requestMatchers(HttpMethod.GET, "/doisv/lojistas/profile").hasRole("LOJISTA")
                         .requestMatchers(HttpMethod.GET, "/doisv/solicitacoes").hasRole("LOJISTA")
@@ -59,13 +66,6 @@ public class SecurityConfig {
                         .requestMatchers("/doisv/consumidores/**").hasRole("LOJISTA")
                         .requestMatchers("/doisv/vendas/**").hasRole("LOJISTA")
                         .requestMatchers("/doisv/feedbacks/{id}").hasRole("LOJISTA")
-
-                        // ===================== ROTAS CONSUMIDOR =====================
-                        .requestMatchers("/doisv/vendas/me").hasRole("CONSUMIDOR")
-                        .requestMatchers(HttpMethod.PUT, "/doisv/solicitacoes/{id}").hasRole("CONSUMIDOR")
-                        .requestMatchers("/doisv/solicitacoes/criar").hasRole("CONSUMIDOR")
-                        .requestMatchers("/doisv/solicitacoes/cancelar/{id}").hasRole("CONSUMIDOR")
-                        .requestMatchers(HttpMethod.POST, "/doisv/feedbacks").hasRole("CONSUMIDOR")
 
                         // ===================== ROTAS LOJISTA OU CONSUMIDOR =====================
                         .requestMatchers(HttpMethod.GET, "/doisv/feedbacks/solicitacoes/{id}")

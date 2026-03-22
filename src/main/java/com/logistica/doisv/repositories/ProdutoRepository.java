@@ -32,7 +32,12 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
         UPDATE Produto p
         SET p.status = :status
         WHERE p.idProduto in :idsProduto
-        AND p.loja.idLoja = :idLoja    
-    """)
+        AND p.loja.idLoja = :idLoja""")
     int atualizarStatusProdutos(List<Long> idsProduto, Long idLoja, Status status);
+
+    @Query("""
+        SELECT p FROM Produto p
+        WHERE p.idProduto IN :idsProdutos
+        AND p.loja.idLoja = :idLoja""")
+    List<Produto> buscarProdutoParaVenda(@Param("idsProdutos") List<Long> idsProdutos, @Param("idLoja") Long idLoja);
 }

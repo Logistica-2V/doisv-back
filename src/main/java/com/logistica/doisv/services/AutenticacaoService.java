@@ -131,7 +131,7 @@ public class AutenticacaoService {
 
             return Jwts.builder()
                     .setSubject(venda.getConsumidor().getEmail())
-                    .claim("permissoes", "CONSUMIDOR")
+                    .claim("permissoes", Set.of("CONSUMIDOR"))
                     .claim("idConsumidor", venda.getConsumidor().getIdConsumidor())
                     .claim("nome", venda.getConsumidor().getNome())
                     .claim("serialVenda", venda.getSerialVenda())

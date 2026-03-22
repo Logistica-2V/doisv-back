@@ -32,7 +32,18 @@ public interface ConsumidorRepository extends JpaRepository<Consumidor,Long>{
                                     @Param("idLoja") Long idLoja,
                                     @Param("status") Status status);
 
-    default Optional<Consumidor> buscarConsumidorAtivo(Long idConsumidor, Long idLoja){
-        return findByIdConsumidorAndStatusAndLojaIdLoja(idConsumidor, Status.ATIVO, idLoja);
-    }
+
+    @Query("""
+        SELECT c FROM Consumidor c
+        JOIN FETCH c.loja l
+        WHERE c.idConsumidor = :idConsumidor
+        AND c.status = 'ATIVO'
+        AND l.idLoja = :idLoja
+    """)
+    Optional<Consumidor> buscarConsumidorAtivo(@Param("idConsumidor") Long idConsumidor,
+                                               @Param("idLoja") Long idLoja);
+
+//    default Optional<Consumidor> buscarConsumidorAtivo(Long idConsumidor, Long idLoja){
+//        return findByIdConsumidorAndStatusAndLojaIdLoja(idConsumidor, Status.ATIVO, idLoja);
+//    }
 }

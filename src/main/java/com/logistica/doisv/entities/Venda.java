@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -56,12 +57,24 @@ public class Venda {
     public Venda(Loja loja, Consumidor consumidor, String statusPedido, BigDecimal desconto, String formaPagamento, Integer prazoTroca, Integer prazoDevolucao){
         this.loja = loja;
         this.consumidor = consumidor;
-        this.statusPedido = StatusPedido.converterParaString(statusPedido);
+        this.statusPedido = StatusPedido.converterDeStringParaEnum(statusPedido);
         this.desconto = desconto;
         this.formaPagamento = formaPagamento;
         this.prazoTroca = prazoTroca;
         this.prazoDevolucao = prazoDevolucao;
         this.precoTotal = BigDecimal.valueOf(0);
         this.dataCriacao = Instant.now();
+    }
+
+    public void calcularPrecoTotal(){
+        BigDecimal precoTotalSemDesconto = this.itensVenda.stream()
+                .map(item ->
+                        item.getPrecoVendido()
+                                .multiply(BigDecimal.valueOf(item.getQuantidade())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal descontoAplicado = this.desconto != null ? this.desconto : BigDecimal.ZERO;
+
+        this.precoTotal = precoTotalSemDesconto.subtract(descontoAplicado).setScale(2, RoundingMode.HALF_UP);
     }
 }

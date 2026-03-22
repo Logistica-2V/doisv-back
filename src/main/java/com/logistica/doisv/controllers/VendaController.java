@@ -3,8 +3,8 @@ package com.logistica.doisv.controllers;
 import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.registro_venda.requisicao.RegistroVendaDTO;
 import com.logistica.doisv.dto.registro_venda.resposta.VendaDTO;
+import com.logistica.doisv.dto.registro_venda.resposta.VendaResumidaDTO;
 import com.logistica.doisv.services.VendaService;
-import com.logistica.doisv.services.validacao.TokenService;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +25,10 @@ public class VendaController {
     @Autowired
     private VendaService service;
 
-    @Autowired
-    private TokenService tokenService;
-
     @GetMapping
-    public ResponseEntity<Page<VendaDTO>> buscarTodasVendas(Pageable pageable, @AuthenticationPrincipal AcessoDTO usuarioLogado){
-        Page<VendaDTO> dto = service.buscarTodasVendasPorLoja(pageable, usuarioLogado.getIdLoja());
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<Page<VendaResumidaDTO>> buscarTodasVendas(Pageable pageable, @AuthenticationPrincipal AcessoDTO usuarioLogado){
+        Page<VendaResumidaDTO> dadosVendas = service.buscarTodasVendasPorLoja(pageable, usuarioLogado.getIdLoja());
+        return ResponseEntity.ok(dadosVendas);
     }
 
     @GetMapping(value = "/{id}")

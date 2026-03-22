@@ -14,7 +14,7 @@ public enum StatusPedido {
         this.statusPedido = status;
     }
 
-    public static StatusPedido converterParaString(String status){
+    public static StatusPedido converterDeStringParaEnum(String status){
         for(StatusPedido pedido : StatusPedido.values()){
             if (pedido.statusPedido.equalsIgnoreCase(status))
                 return pedido;
