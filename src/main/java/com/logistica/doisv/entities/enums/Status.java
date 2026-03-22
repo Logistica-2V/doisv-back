@@ -13,7 +13,7 @@ public enum Status {
         this.statusItem = statusItem;
     }
 
-    public static Status converterParaString(String statusString){
+    public static Status converterStringParaEnum(String statusString){
         for(Status status : Status.values()){
             if(status.statusItem.equalsIgnoreCase(statusString))
                 return status;

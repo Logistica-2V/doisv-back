@@ -102,7 +102,7 @@ public class ConsumidorService {
         consumidor.setTelefone(somenteNumeros(dto.telefone()));
         consumidor.setEndereco(dto.endereco());
         if(dto.status() != null && !dto.status().isBlank()){
-            consumidor.setStatus(Status.converterParaString(dto.status()));
+            consumidor.setStatus(Status.converterStringParaEnum(dto.status()));
         }
     }
 

@@ -1,5 +1,6 @@
 package com.logistica.doisv.services;
 
+import com.logistica.doisv.dto.LojistaAtualizacaoDTO;
 import com.logistica.doisv.dto.LojistaDTO;
 import com.logistica.doisv.entities.Loja;
 import com.logistica.doisv.entities.Lojista;
@@ -40,17 +41,16 @@ public class LojistaService {
     private String cnpjDominio;
 
     @Transactional(readOnly = true)
-    public LojistaDTO buscarPorId(Long id, Long idLoja){
-        return lojistaRepository.findByIdLojistaAndLojaIdLoja(id, idLoja)
-                .map(LojistaDTO::new)
+    public LojistaDTO buscarPorId(Long idLojista, Long idLoja){
+        Lojista lojista = lojistaRepository.findByIdLojistaAndLojaIdLoja(idLojista, idLoja)
                 .orElseThrow(() -> new ResourceNotFoundException("Lojista não encontrado"));
+
+        return new LojistaDTO(lojista);
     }
 
     @Transactional(readOnly = true)
-    public List<LojistaDTO> buscarLojistaPorLoja(Long id){
-        return lojistaRepository.findAllByLoja_IdLoja(id)
-                .stream().map(LojistaDTO::new)
-                .collect(Collectors.toList());
+    public List<LojistaDTO> buscarLojistasPorLoja(Long idLoja){
+        return lojistaRepository.buscarLojistasDTOPorLoja(idLoja);
     }
 
     @Transactional(readOnly = true)
@@ -63,7 +63,8 @@ public class LojistaService {
     @Transactional
     public LojistaDTO salvar(LojistaDTO dto, Long idLoja){
         Lojista lojista = new Lojista();
-        Loja loja = lojaRepository.findById(idLoja).orElseThrow(() -> new ResourceNotFoundException("Loja não encontrada"));
+        Loja loja = lojaRepository.findById(idLoja)
+                .orElseThrow(() -> new ResourceNotFoundException("Loja não encontrada"));
 
         dtoParaEntidade(dto, lojista);
         lojista.setLoja(loja);
@@ -94,7 +95,7 @@ public class LojistaService {
     }
 
     @Transactional
-    public LojistaDTO atualizar(Long id, LojistaDTO dto, Long idLoja){
+    public LojistaDTO atualizar(Long id, LojistaAtualizacaoDTO dto, Long idLoja){
         Lojista lojista = lojistaRepository.findByIdLojistaAndLojaIdLoja(id, idLoja)
                     .orElseThrow(() -> new ResourceNotFoundException("Lojista não encontrado."));
 
@@ -120,27 +121,29 @@ public class LojistaService {
     }
 
     @Transactional
-    public void inativar(List<Long> lojitasIds, Long idLoja){
-        if(lojitasIds.isEmpty() || lojitasIds.contains(null)){
-            throw new RegraNegocioException("Lista de lojistas vazia ou contém valor nulo");
-        }
+    public void inativar(List<Long> idsLojistas, Long idLoja){
+        int quantidadeLojistasInativados = lojistaRepository.atualizarStatusLojistas(idsLojistas, idLoja, Status.INATIVO);
 
-        var lojistas = lojistaRepository.findAllByIdLojistaInAndLojaIdLoja(lojitasIds, idLoja);
-
-        if(lojistas.isEmpty()){
-            throw new ResourceNotFoundException("Nenhum lojista encontrado para os IDs: " + lojitasIds);
+        if(quantidadeLojistasInativados <= 0){
+            throw new RegraNegocioException("Nenhum Lojista encontrado para inativação com os IDs informados para esta loja.");
         }
-        lojistas.forEach(l -> l.setStatus(Status.INATIVO));
-        lojistaRepository.saveAll(lojistas);
     }
 
-    private void dtoParaEntidade(LojistaDTO dto, Lojista lojista){
-        lojista.setNome(dto.nome());
-        lojista.setCpf(dto.cpf());
-        lojista.setEmail(dto.email());
+    private void dtoParaEntidade(LojistaDTO dto, Lojista lojista) {
+        preencherDadosBasicos(dto.nome(), dto.cpf(), dto.email(), dto.status(), lojista);
         lojista.setPassword(encoder.encode(dto.password()));
-        if (dto.status() != null && !dto.status().isBlank()) {
-            lojista.setStatus(Status.converterParaString(dto.status()));
+    }
+
+    private void dtoParaEntidade(LojistaAtualizacaoDTO dto, Lojista lojista) {
+        preencherDadosBasicos(dto.nome(), dto.cpf(), dto.email(), dto.status(), lojista);
+    }
+
+    private void preencherDadosBasicos(String nome, String cpf, String email, String status, Lojista lojista) {
+        lojista.setNome(nome);
+        lojista.setCpf(cpf);
+        lojista.setEmail(email);
+        if (status != null && !status.isBlank()) {
+            lojista.setStatus(Status.converterStringParaEnum(status));
         }
     }
 

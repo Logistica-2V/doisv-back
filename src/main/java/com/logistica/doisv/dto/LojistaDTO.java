@@ -13,7 +13,8 @@ public record LojistaDTO(Long id,
                          @NotBlank(message = "O e-mail é obrigatório.")
                          @Email(message = "Informe um e-mail válido.") String email,
                          @NotBlank(message = "A senha é obrigatória.") String password,
-                         Long idLoja, String status) {
+                         Long idLoja,
+                         String status) {
 
     public LojistaDTO {
         cpf = cpf != null ? cpf.replaceAll("[^0-9A-Za-z]", "").toUpperCase() : null;

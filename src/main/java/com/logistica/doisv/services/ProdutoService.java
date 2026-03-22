@@ -153,7 +153,7 @@ public class ProdutoService {
         produto.setUnidadeMedida(dto.unidadeMedida());
         produto.setPreco(dto.preco());
         if (dto.status() != null && !dto.status().isBlank()){
-            produto.setStatus(Status.converterParaString(dto.status()));
+            produto.setStatus(Status.converterStringParaEnum(dto.status()));
         }
     }
 

@@ -1,6 +1,7 @@
 package com.logistica.doisv.controllers;
 
 import com.logistica.doisv.dto.AcessoDTO;
+import com.logistica.doisv.dto.LojistaAtualizacaoDTO;
 import com.logistica.doisv.dto.LojistaDTO;
 import com.logistica.doisv.services.LojistaService;
 import com.logistica.doisv.services.validacao.TokenService;
@@ -35,33 +36,37 @@ public class LojistaController {
         return ResponseEntity.ok(lojistaService.buscarPorId(usuarioLogado.getIdLojista(), usuarioLogado.getIdLoja()));
     }
 
-//    @GetMapping
-//    public ResponseEntity<List<LojistaDTO>> buscarTodosLojistas(){
-//        return ResponseEntity.ok(lojistaService.buscarTodos());
-//    }
-
     @GetMapping
     public ResponseEntity<List<LojistaDTO>> buscarTodosLojistasPorLoja(@AuthenticationPrincipal AcessoDTO usuarioLogado){
 
-        return ResponseEntity.ok(lojistaService.buscarLojistaPorLoja(usuarioLogado.getIdLoja()));
+        return ResponseEntity.ok(lojistaService.buscarLojistasPorLoja(usuarioLogado.getIdLoja()));
     }
 
     @PostMapping
     public ResponseEntity<LojistaDTO> criarLojista(@Valid @RequestBody LojistaDTO dto,
                                                    @AuthenticationPrincipal AcessoDTO usuarioLogado){
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
-        return ResponseEntity.created(uri).body(lojistaService.salvar(dto, usuarioLogado.getIdLoja()));
+        LojistaDTO lojistaCadastrado = lojistaService.salvar(dto, usuarioLogado.getIdLoja());
+
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(lojistaCadastrado.id())
+                .toUri();
+
+        return ResponseEntity.created(uri).body(lojistaCadastrado);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<LojistaDTO> atualizarLojista(@PathVariable Long id, @Valid @RequestBody LojistaDTO dto,
+    public ResponseEntity<LojistaDTO> atualizarLojista(@PathVariable Long id,
+                                                       @Valid @RequestBody LojistaAtualizacaoDTO dto,
                                                        @AuthenticationPrincipal AcessoDTO usuarioLogado){
-        dto = lojistaService.atualizar(id, dto, usuarioLogado.getIdLoja());
-        return ResponseEntity.ok(dto);
+        LojistaDTO lojistaAtualizado = lojistaService.atualizar(id, dto, usuarioLogado.getIdLoja());
+
+        return ResponseEntity.ok(lojistaAtualizado);
     }
 
     @PatchMapping
-    public ResponseEntity<Void> desativarLojistas(@RequestBody List<Long> lojistasIds, @AuthenticationPrincipal AcessoDTO usuarioLogado){
+    public ResponseEntity<Void> desativarLojistas(@RequestBody List<Long> lojistasIds,
+                                                  @AuthenticationPrincipal AcessoDTO usuarioLogado){
         lojistaService.inativar(lojistasIds, usuarioLogado.getIdLoja());
         return ResponseEntity.noContent().build();
     }

@@ -124,7 +124,7 @@ public class LojaService {
         loja.setCnpj(dto.cnpj());
         loja.setSegmento(dto.segmento());
         if(dto.status() != null && !dto.status().isBlank()) {
-            loja.setStatus(Status.converterParaString(dto.status()));
+            loja.setStatus(Status.converterStringParaEnum(dto.status()));
         }
     }
 }

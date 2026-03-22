@@ -47,13 +47,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "doisv/lojas/{id}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/doisv/**").hasRole("ADMIN")
 
-                        // ===================== ROTAS MASTER =====================
-                        .requestMatchers("/doisv/lojas/**").hasRole("MASTER")
-
-                        // ===================== ROTAS ADMIN =====================
-                        .requestMatchers(HttpMethod.POST, "doisv/lojistas").hasRole("ADMIN")
-                        .requestMatchers("/doisv/lojistas/**").hasRole("ADMIN")
-
                         // ===================== ROTAS LOJISTA =====================
                         .requestMatchers(HttpMethod.GET, "/doisv/lojistas/profile").hasRole("LOJISTA")
                         .requestMatchers(HttpMethod.GET, "/doisv/solicitacoes").hasRole("LOJISTA")
@@ -77,6 +70,13 @@ public class SecurityConfig {
                         // ===================== ROTAS LOJISTA OU CONSUMIDOR =====================
                         .requestMatchers(HttpMethod.GET, "/doisv/feedbacks/solicitacoes/{id}")
                                         .hasAnyRole("LOJISTA", "CONSUMIDOR")
+
+                        // ===================== ROTAS MASTER =====================
+                        .requestMatchers("/doisv/lojas/**").hasRole("MASTER")
+
+                        // ===================== ROTAS ADMIN =====================
+                        .requestMatchers(HttpMethod.POST, "doisv/lojistas").hasRole("ADMIN")
+                        .requestMatchers("/doisv/lojistas/**").hasRole("ADMIN")
 
                         // ===================== DEMAIS ROTAS =====================
                         .anyRequest().authenticated()
