@@ -1,13 +1,16 @@
 package com.logistica.doisv.services;
 
-import com.logistica.doisv.dto.*;
+import com.logistica.doisv.dto.ArquivoDTO;
 import com.logistica.doisv.dto.registro_solicitacao.CriarSolicitacaoDTO;
 import com.logistica.doisv.dto.registro_solicitacao.HistoricoSolicitacaoDTO;
 import com.logistica.doisv.dto.registro_solicitacao.SolicitacaoDetalhadaDTO;
 import com.logistica.doisv.dto.registro_solicitacao.SolicitacaoResumidaDTO;
 import com.logistica.doisv.dto.registro_venda.requisicao.ItemDTO;
 import com.logistica.doisv.dto.registro_venda.requisicao.RegistroVendaDTO;
-import com.logistica.doisv.entities.*;
+import com.logistica.doisv.entities.HistoricoSolicitacao;
+import com.logistica.doisv.entities.ItemVenda;
+import com.logistica.doisv.entities.Solicitacao;
+import com.logistica.doisv.entities.Venda;
 import com.logistica.doisv.entities.enums.CategoriaArquivoPermitida;
 import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.entities.enums.StatusSolicitacao;
@@ -15,7 +18,6 @@ import com.logistica.doisv.entities.enums.TipoSolicitacao;
 import com.logistica.doisv.repositories.SolicitacaoRepository;
 import com.logistica.doisv.repositories.VendaRepository;
 import com.logistica.doisv.services.api.AnexoDriveService;
-import com.logistica.doisv.services.api.GoogleDriveService;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import com.logistica.doisv.util.validacao.ArquivoValidador;
 import com.logistica.doisv.util.validacao.SolicitacaoValidador;
@@ -54,9 +56,9 @@ public class SolicitacaoService {
     }
 
     @Transactional(readOnly = true)
-    public SolicitacaoDetalhadaDTO buscarPorId(Long id, Long idLoja){
-        Solicitacao solicitacao = repository.buscarCompletoPorId(id).orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
-        validador.validarLoja(solicitacao, idLoja);
+    public SolicitacaoDetalhadaDTO buscarPorId(Long idSolicitacao, Long idLoja){
+        Solicitacao solicitacao = repository.buscarCompletoPorId(idSolicitacao, idLoja)
+                .orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
 
         return new SolicitacaoDetalhadaDTO(solicitacao);
     }
@@ -65,7 +67,8 @@ public class SolicitacaoService {
     public SolicitacaoResumidaDTO registrarSolicitacao(CriarSolicitacaoDTO dto, List<MultipartFile> anexos, Long idVenda) throws GeneralSecurityException, IOException {
         validarTipoAnexo(anexos);
 
-        Venda venda = vendaRepository.buscarVendaPorId(idVenda).orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada"));
+        Venda venda = vendaRepository.buscarVendaPorId(idVenda)
+                .orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada"));
         validador.validarStatusVenda(venda, dto.tipo());
 
         TipoSolicitacao tipoSolicitacao = TipoSolicitacao.deString(dto.tipo());

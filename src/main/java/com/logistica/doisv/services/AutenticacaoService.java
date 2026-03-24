@@ -58,33 +58,16 @@ public class AutenticacaoService {
 
     @Transactional(readOnly = true)
     public String loginLojista(String email, String password) {
-        Lojista lojista = lojistaRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
+        Lojista lojista = lojistaRepository.findByEmail(email).orElse(null);
 
-        validarLojaAtiva(lojista.getLoja());
+        if(lojista == null){
+            return null;
+        }else{
+            validarLojaAtiva(lojista.getLoja());
+            validarLojistaAtivo(lojista);
 
-        validarLojistaAtivo(lojista);
-
-        if (encoder.matches(password, lojista.getPassword())){
-            Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
-
-            Date dataCriacao = new Date();
-            Date dataExpiracao = new Date(dataCriacao.getTime() + validadeToken);
-
-            Set<String> permissoesAcesso = verificarPermissoesDeAcessoLojista(lojista);
-
-            return Jwts.builder()
-                    .setSubject(email)
-                    .claim("permissoes", permissoesAcesso)
-                    .claim("idLojista", lojista.getIdLojista())
-                    .claim("nome",lojista.getNome())
-                    .claim("idLoja", lojista.getLoja().getIdLoja())
-                    .setIssuedAt(dataCriacao)
-                    .setExpiration(dataExpiracao)
-                    .signWith(key)
-                    .compact();
+            return gerarTokenLojista(email, password, lojista);
         }
-        return null;
     }
 
     @Transactional
@@ -148,6 +131,29 @@ public class AutenticacaoService {
     @Transactional
     protected void cancelarRecuperacoesAnteriores(String email, String codigoRecuperacao){
         recuperarSenhaRepository.cancelarCodigoRecuperacaoAnteriores(email, codigoRecuperacao);
+    }
+
+    private String gerarTokenLojista(String email, String password, Lojista lojista){
+        if (encoder.matches(password, lojista.getPassword())){
+            Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+
+            Date dataCriacao = new Date();
+            Date dataExpiracao = new Date(dataCriacao.getTime() + validadeToken);
+
+            Set<String> permissoesAcesso = verificarPermissoesDeAcessoLojista(lojista);
+
+            return Jwts.builder()
+                    .setSubject(email)
+                    .claim("permissoes", permissoesAcesso)
+                    .claim("idLojista", lojista.getIdLojista())
+                    .claim("nome",lojista.getNome())
+                    .claim("idLoja", lojista.getLoja().getIdLoja())
+                    .setIssuedAt(dataCriacao)
+                    .setExpiration(dataExpiracao)
+                    .signWith(key)
+                    .compact();
+        }
+        return null;
     }
 
     private String gerarCodigoRecuperacao(){

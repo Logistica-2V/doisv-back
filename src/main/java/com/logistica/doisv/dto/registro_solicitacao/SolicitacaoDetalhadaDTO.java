@@ -1,6 +1,7 @@
 package com.logistica.doisv.dto.registro_solicitacao;
 
 import com.logistica.doisv.dto.ConsumidorDTO;
+import com.logistica.doisv.dto.registro_feedback.FeedbackDTO;
 import com.logistica.doisv.entities.AnexoSolicitacao;
 import com.logistica.doisv.entities.Solicitacao;
 
@@ -22,7 +23,8 @@ public record SolicitacaoDetalhadaDTO(Long id,
                                       ConsumidorDTO consumidor,
                                       ProdutoSolicitacaoDTO produto,
                                       List<String> anexos,
-                                      List<HistoricoSolicitacaoDTO> historico) {
+                                      List<HistoricoSolicitacaoDTO> historico,
+                                      List<FeedbackDTO> feedbacks) {
 
     public SolicitacaoDetalhadaDTO(Solicitacao solicitacao) {
         this(solicitacao.getId(),
@@ -40,6 +42,7 @@ public record SolicitacaoDetalhadaDTO(Long id,
                 new ConsumidorDTO(solicitacao.getConsumidor()),
                 new ProdutoSolicitacaoDTO(solicitacao.getItemVenda()),
                 solicitacao.getAnexos().stream().map(AnexoSolicitacao::getUrlImagem).collect(Collectors.toList()),
-                solicitacao.getHistoricos().stream().map(HistoricoSolicitacaoDTO::new).toList());
+                solicitacao.getHistoricos().stream().map(HistoricoSolicitacaoDTO::new).toList(),
+                solicitacao.getFeedbacks().stream().map(FeedbackDTO::new).toList());
     }
 }

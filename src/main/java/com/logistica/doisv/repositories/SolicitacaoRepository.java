@@ -33,9 +33,12 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
     JOIN FETCH iv.produto p
     LEFT JOIN FETCH s.anexos
     LEFT JOIN FETCH s.historicos
-    WHERE s.id = :id
+    LEFT JOIN FETCH s.feedbacks
+    WHERE s.id = :idSolicitacao
+    AND v.loja.idLoja = :idLoja
     """)
-    Optional<Solicitacao> buscarCompletoPorId(@Param("id") Long id);
+    Optional<Solicitacao> buscarCompletoPorId(@Param("idSolicitacao") Long idSolicitacao,
+                                              @Param("idLoja") Long idLoja);
 
 
     @Query(value = """
