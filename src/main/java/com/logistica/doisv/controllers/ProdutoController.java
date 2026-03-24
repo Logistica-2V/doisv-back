@@ -46,7 +46,7 @@ public class ProdutoController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProdutoDTO> criarProduto(@Valid @RequestPart("produto") ProdutoDTO dto,
-                                                   @RequestPart("imagem") MultipartFile imagem,
+                                                   @RequestPart(value = "imagem", required = false) MultipartFile imagem,
                                                    @AuthenticationPrincipal AcessoDTO usuarioLogado) throws GeneralSecurityException, IOException {
 
         dto = service.salvar(dto, imagem, usuarioLogado.getIdLoja());
@@ -65,7 +65,7 @@ public class ProdutoController {
     @PutMapping(value = "/{id}")
     public ResponseEntity<ProdutoDTO> atualizarProduto(@PathVariable Long id,
                                                        @Valid @RequestPart("produto") ProdutoDTO dto,
-                                                       @RequestPart("imagem") MultipartFile imagem,
+                                                       @RequestPart(value = "imagem", required = false) MultipartFile imagem,
                                                        @AuthenticationPrincipal AcessoDTO usuarioLogado) throws GeneralSecurityException, IOException {
         dto = service.atualizar(id, dto, usuarioLogado.getIdLoja(), imagem);
         return ResponseEntity.ok(dto);

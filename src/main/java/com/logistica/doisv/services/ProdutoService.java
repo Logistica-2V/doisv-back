@@ -63,7 +63,7 @@ public class ProdutoService {
 
         validarProdutoUnico(produto, null);
 
-        if(!imagem.isEmpty()){
+        if (temArquivoParaUpload(imagem)) {
             repository.save(produto);
             String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto().toString(), produto.getClass().getSimpleName());
             produto.setImagem(url.split("/")[5]);
@@ -83,7 +83,7 @@ public class ProdutoService {
 
         validarProdutoUnico(produto, produto.getIdProduto());
 
-        if(imagem.getContentType() != null) {
+        if (temArquivoParaUpload(imagem)) {
             String url = GoogleDriveService.salvarArquivoDrive(imagem, produto.getIdProduto().toString(), produto.getClass().getSimpleName());
             produto.setImagem(url.split("/")[5]);
         }
@@ -190,6 +190,10 @@ public class ProdutoService {
         }catch (NumberFormatException e) {
             throw new RegraNegocioException("Preço inválido na linha: " + linha);
         }
+    }
+
+    private boolean temArquivoParaUpload(MultipartFile imagem) {
+        return imagem != null && !imagem.isEmpty() && imagem.getSize() > 0;
     }
 
     private void excluirImagemProduto(Produto produto) throws GeneralSecurityException, IOException {
