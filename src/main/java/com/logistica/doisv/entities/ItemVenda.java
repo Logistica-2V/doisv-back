@@ -55,4 +55,16 @@ public class ItemVenda {
                                                 .divide(this.precoOriginal, 4, RoundingMode.HALF_UP)
                                                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
+
+    public void reduzirQuantidade(Double valor) {
+        if (valor > this.quantidade) {
+            throw new IllegalArgumentException("Quantidade a reduzir excede a disponível.");
+        }
+        this.quantidade -= valor;
+    }
+
+    public void restaurar(){
+        this.status = Status.ATIVO;
+        this.detalhes = "";
+    }
 }

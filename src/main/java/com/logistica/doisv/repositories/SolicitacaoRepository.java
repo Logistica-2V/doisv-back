@@ -26,16 +26,17 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
     Page<SolicitacaoResumidaDTO> listarSolicitacoesResumidas(Pageable pageable, @Param("idLoja") Long idLoja);
 
     @Query("""
-    SELECT s FROM Solicitacao s
-    JOIN FETCH s.venda v
-    JOIN FETCH s.consumidor c
-    JOIN FETCH s.itemVenda iv
-    JOIN FETCH iv.produto p
-    LEFT JOIN FETCH s.anexos
-    LEFT JOIN FETCH s.historicos
-    LEFT JOIN FETCH s.feedbacks
-    WHERE s.id = :idSolicitacao
-    AND v.loja.idLoja = :idLoja
+        SELECT DISTINCT s FROM Solicitacao s
+        JOIN FETCH s.venda v
+        JOIN FETCH v.loja l
+        JOIN FETCH s.consumidor c
+        JOIN FETCH s.itemVenda iv
+        JOIN FETCH iv.produto p
+        LEFT JOIN FETCH s.anexos
+        LEFT JOIN FETCH s.historicos
+        LEFT JOIN FETCH s.feedbacks
+        WHERE s.id = :idSolicitacao
+        AND l.idLoja = :idLoja
     """)
     Optional<Solicitacao> buscarCompletoPorId(@Param("idSolicitacao") Long idSolicitacao,
                                               @Param("idLoja") Long idLoja);

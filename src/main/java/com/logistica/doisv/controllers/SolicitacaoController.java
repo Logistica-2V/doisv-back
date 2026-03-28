@@ -7,8 +7,6 @@ import com.logistica.doisv.dto.registro_solicitacao.SolicitacaoDetalhadaDTO;
 import com.logistica.doisv.dto.registro_solicitacao.SolicitacaoResumidaDTO;
 import com.logistica.doisv.dto.registro_venda.requisicao.ItemDTO;
 import com.logistica.doisv.services.SolicitacaoService;
-import com.logistica.doisv.services.validacao.TokenService;
-import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,21 +26,18 @@ import java.util.List;
 public class SolicitacaoController {
 
     @Autowired
-    private TokenService tokenService;
-
-    @Autowired
     private SolicitacaoService service;
 
     @GetMapping
     public ResponseEntity<Page<SolicitacaoResumidaDTO>> buscarTodasSolicitacoes(Pageable pageable, @AuthenticationPrincipal AcessoDTO usuarioLogado){
 
-        return ResponseEntity.ok(service.buscarTodos(pageable, usuarioLogado.getIdLoja()));
+        return ResponseEntity.ok(service.buscarTodasSolicitacoesPorLoja(pageable, usuarioLogado.getIdLoja()));
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<SolicitacaoDetalhadaDTO> buscarSolicitacaoPorId(@PathVariable Long id, @AuthenticationPrincipal AcessoDTO usuarioLogado){
 
-        return ResponseEntity.ok(service.buscarPorId(id, usuarioLogado.getIdLoja()));
+        return ResponseEntity.ok(service.buscarSolicitacaoPorId(id, usuarioLogado.getIdLoja()));
     }
 
     @PostMapping(value = "/criar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -50,14 +45,15 @@ public class SolicitacaoController {
                                                                    @RequestPart("anexos") List<MultipartFile> anexos,
                                                                    @AuthenticationPrincipal AcessoDTO usuarioLogado) throws GeneralSecurityException, IOException {
 
-        return ResponseEntity.ok(service.registrarSolicitacao(dto, anexos, usuarioLogado.getIdVenda()));
+        return ResponseEntity.ok(service.registrarSolicitacao(dto, anexos,
+                usuarioLogado.getIdVenda(), usuarioLogado.getIdLoja()));
     }
 
     @PostMapping(value = "/atualizar/{id}")
     public ResponseEntity<SolicitacaoDetalhadaDTO> atualizarSolicitacao(@PathVariable Long id,
                                                   @Valid @RequestPart("historico") HistoricoSolicitacaoDTO dto,
                                                   @RequestPart(value = "novosProdutos", required = false) List<ItemDTO> novosProdutos,
-                                                  @AuthenticationPrincipal AcessoDTO usuarioLogado) throws MessagingException {
+                                                  @AuthenticationPrincipal AcessoDTO usuarioLogado) {
 
         return ResponseEntity.ok(service.atualizarSolicitacao(id, dto, usuarioLogado.getIdLoja(), novosProdutos));
     }
@@ -85,9 +81,8 @@ public class SolicitacaoController {
 
     @PutMapping(value = "/cancelar/{id}")
     public ResponseEntity<SolicitacaoResumidaDTO> cancelarSolicitacao(@PathVariable Long id,
-                                                                      @Valid @RequestBody CriarSolicitacaoDTO dto,
                                                                       @AuthenticationPrincipal AcessoDTO usuarioLogado) throws GeneralSecurityException, IOException {
 
-        return ResponseEntity.ok(service.cancelarSolicitacao(id, dto, usuarioLogado.getIdLoja()));
+        return ResponseEntity.ok(service.cancelarSolicitacao(id, usuarioLogado.getIdLoja()));
     }
 }

@@ -40,15 +40,20 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
     Optional<Venda> findBySerialVendaIgnoreCase(String serialVenda);
 
     @Query("""
-            SELECT v FROM Venda v
-            JOIN FETCH v.itensVenda i
-            WHERE v.id = :id
-            """)
-    Optional<Venda> buscarVendaPorId(@Param("id")Long id);
+        SELECT v FROM Venda v
+        JOIN FETCH v.itensVenda i
+        JOIN FETCH i.produto p
+        JOIN FETCH v.consumidor c
+        JOIN FETCH v.loja l
+        WHERE v.id = :idVenda
+        AND v.loja.idLoja = :idLoja
+    """)
+    Optional<Venda> buscarVendaPorId(@Param("idVenda") Long idVenda,
+                                     @Param("idLoja") Long idLoja);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-        UPDATE Venda v 
+        UPDATE Venda v
         SET v.status = :status
         WHERE v.loja.idLoja = :idLoja
         AND v.id IN :idsVendas
