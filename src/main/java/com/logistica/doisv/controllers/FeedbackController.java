@@ -4,7 +4,6 @@ import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.registro_feedback.FeedbackDTO;
 import com.logistica.doisv.dto.registro_feedback.FeedbackResumidoDTO;
 import com.logistica.doisv.services.FeedbackService;
-import com.logistica.doisv.services.validacao.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,14 +23,11 @@ public class FeedbackController {
     @Autowired
     private FeedbackService service;
 
-    @Autowired
-    private TokenService tokenService;
-
-    @GetMapping("/{id}")
-    public ResponseEntity<FeedbackDTO> buscarFeedbackPorId(@PathVariable Long id,
+    @GetMapping("/{idFeedback}")
+    public ResponseEntity<FeedbackDTO> buscarFeedbackPorId(@PathVariable Long idFeedback,
                                                            @AuthenticationPrincipal AcessoDTO usuarioLogado){
 
-        return ResponseEntity.ok(service.buscarPorId(id, usuarioLogado.getIdLoja()));
+        return ResponseEntity.ok(service.buscarPorId(idFeedback, usuarioLogado.getIdLoja()));
     }
 
     @GetMapping("/solicitacoes/{idSolicitacao}")
@@ -43,7 +39,8 @@ public class FeedbackController {
 
     @GetMapping("/lojas/{idLoja}")
     public ResponseEntity<Page<FeedbackResumidoDTO>> buscarFeedbacksPorLoja(@PathVariable UUID idLoja,
-                                                                            @RequestParam(defaultValue = "180") Integer periodo,
+                                                                            @RequestParam(defaultValue = "180")
+                                                                            Integer periodo,
                                                                             Pageable pageable){
         return ResponseEntity.ok(service.buscarTodosPorLoja(pageable, idLoja, periodo));
     }
@@ -51,7 +48,11 @@ public class FeedbackController {
     @PostMapping
     public ResponseEntity<FeedbackDTO> criarFeedback(@Valid @RequestBody FeedbackDTO dto,
                                                      @AuthenticationPrincipal AcessoDTO usuarioLogado){
-        dto = service.salvar(dto, usuarioLogado.getIdConsumidor());
+        dto = service.salvar(dto,
+                usuarioLogado.getIdConsumidor(),
+                usuarioLogado.getIdLoja(),
+                usuarioLogado.getIdVenda());
+
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.idFeedback()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }

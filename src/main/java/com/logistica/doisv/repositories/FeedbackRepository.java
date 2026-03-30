@@ -18,17 +18,19 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
             SELECT f FROM Feedback f
             JOIN FETCH f.consumidor
             JOIN FETCH f.solicitacao s
-            JOIN FETCH s.venda
+            JOIN FETCH s.venda v
+            JOIN FETCH f.loja l
             WHERE f.solicitacao.id = :idSolicitacao
-            AND f.loja.id = :idLoja
+            AND f.loja.idLoja = :idLoja
             """)
     List<Feedback> buscarFeedbacksPorIdSolicitacao(@Param("idSolicitacao") Long idSolicitacao,
                                                    @Param("idLoja") Long idLoja);
 
     @Query("""
             SELECT f FROM Feedback f
+            JOIN FETCH f.consumidor c
             WHERE f.idFeedback = :idFeedback
-            AND f.loja.id = :idLoja
+            AND f.loja.idLoja = :idLoja
             """)
     Optional<Feedback> buscarFeedbackPorId(@Param("idFeedback") Long idFeedback,
                                            @Param("idLoja") Long idLoja);
@@ -37,7 +39,7 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
         SELECT f FROM Feedback f
         JOIN FETCH f.solicitacao s
         JOIN FETCH s.venda
-        WHERE f.loja.id = :idLoja
+        WHERE f.loja.idLoja = :idLoja
         AND f.dataFeedback BETWEEN :inicio and :fim
         """)
     List<Feedback> buscarFeedbacksPorLojaEPeriodo(@Param("idLoja") Long idLoja,
@@ -48,6 +50,8 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
         SELECT f FROM Feedback f
         JOIN FETCH f.solicitacao s
         JOIN FETCH s.venda
+        JOIN FETCH f.loja
+        JOIN FETCH f.consumidor
         WHERE f.loja.idPublico = :idPublicoLoja
         AND f.dataFeedback BETWEEN :inicio and :fim
         """)
@@ -59,7 +63,7 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
        SELECT f FROM Feedback f
        JOIN FETCH f.loja
        WHERE f.dataFeedback BETWEEN :inicio AND :fim
-        """)
+       """)
     List<Feedback> buscarFeedbacksPorPeriodo(LocalDate inicio, LocalDate fim);
 
 }

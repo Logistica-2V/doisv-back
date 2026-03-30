@@ -14,13 +14,15 @@ public record LojaDTO (Long idLoja,
                        String logo,
                        @Email(message = "Informe um e-mail válido.")
                        @NotBlank(message = "O e-mail da loja é obrigatório.") String email,
-                       String status){
+                       String status,
+                       String idPublico){
 
     public LojaDTO {
         cnpj = cnpj.replaceAll("[^0-9A-Za-z]", "").toUpperCase();
     }
 
     public LojaDTO(Loja loja) {
-        this(loja.getIdLoja(), loja.getNome(), loja.getCnpj(), loja.getSegmento(), loja.getLogo(), loja.getEmail(), loja.getStatus().toString());
+        this(loja.getIdLoja(), loja.getNome(), loja.getCnpj(), loja.getSegmento(), loja.getLogo(), loja.getEmail(),
+                loja.getStatus().toString(), String.valueOf(loja.getIdPublico()));
     }
 }

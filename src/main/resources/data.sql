@@ -76,7 +76,7 @@ INSERT IGNORE INTO tb_Consumidor (id_consumidor, nome, cpf_cnpj, email, celular,
 INSERT IGNORE INTO tb_Venda
 (id, data_criacao, data_entrega, desconto, forma_pagamento, prazo_devolucao, prazo_troca, preco_total, senha, serial_venda, status, status_pedido, id_consumidor, id_loja)
 VALUES
-(1, '2025-06-15 10:15:00', '2025-06-20', 0.00, 'CREDITO', 7, 30, 3378.90, '$2a$10$QoIVIO3H/GjERAZhd8l2pOTK7pDrsNOi0wiNeMY1lUtlsHesJQSpS', '8f2e3d4a5c', 'ATIVO', 'ENTREGUE', 1, 1),
+(1, '2025-06-15 10:15:00', '2025-06-20', 0.00, 'CREDITO', 7, 30, 3378.90, '$2a$10$yrORnoO.6CpHF3zk0rpsIOIv9oiEWj16NDx.00FwRRAhjKcUpS3VC', '8f2e3d4a5c', 'ATIVO', 'ENTREGUE', 1, 1),
 (2, '2026-01-15 14:30:00', NULL, 10.00, 'PIX', 7, 30, 289.80, NULL, NULL, 'ATIVO', 'EM_ANDAMENTO', 2, 2),
 (3, '2025-12-20 09:00:00', NULL, 5.00, 'BOLETO', 7, 30, 64.80, NULL, NULL, 'ATIVO', 'EM_ANDAMENTO', 3, 3),
 (4, '2026-01-28 18:45:00', NULL, 0.00, 'PIX', 7, 30, 19.90, NULL, NULL, 'ATIVO', 'EM_ANDAMENTO', 4, 1),

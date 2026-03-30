@@ -16,7 +16,7 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
 
     @Query("""
     SELECT new com.logistica.doisv.dto.registro_solicitacao.SolicitacaoResumidaDTO(
-        s.id, c.nome, v.id, s.tipoSolicitacao, s.motivo, s.dataSolicitacao, 
+        s.id, c.nome, v.id, s.tipoSolicitacao, s.motivo, s.dataSolicitacao,
         s.dataAtualizacao, s.statusSolicitacao, s.status)
         FROM Solicitacao s
         JOIN s.consumidor c
@@ -52,4 +52,15 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
     List<Solicitacao> buscarSolicitacaoPorLojaEPeriodo(@Param("idLoja") Long idLoja,
                                                        @Param("inicio") LocalDate inicio,
                                                        @Param("fim") LocalDate fim);
+
+    @Query(value = """
+    SELECT s FROM Solicitacao s
+    LEFT JOIN FETCH s.feedbacks
+    WHERE s.id = :idSolicitacao
+    AND s.consumidor.idConsumidor = :idConsumidor
+    AND s.venda.id = :idVenda
+""")
+    Optional<Solicitacao> buscarSolicitacaoPorIdEVendaEConsumidor(@Param("idSolicitacao") Long idSolicitacao,
+                                                                  @Param("idConsumidor") Long idConsumidor,
+                                                                  @Param("idVenda") Long idVenda);
 }

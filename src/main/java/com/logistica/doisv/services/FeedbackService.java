@@ -5,12 +5,15 @@ import com.logistica.doisv.dto.registro_feedback.FeedbackDTO;
 import com.logistica.doisv.dto.registro_feedback.FeedbackResumidoDTO;
 import com.logistica.doisv.entities.Consumidor;
 import com.logistica.doisv.entities.Feedback;
+import com.logistica.doisv.entities.Loja;
+import com.logistica.doisv.entities.Solicitacao;
 import com.logistica.doisv.entities.enums.TipoFeedback;
 import com.logistica.doisv.repositories.ConsumidorRepository;
 import com.logistica.doisv.repositories.FeedbackRepository;
+import com.logistica.doisv.repositories.LojaRepository;
+import com.logistica.doisv.repositories.SolicitacaoRepository;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import com.logistica.doisv.util.conversao.PaginacaoUtil;
-import com.logistica.doisv.util.validacao.FeedbackValidador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,16 +33,20 @@ public class FeedbackService {
     private FeedbackRepository repository;
 
     @Autowired
+    private SolicitacaoRepository solicitacaoRepository;
+
+    @Autowired
     private ConsumidorRepository consumidorRepository;
 
     @Autowired
-    private FeedbackValidador feedbackValidador;
+    private LojaRepository lojaRepository;
 
 
     @Transactional(readOnly = true)
-    public FeedbackDTO buscarPorId(Long id, Long idLoja){
-        Feedback feedback = repository.buscarFeedbackPorId(id, idLoja)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Feedback com ID %d não encontrado", id)));
+    public FeedbackDTO buscarPorId(Long idFeedback, Long idLoja){
+        Feedback feedback = repository.buscarFeedbackPorId(idFeedback, idLoja)
+                .orElseThrow(() -> new ResourceNotFoundException(String
+                        .format("Feedback com ID %d não encontrado", idFeedback)));
 
         return new FeedbackDTO(feedback);
     }
@@ -79,26 +86,20 @@ public class FeedbackService {
     }
 
     @Transactional
-    public FeedbackDTO salvar(FeedbackDTO dto, Long idConsumidor){
-        Feedback feedback = new Feedback();
+    public FeedbackDTO salvar(FeedbackDTO dto, Long idConsumidor, Long idLoja, Long idVenda){
+        Solicitacao solicitacao = solicitacaoRepository
+                .buscarSolicitacaoPorIdEVendaEConsumidor(dto.idSolicitacao(),idConsumidor, idVenda)
+                .orElseThrow(() -> new ResourceNotFoundException(String
+                        .format("Solicitação de ID %d não encontrada.", dto.idSolicitacao())));
 
-        criarFeedback(dto, feedback, idConsumidor);
+        Consumidor consumidor = consumidorRepository.getReferenceById(idConsumidor);
+        Loja loja = lojaRepository.getReferenceById(idLoja);
+
+        TipoFeedback tipoFeedback = TipoFeedback.deString(dto.tipoFeedback());
+
+        Feedback feedback = Feedback.criar(solicitacao, consumidor, loja, tipoFeedback, dto.nota(), dto.comentario());
+
         return new FeedbackDTO(repository.save(feedback));
-    }
-
-
-    private void criarFeedback(FeedbackDTO dto, Feedback entidade, Long idConsumidor){
-        localizarConsumidor(entidade, idConsumidor);
-        feedbackValidador.validarFeedback(dto, entidade);
-        entidade.setTipoFeedback(TipoFeedback.deString(dto.tipoFeedback()));
-        entidade.setNota(dto.nota());
-        entidade.setComentario(dto.comentario());
-    }
-
-    private void localizarConsumidor(Feedback feedback, Long idConsumidor){
-        Consumidor consumidor = consumidorRepository.findById(idConsumidor)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Consumidor ID %d não encontrado", idConsumidor)));
-        feedback.setConsumidor(consumidor);
     }
 
     private void validarAcessoConsumidor(List<Feedback> feedbacks, Long idConsumidor, Long idVenda, Long idSolicitacao){

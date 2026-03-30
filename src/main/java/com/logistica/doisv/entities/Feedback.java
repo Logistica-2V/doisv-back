@@ -1,12 +1,11 @@
 package com.logistica.doisv.entities;
 
 import com.logistica.doisv.entities.enums.Status;
+import com.logistica.doisv.entities.enums.StatusSolicitacao;
 import com.logistica.doisv.entities.enums.TipoFeedback;
+import com.logistica.doisv.services.exceptions.RegraNegocioException;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -14,6 +13,7 @@ import java.time.LocalDate;
 @Table(name = "tb_feedback")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Feedback {
@@ -49,4 +49,44 @@ public class Feedback {
     @JoinColumn(name = "idSolicitacao")
     private Solicitacao solicitacao;
 
+
+    public static Feedback criar(Solicitacao solicitacao, Consumidor consumidor, Loja loja, TipoFeedback tipoFeedback,
+                                 Integer nota, String comentario) {
+        validarSolicitacaoConcluida(solicitacao);
+        validarSeExisteFeedback(solicitacao, tipoFeedback);
+        validarNota(nota);
+
+        return Feedback.builder()
+                .solicitacao(solicitacao)
+                .tipoFeedback(tipoFeedback)
+                .consumidor(consumidor)
+                .loja(loja)
+                .nota(nota)
+                .comentario(comentario)
+                .dataFeedback(LocalDate.now())
+                .status(Status.ATIVO)
+                .build();
+    }
+
+    private static void validarSolicitacaoConcluida(Solicitacao solicitacao){
+        if(solicitacao.getStatusSolicitacao() != StatusSolicitacao.CONCLUIDA){
+            throw new RegraNegocioException("A solicitação ainda está em andamento, aguarde ser concluída para dar um Feedback");
+        }
+    }
+
+    private static void validarSeExisteFeedback(Solicitacao solicitacao, TipoFeedback tipoFeedback){
+        boolean feedbackExistente = solicitacao.getFeedbacks().stream()
+                .anyMatch(f -> f.getTipoFeedback().equals(tipoFeedback));
+
+        if(feedbackExistente){
+            throw new RegraNegocioException(String
+                    .format("Já existe um Feedback para a solicitação ID %d", solicitacao.getId()));
+        }
+    }
+
+    private static void validarNota(Integer nota) {
+        if(nota < 1 || nota > 5){
+            throw new RegraNegocioException("A nota deve ser entre 1 e 5.");
+        }
+    }
 }
