@@ -1,6 +1,7 @@
 package com.logistica.doisv.entities;
 
 import com.logistica.doisv.entities.enums.Status;
+import com.logistica.doisv.services.exceptions.RegraNegocioException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,7 +31,13 @@ public class Produto {
     @JoinColumn(name = "idLoja")
     private Loja loja;
 
-//    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<ItemVenda> itensVenda = new ArrayList<>();
+
+    public void validarAtivo() {
+        if (this.status.equals(Status.INATIVO)) {
+            throw new RegraNegocioException(
+                    String.format("Não é possível registrar uma venda com produto inativo: %d - %s",
+                            this.idProduto, this.descricao));
+        }
+    }
 
 }

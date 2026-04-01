@@ -10,7 +10,6 @@ import com.logistica.doisv.entities.enums.StatusPedido;
 import com.logistica.doisv.repositories.ConsumidorRepository;
 import com.logistica.doisv.repositories.ProdutoRepository;
 import com.logistica.doisv.repositories.VendaRepository;
-import com.logistica.doisv.services.exceptions.EdicaoNaoPermitidaException;
 import com.logistica.doisv.services.exceptions.RegraNegocioException;
 import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +19,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -66,13 +64,17 @@ public class VendaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Consumidor não encontrado"));
 
         Loja loja = consumidor.getLoja();
-        Venda venda = new Venda(loja, consumidor, dto.statusPedido(), dto.desconto(), dto.formaPagamento(), dto.prazoTroca(), dto.prazoDevolucao());
+        List<Produto> produtos = buscarProdutos(dto.itensVenda(), idLoja);
+        StatusPedido statusPedido = StatusPedido.converterDeStringParaEnum(dto.statusPedido());
 
-        calcularValorVenda(venda, dto, loja);
+        Venda venda = Venda.criar(consumidor, loja, statusPedido, dto.formaPagamento(), dto.desconto(),
+                dto.prazoTroca(), dto.prazoDevolucao());
+
+        adicionarItensNaVenda(venda, produtos, dto.itensVenda());
 
         gerarAcessoConsumidor(venda);
 
-        venda = repository.save(venda);
+        repository.save(venda);
 
         return new VendaDTO(venda);
     }
@@ -81,14 +83,16 @@ public class VendaService {
     public VendaDTO atualizar(Long idVenda, RegistroVendaDTO dto, Long idLoja){
         Venda venda = buscarVendaParaAtualizacao(idVenda, idLoja);
 
-        validarPermissaoEdicao(venda);
         atualizarConsumidorSeNecessario(venda, dto.idConsumidor(), idLoja);
-        atualizarDadosDaVenda(venda, dto);
+        List<Produto> produtos = buscarProdutos(dto.itensVenda(), idLoja);
+        StatusPedido statusPedido = StatusPedido.converterDeStringParaEnum(dto.statusPedido());
 
-        Map<Long, Double> itensPreExistentes = mapearItensPreExistentes(venda);
-        recalcularItensDaVenda(venda, dto, itensPreExistentes);
+        venda.atualizarCampos(statusPedido, dto.formaPagamento(), dto.desconto(),
+                dto.prazoTroca(), dto.prazoDevolucao());
 
-        venda = repository.save(venda);
+        adicionarItensNaVenda(venda, produtos, dto.itensVenda());
+
+        repository.save(venda);
         gerarAcessoConsumidor(venda);
 
         return new VendaDTO(venda);
@@ -105,6 +109,44 @@ public class VendaService {
             throw new RegraNegocioException("Nenhuma venda elegível para inativação. " +
                     "Vendas com status ENTREGUE ou CANCELADA não podem ser inativadas.");
         }
+    }
+
+    private List<Produto> buscarProdutos(List<ItemDTO> itensVendaDTO, Long idLoja){
+        List<Long> idsProdutosParaBusca = itensVendaDTO.stream()
+                .filter(item -> item.idItemVenda() == null)
+                .map(ItemDTO::idProduto)
+                .toList();
+
+        return produtoRepository.buscarProdutoParaVenda(idsProdutosParaBusca, idLoja);
+    }
+
+    private void adicionarItensNaVenda(Venda venda, List<Produto> produtos, List<ItemDTO> itensDTO){
+        Map<Long, Produto> produtosPorId = produtos.stream()
+                .collect(Collectors.toMap(Produto::getIdProduto, Function.identity()));
+
+        List<Long> idsParaManter = itensDTO.stream()
+                .map(ItemDTO::idItemVenda)
+                .filter(Objects::nonNull)
+                .toList();
+
+        venda.removerItens(idsParaManter);
+
+        for (ItemDTO item : itensDTO) {
+            if(item.idItemVenda() == null){
+                Produto produto = produtosPorId.get(item.idProduto());
+
+                if (produto == null) {
+                    throw new ResourceNotFoundException("Produto não encontrado: " + item.idProduto());
+                }
+                produto.validarAtivo();
+
+                venda.adicionarItem(ItemVenda.criar(produto.getPreco(), item.valorVendido(), item.quantidade(), item.detalhe(),
+                        venda, produto));
+            }else{
+                venda.atualizarItem(item.idItemVenda(), item.valorVendido(), item.quantidade(), item.detalhe());
+            }
+        }
+        venda.calcularPrecoTotal();
     }
 
     private void gerarAcessoConsumidor(Venda venda){
@@ -129,96 +171,17 @@ public class VendaService {
         }
     }
 
-    private void calcularValorVenda(Venda venda, RegistroVendaDTO dto, Loja loja){
-        calcularValorVenda(venda, dto, loja, Collections.emptyMap());
-    }
-
-    private void calcularValorVenda(Venda venda, RegistroVendaDTO dto, Loja loja, Map<Long, Double> itensPreExistentes){
-        venda.setPrecoTotal(BigDecimal.valueOf(0));
-        List<Produto> produtos = produtoRepository
-                .buscarProdutoParaVenda(dto.itensVenda().stream().map(ItemDTO::idProduto).toList(), loja.getIdLoja());
-
-        adicionarItensNaVenda(venda, dto.itensVenda(), produtos, itensPreExistentes);
-
-        venda.calcularPrecoTotal();
-    }
-
-    private void validarProdutoAtivo(Produto produto){
-        if(produto.getStatus().equals(Status.INATIVO)){
-            throw new RegraNegocioException(
-                    String.format("Não é possível registrar uma venda com produto inativo: %d - %s",
-                            produto.getIdProduto(), produto.getDescricao()));
-        }
-    }
-
-    private void adicionarItensNaVenda(Venda venda, List<ItemDTO> itensDTO, List<Produto> produtos, Map<Long, Double> itensPreExistentes) {
-        Map<Long, Produto> produtosPorId = produtos.stream()
-                .collect(Collectors.toMap(Produto::getIdProduto, Function.identity()));
-
-        for (ItemDTO i : itensDTO) {
-            Produto produto = produtosPorId.get(i.idProduto());
-
-            if (produto == null) {
-                throw new ResourceNotFoundException("Produto não encontrado: " + i.idProduto());
-            }
-
-            validarDisponibilidadeProduto(produto, i.quantidade(), itensPreExistentes);
-
-            ItemVenda item = new ItemVenda(produto.getPreco(), i.valorVendido(), i.quantidade(), i.detalhe(), venda, produto);
-            venda.getItensVenda().add(item);
-
-        }
-    }
-
-    private void validarDisponibilidadeProduto(Produto produto, double quantidade, Map<Long, Double> itensPreExistentes) {
-        Double quantidadeAntiga = itensPreExistentes.get(produto.getIdProduto());
-
-        if (quantidadeAntiga == null) {
-            validarProdutoAtivo(produto);
-        } else if (produto.getStatus().equals(Status.INATIVO) && quantidade > quantidadeAntiga) {
-            throw new RegraNegocioException(
-                    String.format("Não é possível aumentar a quantidade de um produto inativo. Estoque bloqueado: %d - %s",
-                            produto.getIdProduto(), produto.getDescricao()));
-        }
-    }
-
     private Venda buscarVendaParaAtualizacao(Long idVenda, Long idLoja) {
         return repository.findByIdAndLojaIdLoja(idVenda, idLoja)
                 .orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada."));
     }
 
-    private void validarPermissaoEdicao(Venda venda) {
-        if (venda.getStatusPedido() == StatusPedido.ENTREGUE || venda.getStatusPedido() == StatusPedido.CANCELADA) {
-            throw new EdicaoNaoPermitidaException("Status atual da venda não permite edição de dados.");
-        }
-    }
-
     private void atualizarConsumidorSeNecessario(Venda venda, Long idConsumidor, Long idLoja) {
-        if (!venda.getConsumidor().getIdConsumidor().equals(idConsumidor)) {
-            Consumidor novoConsumidor = consumidorRepository.buscarConsumidorAtivo(idConsumidor, idLoja)
+        if (venda.pertenceAoConsumidor(idConsumidor)){ return;}
+
+        Consumidor novoConsumidor = consumidorRepository.buscarConsumidorAtivo(idConsumidor, idLoja)
                     .orElseThrow(() -> new ResourceNotFoundException("Consumidor não localizado."));
 
-            venda.setConsumidor(novoConsumidor);
-        }
-    }
-
-    private void atualizarDadosDaVenda(Venda venda, RegistroVendaDTO dto) {
-        venda.setDesconto(dto.desconto());
-        venda.setPrazoTroca(dto.prazoTroca());
-        venda.setPrazoDevolucao(dto.prazoDevolucao());
-        venda.setStatusPedido(StatusPedido.converterDeStringParaEnum(dto.statusPedido()));
-    }
-
-    private Map<Long, Double> mapearItensPreExistentes(Venda venda) {
-        return venda.getItensVenda().stream()
-                .collect(Collectors.toMap(
-                        item -> item.getProduto().getIdProduto(),
-                        ItemVenda::getQuantidade
-                ));
-    }
-
-    private void recalcularItensDaVenda(Venda venda, RegistroVendaDTO dto, Map<Long, Double> itensPreExistentes) {
-        venda.getItensVenda().clear();
-        calcularValorVenda(venda, dto, venda.getLoja(), itensPreExistentes);
+        venda.atualizarConsumidor(novoConsumidor);
     }
 }

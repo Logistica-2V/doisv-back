@@ -2,6 +2,7 @@ package com.logistica.doisv.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.logistica.doisv.entities.enums.Status;
+import com.logistica.doisv.services.exceptions.RegraNegocioException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -54,6 +55,45 @@ public class ItemVenda {
         percentualVariacao = this.precoVendido.multiply(BigDecimal.valueOf(100))
                                                 .divide(this.precoOriginal, 4, RoundingMode.HALF_UP)
                                                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+    }
+
+    public static ItemVenda criar(BigDecimal precoOriginal, BigDecimal precoVendido, Double quantidade,
+                                  String detalhes, Venda venda, Produto produto) {
+        BigDecimal precoFinal = precoVendido != null ? precoVendido : precoOriginal;
+
+        BigDecimal percentual = precoFinal
+                .multiply(BigDecimal.valueOf(100))
+                .divide(precoOriginal, 4, RoundingMode.HALF_UP)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+        return ItemVenda.builder()
+                .precoOriginal(precoOriginal)
+                .precoVendido(precoFinal)
+                .percentualVariacao(percentual)
+                .quantidade(quantidade)
+                .detalhes(detalhes)
+                .venda(venda)
+                .produto(produto)
+                .status(Status.ATIVO)
+                .solicitacoes(new ArrayList<>())
+                .build();
+    }
+
+    public void atualizarInformacoes(BigDecimal precoVendido, Double quantidade, String detalhes) {
+        if (this.produto.getStatus().equals(Status.INATIVO) && quantidade > this.quantidade) {
+            throw new RegraNegocioException(
+                    String.format("Não é possível aumentar a quantidade de um produto inativo: %d - %s",
+                            this.produto.getIdProduto(), this.produto.getDescricao()));
+        }
+
+        this.precoVendido = precoVendido != null ? precoVendido : this.precoOriginal;
+        this.quantidade = quantidade;
+        this.detalhes = detalhes;
+
+        this.percentualVariacao = this.precoVendido
+                .multiply(BigDecimal.valueOf(100))
+                .divide(this.precoOriginal, 4, RoundingMode.HALF_UP)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
 
     public void reduzirQuantidade(Double valor) {

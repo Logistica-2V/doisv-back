@@ -60,11 +60,11 @@ public class Solicitacao {
     private Set<Feedback> feedbacks = new HashSet<>();
 
 
-    public static Solicitacao criar(CriarSolicitacaoDTO dto, Venda venda,
+    public static Solicitacao criar(Double quantidade, String motivo, Venda venda,
                                     ItemVenda itemVenda, TipoSolicitacao tipoSolicitacao) {
         return Solicitacao.builder()
-                .quantidade(dto.quantidade())
-                .motivo(dto.motivo())
+                .quantidade(quantidade)
+                .motivo(motivo)
                 .tipoSolicitacao(tipoSolicitacao)
                 .statusSolicitacao(StatusSolicitacao.PENDENTE)
                 .status(Status.ATIVO)

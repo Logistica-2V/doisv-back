@@ -9,5 +9,7 @@ public record ItemDTO(@NotNull(message = "O ID do produto é obrigatório.") Lon
                       String detalhe,
                       @DecimalMin(value = "0.0", message = "O valor vendido deve ser maior ou igual a 0,00.")
                       @Digits(integer = 6, fraction = 2, message = "O valor vendido deve ter no máximo 6 dígitos inteiros e 2 casas decimais.")
-                      BigDecimal valorVendido) {
+                      BigDecimal valorVendido,
+                      @Null
+                      Long idItemVenda) {
 }

@@ -3,6 +3,8 @@ package com.logistica.doisv.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.entities.enums.StatusPedido;
+import com.logistica.doisv.services.exceptions.EdicaoNaoPermitidaException;
+import com.logistica.doisv.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,6 +19,7 @@ import java.util.List;
 @Table(name = "tb_Venda")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Venda {
@@ -66,6 +69,38 @@ public class Venda {
         this.dataCriacao = Instant.now();
     }
 
+    public static Venda criar(Consumidor consumidor, Loja loja, StatusPedido statusPedido, String formaPagamento,
+                              BigDecimal desconto, Integer prazoTroca, Integer prazoDevolucao){
+
+        return Venda.builder()
+                .consumidor(consumidor)
+                .loja(loja)
+                .statusPedido(statusPedido)
+                .formaPagamento(formaPagamento)
+                .desconto(desconto)
+                .prazoTroca(prazoTroca)
+                .prazoDevolucao(prazoDevolucao)
+                .dataCriacao(Instant.now())
+                .itensVenda(new ArrayList<>())
+                .status(Status.ATIVO)
+                .build();
+    }
+
+    public void atualizarCampos(StatusPedido statusPedido, String formaPagamento,
+                                BigDecimal desconto, Integer prazoTroca, Integer prazoDevolucao) {
+        validarSeAlteravel();
+
+        this.statusPedido = statusPedido;
+        this.formaPagamento = formaPagamento;
+        this.desconto = desconto;
+        this.prazoTroca = prazoTroca;
+        this.prazoDevolucao = prazoDevolucao;
+    }
+
+    public void adicionarItem(ItemVenda itemVenda){
+        this.itensVenda.add(itemVenda);
+    }
+
     public void calcularPrecoTotal(){
         BigDecimal precoTotalSemDesconto = this.itensVenda.stream()
                 .map(item ->
@@ -76,5 +111,31 @@ public class Venda {
         BigDecimal descontoAplicado = this.desconto != null ? this.desconto : BigDecimal.ZERO;
 
         this.precoTotal = precoTotalSemDesconto.subtract(descontoAplicado).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private void validarSeAlteravel(){
+        if(this.statusPedido.equals(StatusPedido.ENTREGUE) || this.statusPedido.equals(StatusPedido.CANCELADA)){
+            throw new EdicaoNaoPermitidaException("Status atual da venda não permite edição de dados.");
+        }
+    }
+
+    public boolean pertenceAoConsumidor(Long idConsumidor) {
+        return this.consumidor.getIdConsumidor().equals(idConsumidor);
+    }
+
+    public void atualizarConsumidor(Consumidor novoConsumidor) {
+        this.consumidor = novoConsumidor;
+    }
+
+    public void removerItens(List<Long> idsParaManter) {
+        this.itensVenda.removeIf(item -> !idsParaManter.contains(item.getId()));
+    }
+
+    public void atualizarItem(Long idItemVenda, BigDecimal precoVendido, Double quantidade, String detalhes) {
+        this.itensVenda.stream()
+                .filter(item -> item.getId().equals(idItemVenda))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Item não encontrado na venda."))
+                .atualizarInformacoes(precoVendido, quantidade, detalhes);
     }
 }

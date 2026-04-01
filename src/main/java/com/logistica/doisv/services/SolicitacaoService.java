@@ -71,7 +71,7 @@ public class SolicitacaoService {
 
         validador.validarRegistroSolicitacao(venda, dto, tipoSolicitacao, itemVenda);
 
-        Solicitacao solicitacao = Solicitacao.criar(dto, venda, itemVenda, tipoSolicitacao);
+        Solicitacao solicitacao = Solicitacao.criar(dto.quantidade(), dto.motivo(), venda, itemVenda, tipoSolicitacao);
         solicitacao = repository.save(solicitacao);
 
         processarAnexos(anexos, solicitacao.getId());
