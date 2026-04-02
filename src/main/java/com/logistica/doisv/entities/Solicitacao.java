@@ -1,7 +1,6 @@
 package com.logistica.doisv.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.logistica.doisv.dto.registro_solicitacao.CriarSolicitacaoDTO;
 import com.logistica.doisv.entities.enums.Status;
 import com.logistica.doisv.entities.enums.StatusSolicitacao;
 import com.logistica.doisv.entities.enums.TipoSolicitacao;
@@ -59,9 +58,8 @@ public class Solicitacao {
     @JsonIgnore
     private Set<Feedback> feedbacks = new HashSet<>();
 
-
     public static Solicitacao criar(Double quantidade, String motivo, Venda venda,
-                                    ItemVenda itemVenda, TipoSolicitacao tipoSolicitacao) {
+            ItemVenda itemVenda, TipoSolicitacao tipoSolicitacao) {
         return Solicitacao.builder()
                 .quantidade(quantidade)
                 .motivo(motivo)
@@ -107,7 +105,7 @@ public class Solicitacao {
         this.historicos.add(HistoricoSolicitacao.rejeicao(this));
     }
 
-    public void cancelar(){
+    public void cancelar() {
         validarSeCancelavel();
 
         this.itemVenda.restaurar();
@@ -117,7 +115,7 @@ public class Solicitacao {
         this.historicos.add(HistoricoSolicitacao.cancelamento(this));
     }
 
-    public void atualizar(StatusSolicitacao novoStatus, String observacao){
+    public void atualizar(StatusSolicitacao novoStatus, String observacao) {
         validarSeAtualizavel();
         validarAvanco(novoStatus);
 
@@ -142,9 +140,9 @@ public class Solicitacao {
 
         if (statusInvalido) {
             throw new RegraNegocioException(String.format("""
-                        A solicitação de %s ID %s não pode mais ser cancelada no status atual:
-                        Status Solicitação: %s
-                        Status: %s.""",
+                    A solicitação de %s ID %s não pode mais ser cancelada no status atual:
+                    Status Solicitação: %s
+                    Status: %s.""",
                     this.tipoSolicitacao.getDescricao().toLowerCase(),
                     this.id,
                     this.statusSolicitacao.getStatusSolicitacao(),
@@ -160,9 +158,9 @@ public class Solicitacao {
 
         if (statusInvalido) {
             throw new RegraNegocioException(String.format("""
-                        A solicitação de %s ID %s não pode mais ser alterada no status atual:
-                        Status Solicitação: %s
-                        Status: %s.""",
+                    A solicitação de %s ID %s não pode mais ser alterada no status atual:
+                    Status Solicitação: %s
+                    Status: %s.""",
                     this.tipoSolicitacao.getDescricao(),
                     this.id,
                     this.statusSolicitacao.getStatusSolicitacao(),

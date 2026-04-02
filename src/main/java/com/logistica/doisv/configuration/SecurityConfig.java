@@ -66,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers("/doisv/consumidores/**").hasRole("LOJISTA")
                         .requestMatchers("/doisv/vendas/**").hasRole("LOJISTA")
                         .requestMatchers("/doisv/feedbacks/{id}").hasRole("LOJISTA")
+                        .requestMatchers("/doisv/relatorios/**").hasRole("LOJISTA")
 
                         // ===================== ROTAS LOJISTA OU CONSUMIDOR =====================
                         .requestMatchers(HttpMethod.GET, "/doisv/feedbacks/solicitacoes/{id}")

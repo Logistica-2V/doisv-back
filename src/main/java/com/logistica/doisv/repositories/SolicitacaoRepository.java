@@ -63,4 +63,14 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
     Optional<Solicitacao> buscarSolicitacaoPorIdEVendaEConsumidor(@Param("idSolicitacao") Long idSolicitacao,
                                                                   @Param("idConsumidor") Long idConsumidor,
                                                                   @Param("idVenda") Long idVenda);
+
+    @Query("""
+        SELECT s FROM Solicitacao s
+        JOIN FETCH s.consumidor c
+        JOIN FETCH s.venda v
+        JOIN FETCH s.itemVenda iv
+        JOIN FETCH iv.produto p
+        WHERE v.loja.idLoja = :idLoja
+    """)
+    List<Solicitacao> buscarTodasPorLoja(@Param("idLoja") Long idLoja);
 }

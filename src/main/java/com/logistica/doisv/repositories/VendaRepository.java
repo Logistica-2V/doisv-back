@@ -64,4 +64,7 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
                               @Param("status") Status status,
                               @Param("statusBloqueados") List<StatusPedido> statusBloqueados);
 
+    @Query("SELECT v FROM Venda v LEFT JOIN FETCH v.consumidor WHERE v.loja.idLoja = :idLoja")
+    List<Venda> buscarTodasPorLoja(@Param("idLoja") Long idLoja);
+
 }

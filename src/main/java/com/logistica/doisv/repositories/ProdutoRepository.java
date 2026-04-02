@@ -40,4 +40,7 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
         WHERE p.idProduto IN :idsProdutos
         AND p.loja.idLoja = :idLoja""")
     List<Produto> buscarProdutoParaVenda(@Param("idsProdutos") List<Long> idsProdutos, @Param("idLoja") Long idLoja);
+
+    @Query("SELECT p FROM Produto p WHERE p.loja.idLoja = :idLoja")
+    List<Produto> buscarTodosPorLoja(@Param("idLoja") Long idLoja);
 }

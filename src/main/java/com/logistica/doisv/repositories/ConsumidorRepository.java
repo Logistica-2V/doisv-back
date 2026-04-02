@@ -43,4 +43,7 @@ public interface ConsumidorRepository extends JpaRepository<Consumidor,Long>{
     Optional<Consumidor> buscarConsumidorAtivo(@Param("idConsumidor") Long idConsumidor,
                                                @Param("idLoja") Long idLoja);
 
+    @Query("SELECT c FROM Consumidor c WHERE c.loja.idLoja = :idLoja")
+    List<Consumidor> buscarTodosPorLoja(@Param("idLoja") Long idLoja);
+
 }
