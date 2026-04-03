@@ -1,5 +1,6 @@
 package com.logistica.doisv.controllers;
 
+import com.logistica.doisv.controllers.docs.ConsumidorApi;
 import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.ConsumidorDTO;
 import com.logistica.doisv.services.ConsumidorService;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("doisv/consumidores")
-public class ConsumidorController {
+public class ConsumidorController implements ConsumidorApi {
     @Autowired
     private ConsumidorService consumidorService;
 

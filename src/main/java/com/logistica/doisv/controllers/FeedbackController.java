@@ -1,5 +1,6 @@
 package com.logistica.doisv.controllers;
 
+import com.logistica.doisv.controllers.docs.FeedbackApi;
 import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.registro_feedback.FeedbackDTO;
 import com.logistica.doisv.dto.registro_feedback.FeedbackResumidoDTO;
@@ -19,7 +20,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("doisv/feedbacks")
-public class FeedbackController {
+public class FeedbackController implements FeedbackApi {
     @Autowired
     private FeedbackService service;
 

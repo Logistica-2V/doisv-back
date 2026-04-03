@@ -1,5 +1,6 @@
 package com.logistica.doisv.controllers;
 
+import com.logistica.doisv.controllers.docs.ProdutoApi;
 import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.ProdutoDTO;
 import com.logistica.doisv.services.ProdutoService;
@@ -23,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("doisv/produtos")
-public class ProdutoController {
+public class ProdutoController implements ProdutoApi {
     @Autowired
     private ProdutoService service;
 

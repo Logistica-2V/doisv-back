@@ -1,5 +1,6 @@
 package com.logistica.doisv.controllers;
 
+import com.logistica.doisv.controllers.docs.RelatorioApi;
 import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.services.ExcelExportService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("doisv/relatorios")
-public class RelatorioController {
+public class RelatorioController implements RelatorioApi {
 
     @Autowired
     private ExcelExportService excelExportService;

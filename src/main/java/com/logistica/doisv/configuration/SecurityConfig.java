@@ -38,9 +38,9 @@ public class SecurityConfig {
                                 "/doisv/feedbacks/lojas/{id}",
                                 "/h2-console/**",
                                 "/swagger-ui/**",
-                                "swagger-ui.html",
-                                "v3/api-docs/**",
-                                "swagger-resources/**"
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**"
                         ).permitAll()
 
                         // ===================== ROTAS DELETE (ADMIN) =====================

@@ -1,5 +1,6 @@
 package com.logistica.doisv.controllers;
 
+import com.logistica.doisv.controllers.docs.SolicitacaoApi;
 import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.registro_solicitacao.CriarSolicitacaoDTO;
 import com.logistica.doisv.dto.registro_solicitacao.HistoricoSolicitacaoDTO;
@@ -23,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("doisv/solicitacoes")
-public class SolicitacaoController {
+public class SolicitacaoController implements SolicitacaoApi {
 
     @Autowired
     private SolicitacaoService service;

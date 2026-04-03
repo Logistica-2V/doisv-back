@@ -1,6 +1,7 @@
 package com.logistica.doisv.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.logistica.doisv.controllers.docs.LoginApi;
 import com.logistica.doisv.dto.ConsumidorLoginDTO;
 import com.logistica.doisv.dto.LoginDTO;
 import com.logistica.doisv.dto.LoginResponse;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/doisv/login")
-public class LoginController {
+public class LoginController implements LoginApi {
 
     @Autowired
     private AutenticacaoService autenticacaoService;

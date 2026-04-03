@@ -1,5 +1,6 @@
 package com.logistica.doisv.controllers;
 
+import com.logistica.doisv.controllers.docs.VendaApi;
 import com.logistica.doisv.dto.AcessoDTO;
 import com.logistica.doisv.dto.registro_venda.requisicao.RegistroVendaDTO;
 import com.logistica.doisv.dto.registro_venda.resposta.VendaDTO;
@@ -20,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("doisv/vendas")
-public class VendaController {
+public class VendaController implements VendaApi {
 
     @Autowired
     private VendaService service;

@@ -1,5 +1,6 @@
 package com.logistica.doisv.controllers;
 
+import com.logistica.doisv.controllers.docs.LojaApi;
 import com.logistica.doisv.dto.LojaDTO;
 import com.logistica.doisv.services.LojaService;
 import jakarta.mail.MessagingException;
@@ -19,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("doisv/lojas")
-public class LojaController {
+public class LojaController implements LojaApi {
     @Autowired
     private LojaService lojaService;
 
