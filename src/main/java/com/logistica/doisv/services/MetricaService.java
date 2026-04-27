@@ -12,6 +12,7 @@ import com.logistica.doisv.entities.enums.TipoSolicitacao;
 import com.logistica.doisv.repositories.FeedbackRepository;
 import com.logistica.doisv.repositories.LojaRepository;
 import com.logistica.doisv.repositories.SolicitacaoRepository;
+import com.logistica.doisv.services.exceptions.RegraNegocioException;
 import com.logistica.doisv.util.conversao.PaginacaoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -53,7 +54,7 @@ public class MetricaService {
         List<Feedback> feedbacks = feedbackRepository.buscarFeedbacksPorLojaEPeriodo(idLoja, inicio, fim);
 
         if (feedbacks.isEmpty()) {
-            throw new IllegalStateException("Nenhum feedback encontrado para o período informado");
+            throw new RegraNegocioException("Nenhum feedback encontrado para o período informado");
         }
 
         Map<String, BigDecimal> percentuaisPorTipoSolicitacao = Map.of(
