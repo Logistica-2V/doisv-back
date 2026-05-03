@@ -33,4 +33,17 @@ build/
 .vscode/
 
 # Tokens OAuth gerados pelo Google na autenticação
-tokens/
+tokens
+
+# ==========================================
+# Credenciais e Tokens (Google Drive API)
+# ==========================================
+/tokens/
+
+*service-account*.json
+*credentials*.json
+
+google-credentials.json
+
+application-secret.properties
+application-secret.yml
