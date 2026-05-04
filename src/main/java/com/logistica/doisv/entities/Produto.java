@@ -21,7 +21,7 @@ public class Produto {
     private Long idProduto;
     private String descricao;
     private String unidadeMedida;
-    @Column(precision = 6, scale = 2)
+    @Column(precision = 10, scale = 2)
     private BigDecimal preco;
     private String imagem;
     @Enumerated(EnumType.STRING)
