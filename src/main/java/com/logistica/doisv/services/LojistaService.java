@@ -42,8 +42,7 @@ public class LojistaService {
 
     @Transactional(readOnly = true)
     public LojistaDTO buscarPorId(Long idLojista, Long idLoja){
-        Lojista lojista = lojistaRepository.findByIdLojistaAndLojaIdLoja(idLojista, idLoja)
-                .orElseThrow(() -> new ResourceNotFoundException("Lojista não encontrado"));
+        Lojista lojista = obterLojista(idLojista, idLoja);
 
         return new LojistaDTO(lojista);
     }
@@ -96,8 +95,7 @@ public class LojistaService {
 
     @Transactional
     public LojistaDTO atualizar(Long id, LojistaAtualizacaoDTO dto, Long idLoja){
-        Lojista lojista = lojistaRepository.findByIdLojistaAndLojaIdLoja(id, idLoja)
-                    .orElseThrow(() -> new ResourceNotFoundException("Lojista não encontrado."));
+        Lojista lojista = obterLojista(id, idLoja);
 
         impedirEdicaoDeUsuarioPrivilegiado(lojista.getAdmin());
 
@@ -110,8 +108,8 @@ public class LojistaService {
 
     @Transactional
     public void remover(Long id, Long idLoja){
-        Lojista lojista = lojistaRepository.findByIdLojistaAndLojaIdLoja(id, idLoja)
-                .orElseThrow(() -> new ResourceNotFoundException("Lojista não encontrado."));
+        Lojista lojista = obterLojista(id, idLoja);
+
         try {
             impedirEdicaoDeUsuarioPrivilegiado(lojista.getAdmin());
             lojistaRepository.delete(lojista);
@@ -127,6 +125,11 @@ public class LojistaService {
         if(quantidadeLojistasInativados <= 0){
             throw new RegraNegocioException("Nenhum Lojista encontrado para inativação com os IDs informados para esta loja.");
         }
+    }
+
+    private Lojista obterLojista (Long idLojista, Long idLoja){
+        return lojistaRepository.findByIdLojistaAndLojaIdLoja(idLojista, idLoja)
+                .orElseThrow(() -> new ResourceNotFoundException("Lojista não encontrado"));
     }
 
     private void dtoParaEntidade(LojistaDTO dto, Lojista lojista) {

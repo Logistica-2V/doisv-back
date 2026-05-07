@@ -30,15 +30,19 @@ public record LojistaDTO(
         Long idLoja,
 
         @Schema(description = "Status do lojista (ATIVO, INATIVO)", example = "ATIVO", accessMode = Schema.AccessMode.READ_ONLY)
-        String status) {
+        String status,
+
+        @Schema(description = "Dados completos da loja vinculada", accessMode = Schema.AccessMode.READ_ONLY)
+        LojaDTO loja) {
 
     public LojistaDTO {
         cpf = cpf != null ? cpf.replaceAll("[^0-9A-Za-z]", "").toUpperCase() : null;
     }
 
         public LojistaDTO(Lojista lojista){
-            this(lojista.getIdLojista(), lojista.getNome(), lojista.getCpf(), lojista.getEmail(), "", lojista.getLoja().getIdLoja(),
-                        lojista.getStatus().toString());
+            this(lojista.getIdLojista(), lojista.getNome(), lojista.getCpf(), lojista.getEmail()
+                    , "", lojista.getLoja().getIdLoja(), lojista.getStatus().toString(),
+                    new LojaDTO(lojista.getLoja()));
         }
 }
 

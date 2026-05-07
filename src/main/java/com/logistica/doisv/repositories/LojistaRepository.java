@@ -20,15 +20,18 @@ public interface LojistaRepository extends JpaRepository<Lojista,Long> {
 
     @Query("""
        SELECT new com.logistica.doisv.dto.LojistaDTO(
-           l.idLojista, l.nome, l.cpf, l.email, '', l.loja.idLoja, CAST(l.status AS string))
-       FROM Lojista l 
+           l.idLojista, l.nome, l.cpf, l.email, '', l.loja.idLoja, CAST(l.status AS string), null)
+       FROM Lojista l
        WHERE l.loja.idLoja = :idLoja
        """)
     List<LojistaDTO> buscarLojistasDTOPorLoja(@Param("idLoja") Long idLoja);
 
-    @Query("SELECT l FROM Lojista l " +
-            "WHERE l.idLojista = :idLojista " +
-            "AND l.loja.idLoja = :idLoja")
+    @Query("""
+        SELECT l FROM Lojista l
+        JOIN FETCH l.loja
+        WHERE l.idLojista = :idLojista
+        AND l.loja.idLoja = :idLoja
+        """)
     Optional<Lojista> findByIdLojistaAndLojaIdLoja(@Param("idLojista") Long idLojista,
                                                    @Param("idLoja") Long idLoja);
 
