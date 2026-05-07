@@ -96,13 +96,13 @@ public class Solicitacao {
         this.itemVenda = novoItem;
     }
 
-    public void reprovar() {
+    public void reprovar(String motivoReprovacao) {
         validarSeAlteravel();
 
         this.statusSolicitacao = StatusSolicitacao.REJEITADA;
         this.status = Status.INATIVO;
         this.dataAtualizacao = LocalDateTime.now();
-        this.historicos.add(HistoricoSolicitacao.rejeicao(this));
+        this.historicos.add(HistoricoSolicitacao.rejeicao(this, motivoReprovacao));
     }
 
     public void cancelar() {

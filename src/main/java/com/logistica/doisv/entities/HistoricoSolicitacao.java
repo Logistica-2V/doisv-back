@@ -46,9 +46,12 @@ public class HistoricoSolicitacao {
         return criar(StatusSolicitacao.APROVADA, solicitacao, mensagem);
     }
 
-    public static HistoricoSolicitacao rejeicao(Solicitacao solicitacao) {
+    public static HistoricoSolicitacao rejeicao(Solicitacao solicitacao, String motivoReprovacao) {
         String mensagem = String.format("Solicitação de %s reprovada!",
                 solicitacao.getTipoSolicitacao().getDescricao().toLowerCase());
+        if (motivoReprovacao != null && !motivoReprovacao.trim().isEmpty()) {
+            mensagem += " Motivo: " + motivoReprovacao;
+        }
         return criar(StatusSolicitacao.REJEITADA, solicitacao, mensagem);
     }
 

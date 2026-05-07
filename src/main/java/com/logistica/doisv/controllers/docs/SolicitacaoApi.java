@@ -144,6 +144,7 @@ public interface SolicitacaoApi {
     ResponseEntity<SolicitacaoResumidaDTO> reprovarSolicitacao(
             @Parameter(description = "ID da solicitação", required = true, example = "1")
             @PathVariable Long id,
+            @Parameter(description = "Motivo opcional da reprovação") @RequestPart(required = false) String motivoReprovacao,
             @Parameter(hidden = true) @AuthenticationPrincipal AcessoDTO usuarioLogado) throws GeneralSecurityException, IOException;
 
     @Operation(summary = "Editar uma solicitação",

@@ -113,10 +113,10 @@ public class SolicitacaoService {
     }
 
     @Transactional
-    public SolicitacaoResumidaDTO reprovarSolicitacao(Long idSolicitacao, Long idLoja) throws GeneralSecurityException, IOException {
+    public SolicitacaoResumidaDTO reprovarSolicitacao(Long idSolicitacao,String motivoReprovacao, Long idLoja) throws GeneralSecurityException, IOException {
         Solicitacao solicitacao = buscarSolicitacaoOuLancarExcecao(idSolicitacao, idLoja);
 
-        solicitacao.reprovar();
+        solicitacao.reprovar(motivoReprovacao);
         excluirAnexos(solicitacao);
 
         return new SolicitacaoResumidaDTO(repository.save(solicitacao));

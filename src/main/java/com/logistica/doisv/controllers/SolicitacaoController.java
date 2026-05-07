@@ -66,9 +66,11 @@ public class SolicitacaoController implements SolicitacaoApi {
     }
 
     @PutMapping(value = "/reprovar/{id}")
-    public ResponseEntity<SolicitacaoResumidaDTO> reprovarSolicitacao(@PathVariable Long id, @AuthenticationPrincipal AcessoDTO usuarioLogado) throws GeneralSecurityException, IOException {
+    public ResponseEntity<SolicitacaoResumidaDTO> reprovarSolicitacao(@PathVariable Long id,
+                                                                      @RequestPart(required = false) String motivoReprovacao,
+                                                                      @AuthenticationPrincipal AcessoDTO usuarioLogado) throws GeneralSecurityException, IOException {
 
-        return ResponseEntity.ok(service.reprovarSolicitacao(id, usuarioLogado.getIdLoja()));
+        return ResponseEntity.ok(service.reprovarSolicitacao(id, motivoReprovacao ,usuarioLogado.getIdLoja()));
     }
 
     @PutMapping(value = "/{id}")
