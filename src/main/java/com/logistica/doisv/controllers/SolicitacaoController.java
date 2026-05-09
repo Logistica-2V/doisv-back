@@ -41,6 +41,12 @@ public class SolicitacaoController implements SolicitacaoApi {
         return ResponseEntity.ok(service.buscarSolicitacaoPorId(id, usuarioLogado.getIdLoja()));
     }
 
+    @GetMapping(value = "/me")
+    public ResponseEntity<List<SolicitacaoResumidaDTO>> buscarTodasSolicitacoesPorVenda(@AuthenticationPrincipal AcessoDTO usuarioLogado){
+
+        return ResponseEntity.ok(service.buscarTodasSolicitacoesPorVenda(usuarioLogado.getIdVenda(), usuarioLogado.getIdLoja()));
+    }
+
     @PostMapping(value = "/criar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SolicitacaoResumidaDTO> criarSolicitacao(@Valid @RequestPart("solicitacao") CriarSolicitacaoDTO dto,
                                                                    @RequestPart("anexos") List<MultipartFile> anexos,

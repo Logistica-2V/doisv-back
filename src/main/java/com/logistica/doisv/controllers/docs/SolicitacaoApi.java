@@ -8,6 +8,7 @@ import com.logistica.doisv.dto.registro_solicitacao.SolicitacaoResumidaDTO;
 import com.logistica.doisv.dto.registro_venda.requisicao.ItemDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -65,6 +66,21 @@ public interface SolicitacaoApi {
     ResponseEntity<SolicitacaoDetalhadaDTO> buscarSolicitacaoPorId(
             @Parameter(description = "ID da solicitação", required = true, example = "1")
             @PathVariable Long id,
+            @Parameter(hidden = true) @AuthenticationPrincipal AcessoDTO usuarioLogado);
+
+    @Operation(summary = "Buscar solicitações da venda do consumidor",
+            description = "Retorna todas as solicitações correspondentes à venda do usuário logado.",
+            operationId = "buscarTodasSolicitacoesPorVenda")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de solicitações retornada com sucesso",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = SolicitacaoResumidaDTO.class)))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Acesso negado", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    })
+    @GetMapping(value = "/me")
+    ResponseEntity<List<SolicitacaoResumidaDTO>> buscarTodasSolicitacoesPorVenda(
             @Parameter(hidden = true) @AuthenticationPrincipal AcessoDTO usuarioLogado);
 
     @Operation(summary = "Criar uma nova solicitação",

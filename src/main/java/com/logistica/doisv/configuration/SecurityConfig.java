@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/doisv/solicitacoes/{id}").hasRole("CONSUMIDOR")
                         .requestMatchers("/doisv/solicitacoes/criar").hasRole("CONSUMIDOR")
                         .requestMatchers("/doisv/solicitacoes/cancelar/{id}").hasRole("CONSUMIDOR")
+                        .requestMatchers("/doisv/solicitacoes/me").hasRole("CONSUMIDOR")
                         .requestMatchers(HttpMethod.POST, "/doisv/feedbacks").hasRole("CONSUMIDOR")
 
                         // ===================== ROTAS LOJISTA =====================

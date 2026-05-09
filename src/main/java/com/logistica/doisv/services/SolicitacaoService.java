@@ -45,15 +45,20 @@ public class SolicitacaoService {
     private final ArquivoValidador arquivoValidador;
 
     @Transactional(readOnly = true)
-    public Page<SolicitacaoResumidaDTO> buscarTodasSolicitacoesPorLoja(Pageable pageable, Long idLoja){
+    public Page<SolicitacaoResumidaDTO> buscarTodasSolicitacoesPorLoja(Pageable pageable, Long idLoja) {
         return repository.listarSolicitacoesResumidas(pageable, idLoja);
     }
 
     @Transactional(readOnly = true)
-    public SolicitacaoDetalhadaDTO buscarSolicitacaoPorId(Long idSolicitacao, Long idLoja){
+    public SolicitacaoDetalhadaDTO buscarSolicitacaoPorId(Long idSolicitacao, Long idLoja) {
         Solicitacao solicitacao = buscarSolicitacaoOuLancarExcecao(idSolicitacao, idLoja);
 
         return new SolicitacaoDetalhadaDTO(solicitacao);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SolicitacaoResumidaDTO> buscarTodasSolicitacoesPorVenda(Long idVenda, Long idLoja) {
+        return repository.listarSolicitacoesPorIdVendaEIdLoja(idVenda, idLoja);
     }
 
     @Transactional
@@ -113,7 +118,7 @@ public class SolicitacaoService {
     }
 
     @Transactional
-    public SolicitacaoResumidaDTO reprovarSolicitacao(Long idSolicitacao,String motivoReprovacao, Long idLoja) throws GeneralSecurityException, IOException {
+    public SolicitacaoResumidaDTO reprovarSolicitacao(Long idSolicitacao, String motivoReprovacao, Long idLoja) throws GeneralSecurityException, IOException {
         Solicitacao solicitacao = buscarSolicitacaoOuLancarExcecao(idSolicitacao, idLoja);
 
         solicitacao.reprovar(motivoReprovacao);
@@ -156,7 +161,7 @@ public class SolicitacaoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
     }
 
-    private ItemVenda buscarItemVendaPorId(Long idItemVenda, List<ItemVenda> itens){
+    private ItemVenda buscarItemVendaPorId(Long idItemVenda, List<ItemVenda> itens) {
         return itens.stream()
                 .filter(i -> i.getId().equals(idItemVenda))
                 .findFirst()
@@ -206,12 +211,12 @@ public class SolicitacaoService {
         boolean solicitacaoFinalizada = solicitacao.getStatusSolicitacao() == StatusSolicitacao.CONCLUIDA;
         boolean temProdutosParaTroca = novosProdutos != null && !novosProdutos.isEmpty();
 
-        if(solicitacaoFinalizada && temProdutosParaTroca && solicitacao.getTipoSolicitacao() == TipoSolicitacao.TROCA){
+        if (solicitacaoFinalizada && temProdutosParaTroca && solicitacao.getTipoSolicitacao() == TipoSolicitacao.TROCA) {
             vendaService.salvar(new RegistroVendaDTO(solicitacao, novosProdutos), solicitacao.getVenda().getLoja().getIdLoja());
         }
     }
 
-    private void validarTipoAnexo(List<MultipartFile> anexos){
+    private void validarTipoAnexo(List<MultipartFile> anexos) {
         if (anexos == null || anexos.isEmpty()) {
             return;
         }
