@@ -37,7 +37,7 @@ public class LojaService {
     @Autowired
     private ArquivoValidador arquivoValidador;
 
-    private final Integer VALIDADE_PADRAO_LICENCA = 30;
+    private final Integer VALIDADE_PADRAO_LICENCA = 7;
 
     @Transactional(readOnly = true)
     public LojaDTO buscarPorId(Long id) {

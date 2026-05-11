@@ -43,6 +43,8 @@ public class SecurityConfig {
                                 "/swagger-resources/**"
                         ).permitAll()
 
+                        .requestMatchers(HttpMethod.POST, "doisv/lojas").permitAll()
+
                         // ===================== ROTAS DELETE (ADMIN) =====================
                         .requestMatchers(HttpMethod.DELETE, "doisv/lojas/{id}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/doisv/**").hasRole("ADMIN")
