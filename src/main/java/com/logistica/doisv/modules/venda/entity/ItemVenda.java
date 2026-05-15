@@ -1,0 +1,112 @@
+package com.logistica.doisv.modules.venda.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.logistica.doisv.core.enums.Status;
+import com.logistica.doisv.core.exception.RegraNegocioException;
+import com.logistica.doisv.modules.produto.entity.Produto;
+import com.logistica.doisv.modules.solicitacao.entity.Solicitacao;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "tb_Item_Venda")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ItemVenda {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(precision = 6, scale = 2)
+    private BigDecimal precoOriginal;
+    @Column(precision = 6, scale = 2)
+    private BigDecimal precoVendido;
+    @Column(scale = 2)
+    private BigDecimal percentualVariacao;
+    private Double quantidade;
+    private String detalhes;
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.ATIVO;
+
+    @ManyToOne
+    @JoinColumn(name = "idVenda")
+    private Venda venda;
+
+    @ManyToOne
+    @JoinColumn(name = "idProduto")
+    private Produto produto;
+
+    @OneToMany(mappedBy = "itemVenda", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Solicitacao> solicitacoes = new ArrayList<>();
+
+    public ItemVenda(BigDecimal precoOriginal, BigDecimal precoVendido, Double quantidade, String detalhes, Venda venda, Produto produto){
+        this.precoOriginal = precoOriginal;
+        this.precoVendido = precoVendido != null ? precoVendido : precoOriginal;
+        this.quantidade = quantidade;
+        this.detalhes = detalhes;
+        this.venda = venda;
+        this.produto = produto;
+        percentualVariacao = this.precoVendido.multiply(BigDecimal.valueOf(100))
+                                                .divide(this.precoOriginal, 4, RoundingMode.HALF_UP)
+                                                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+    }
+
+    public static ItemVenda criar(BigDecimal precoOriginal, BigDecimal precoVendido, Double quantidade,
+                                  String detalhes, Venda venda, Produto produto) {
+        BigDecimal precoFinal = precoVendido != null ? precoVendido : precoOriginal;
+
+        BigDecimal percentual = precoFinal
+                .multiply(BigDecimal.valueOf(100))
+                .divide(precoOriginal, 4, RoundingMode.HALF_UP)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+        return ItemVenda.builder()
+                .precoOriginal(precoOriginal)
+                .precoVendido(precoFinal)
+                .percentualVariacao(percentual)
+                .quantidade(quantidade)
+                .detalhes(detalhes)
+                .venda(venda)
+                .produto(produto)
+                .status(Status.ATIVO)
+                .solicitacoes(new ArrayList<>())
+                .build();
+    }
+
+    public void atualizarInformacoes(BigDecimal precoVendido, Double quantidade, String detalhes) {
+        if (this.produto.getStatus().equals(Status.INATIVO) && quantidade > this.quantidade) {
+            throw new RegraNegocioException(
+                    String.format("Não é possível aumentar a quantidade de um produto inativo: %d - %s",
+                            this.produto.getIdProduto(), this.produto.getDescricao()));
+        }
+
+        this.precoVendido = precoVendido != null ? precoVendido : this.precoOriginal;
+        this.quantidade = quantidade;
+        this.detalhes = detalhes;
+
+        this.percentualVariacao = this.precoVendido
+                .multiply(BigDecimal.valueOf(100))
+                .divide(this.precoOriginal, 4, RoundingMode.HALF_UP)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+    }
+
+    public void reduzirQuantidade(Double valor) {
+        if (valor > this.quantidade) {
+            throw new IllegalArgumentException("Quantidade a reduzir excede a disponível.");
+        }
+        this.quantidade -= valor;
+    }
+
+    public void restaurar(){
+        this.status = Status.ATIVO;
+        this.detalhes = "";
+    }
+}
