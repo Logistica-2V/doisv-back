@@ -5,6 +5,7 @@ import com.logistica.doisv.modules.venda.entity.Venda;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -18,6 +19,9 @@ public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Value("${app.dominio.frontend.url}")
+    private String urlBaseFrontend;
 
     private String obterCssBaseEmail() {
         return """
@@ -165,6 +169,7 @@ public class EmailService {
                 return;
             }
 
+            String urlLoginConsumidor = urlBaseFrontend + "/consumidor/login";
             String nomeLoja = venda.getLoja().getNome();
             String logoUrl = "https://lh3.googleusercontent.com/d/" + venda.getLoja().getLogo();
             String nomeConsumidor = venda.getConsumidor().getNome();
@@ -186,7 +191,7 @@ public class EmailService {
                     montarItemCredencial("SENHA", senha) +
                     "</div>" +
                     "<div class=\"action-button\">" +
-                    "<a href=\"google.com\">Acessar Portal de Trocas</a>" +
+                    "<a href=\""+ urlLoginConsumidor +"\">Acessar Portal de Trocas</a>" +
                     "</div>" +
                     "<p style=\"margin-top: 28px;\" class=\"text-secondary\">Atenciosamente,<br>Equipe 2V Logística</p>"
                     +
@@ -205,7 +210,6 @@ public class EmailService {
             mailSender.send(mensagem);
         } catch (Exception e) {
             System.err.println("Erro ao enviar email da venda ID: " + venda.getId());
-            e.printStackTrace();
         }
     }
 
@@ -255,12 +259,12 @@ public class EmailService {
         String nomeLoja = lojistaAdmin.getLoja().getNome();
         String nomeLojista = lojistaAdmin.getNome();
         String emailLojista = lojistaAdmin.getEmail();
-        String urlAcesso = "https://app.logistica.com.br/login"; // URL do seu sistema
+        String urlAcesso = urlBaseFrontend + "/lojista/login";
         String logoId = "1OAZrlZgYhXO-UzJLx9SZy6JgdLs6W4v2";
         String logoUrl = "https://lh3.googleusercontent.com/d/" + logoId;
         int anoAtual = LocalDate.now().getYear();
 
-        String html = montarInicioEmail("Bem-vindo ao " + nomeLoja + " - Seu Primeiro Acesso") +
+        String html = montarInicioEmail("Bem-vindo " + nomeLoja + " - Seu Primeiro Acesso") +
                 montarCabecalho(logoUrl, "Logo " + nomeLoja, "2V Logística") +
                 "<div class=\"content\">" +
                 "<h1>Olá, " + nomeLojista + "! 🎉</h1>" +
