@@ -3,6 +3,8 @@ package com.logistica.doisv.modules.loja.entity;
     import com.logistica.doisv.core.enums.Status;
     import jakarta.persistence.*;
     import lombok.*;
+    import org.hibernate.annotations.JdbcTypeCode;
+    import org.hibernate.type.SqlTypes;
 
     import java.time.LocalDate;
     import java.util.UUID;
@@ -17,6 +19,8 @@ package com.logistica.doisv.modules.loja.entity;
     public class Licenca {
         @Id
         @GeneratedValue(strategy = GenerationType.UUID)
+        @JdbcTypeCode(SqlTypes.CHAR)
+        @Column(nullable = false, length = 36)
         private UUID idLicenca;
 
         @Column(nullable = false)

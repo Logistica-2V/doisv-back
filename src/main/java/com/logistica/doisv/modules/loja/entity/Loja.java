@@ -1,18 +1,23 @@
 package com.logistica.doisv.modules.loja.entity;
 
-    import com.fasterxml.jackson.annotation.JsonIgnore;
-    import com.logistica.doisv.modules.venda.entity.Venda;
-    import com.logistica.doisv.core.enums.Status;
-    import com.logistica.doisv.modules.consumidor.entity.Consumidor;
-    import com.logistica.doisv.modules.feedback.entity.Feedback;
-    import com.logistica.doisv.modules.lojista.entity.Lojista;
-    import com.logistica.doisv.modules.produto.entity.Produto;
-    import jakarta.persistence.*;
-    import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.logistica.doisv.core.enums.Status;
+import com.logistica.doisv.modules.consumidor.entity.Consumidor;
+import com.logistica.doisv.modules.feedback.entity.Feedback;
+import com.logistica.doisv.modules.lojista.entity.Lojista;
+import com.logistica.doisv.modules.produto.entity.Produto;
+import com.logistica.doisv.modules.venda.entity.Venda;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-    import java.util.*;
+import java.util.*;
 
-    @Entity
+@Entity
     @Table(name = "tb_Loja")
     @Getter
     @Setter
@@ -23,7 +28,8 @@ package com.logistica.doisv.modules.loja.entity;
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long idLoja;
 
-        @Column(unique = true, nullable = false, updatable = false)
+        @JdbcTypeCode(SqlTypes.CHAR)
+        @Column(unique = true, nullable = false, updatable = false, length = 36)
         private UUID idPublico = UUID.randomUUID();
 
         @Column(nullable = false, length = 120)
