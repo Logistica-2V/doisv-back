@@ -29,23 +29,36 @@ public class Solicitacao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private TipoSolicitacao tipoSolicitacao;
+
+    @Column(nullable = false)
     private Double quantidade;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String motivo;
+
+    @Column(nullable = false)
     private Instant dataSolicitacao;
+
     private LocalDateTime dataAtualizacao;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private StatusSolicitacao statusSolicitacao = StatusSolicitacao.PENDENTE;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
     private Status status = Status.ATIVO;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idVenda")
+    @JoinColumn(name = "idVenda", nullable = false)
     private Venda venda;
 
     @ManyToOne
-    @JoinColumn(name = "idConsumidor")
+    @JoinColumn(name = "idConsumidor", nullable = false)
     private Consumidor consumidor;
 
     @ManyToOne(fetch = FetchType.LAZY)

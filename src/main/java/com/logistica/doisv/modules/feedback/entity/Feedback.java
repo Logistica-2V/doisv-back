@@ -25,7 +25,7 @@ public class Feedback {
     private Long idFeedback;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private TipoFeedback tipoFeedback;
 
     @Column(nullable = false)
@@ -38,6 +38,7 @@ public class Feedback {
     private LocalDate dataFeedback = LocalDate.now();
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
     private Status status = Status.ATIVO;
 
     @ManyToOne(fetch = FetchType.LAZY)

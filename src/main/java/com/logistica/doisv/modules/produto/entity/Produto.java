@@ -7,8 +7,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "tb_Produto", uniqueConstraints = @UniqueConstraint(columnNames = {"idLoja", "descricao"}))
@@ -20,16 +18,25 @@ public class Produto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idProduto;
+
+    @Column(nullable = false, length = 160)
     private String descricao;
+
+    @Column(nullable = false, length = 10)
     private String unidadeMedida;
-    @Column(precision = 10, scale = 2)
+
+    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal preco;
+
+    @Column(length = 120)
     private String imagem;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
     private Status status = Status.ATIVO;
 
     @ManyToOne
-    @JoinColumn(name = "idLoja")
+    @JoinColumn(name = "idLoja", nullable = false)
     private Loja loja;
 
 

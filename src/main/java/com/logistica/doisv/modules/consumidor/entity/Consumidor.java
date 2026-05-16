@@ -23,21 +23,31 @@ public class Consumidor {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long idConsumidor;
-    
-    @Column(nullable=false)
+
+    @Column(nullable = false, length = 120)
     private String nome;
+
+    @Column(length = 20)
     private String cpf_cnpj;
+
+    @Column(length = 160)
     private String email;
 
-    @Column(nullable=false)
+    @Column(nullable = false, length = 20)
     private String celular;
+
+    @Column(length = 20)
     private String telefone;
+
+    @Column(columnDefinition = "TEXT")
     private String endereco;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
     private Status status = Status.ATIVO;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name= "idLoja")
+    @JoinColumn(name= "idLoja", nullable = false)
     private Loja loja;
 
     @OneToMany(mappedBy = "consumidor", cascade = CascadeType.ALL, orphanRemoval = true)

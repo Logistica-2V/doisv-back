@@ -17,11 +17,19 @@ public class HistoricoSolicitacao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private StatusSolicitacao statusAnterior;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private StatusSolicitacao statusAtual;
+
+    @Column(nullable = false)
     private LocalDateTime dataAtualizacao = LocalDateTime.now();
+
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String observacao;
 
     @ManyToOne

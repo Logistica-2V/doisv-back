@@ -24,23 +24,32 @@ public class ItemVenda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(precision = 6, scale = 2)
+
+    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal precoOriginal;
-    @Column(precision = 6, scale = 2)
+
+    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal precoVendido;
-    @Column(scale = 2)
+
+    @Column(nullable = false, precision = 8, scale = 4)
     private BigDecimal percentualVariacao;
+
+    @Column(nullable = false)
     private Double quantidade;
+
+    @Column(length = 255)
     private String detalhes;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
     private Status status = Status.ATIVO;
 
     @ManyToOne
-    @JoinColumn(name = "idVenda")
+    @JoinColumn(name = "idVenda", nullable = false)
     private Venda venda;
 
     @ManyToOne
-    @JoinColumn(name = "idProduto")
+    @JoinColumn(name = "idProduto", nullable = false)
     private Produto produto;
 
     @OneToMany(mappedBy = "itemVenda", fetch = FetchType.LAZY)

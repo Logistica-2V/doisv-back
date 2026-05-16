@@ -22,15 +22,27 @@ package com.logistica.doisv.modules.loja.entity;
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long idLoja;
+
         @Column(unique = true, nullable = false, updatable = false)
         private UUID idPublico = UUID.randomUUID();
+
+        @Column(nullable = false, length = 120)
         private String nome;
+
+        @Column(nullable = false, length = 20)
         private String cnpj;
+
+        @Column(nullable = false, length = 60)
         private String segmento;
+
+        @Column(length = 120)
         private String logo;
-        @Column(unique = true)
+
+        @Column(unique = true, nullable = false, length = 160)
         private String email;
+
         @Enumerated(EnumType.STRING)
+        @Column(nullable = false, length = 10)
         private Status status = Status.ATIVO;
 
         @OneToMany(mappedBy = "loja", cascade = CascadeType.ALL, orphanRemoval = true)

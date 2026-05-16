@@ -18,12 +18,16 @@ package com.logistica.doisv.modules.loja.entity;
         @Id
         @GeneratedValue(strategy = GenerationType.UUID)
         private UUID idLicenca;
+
+        @Column(nullable = false)
         private LocalDate validade;
+
         @Enumerated(EnumType.STRING)
+        @Column(nullable = false, length = 10)
         private Status status = Status.ATIVO;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "idLoja")
+        @JoinColumn(name = "idLoja", nullable = false)
         private Loja loja;
 
 

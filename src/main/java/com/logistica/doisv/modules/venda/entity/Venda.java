@@ -29,28 +29,47 @@ public class Venda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true)
+
+    @Column(unique = true, length = 20)
     private String serialVenda;
+
+    @Column(length = 100)
     private String senha;
-    @Column(precision = 6, scale = 2)
+
+    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal precoTotal;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private StatusPedido statusPedido;
+
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal desconto;
+
+    @Column(nullable = false, length = 30)
     private String formaPagamento;
+
+    @Column(nullable = false)
     private Integer prazoTroca;
+
+    @Column(nullable = false)
     private Integer prazoDevolucao;
+
+    @Column(nullable = false)
     private Instant dataCriacao;
+
     private LocalDate dataEntrega;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
     private Status status = Status.ATIVO;
 
     @ManyToOne
-    @JoinColumn(name = "idLoja")
+    @JoinColumn(name = "idLoja", nullable = false)
     private Loja loja;
 
     @ManyToOne
-    @JoinColumn(name = "idConsumidor")
+    @JoinColumn(name = "idConsumidor", nullable = false)
     private Consumidor consumidor;
 
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

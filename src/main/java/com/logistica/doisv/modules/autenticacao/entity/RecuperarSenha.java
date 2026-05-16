@@ -18,16 +18,19 @@ public class RecuperarSenha {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
+
+    @Column(nullable = false, length = 10)
     private String codigoRecuperacao;
+
     @Column(nullable = false)
     private LocalDateTime dataCriacao = LocalDateTime.now();
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status = Status.ATIVO;
 
     @ManyToOne
-    @JoinColumn(name = "idLojista")
+    @JoinColumn(name = "idLojista", nullable = false)
     private Lojista lojista;
 
     public RecuperarSenha(String codigoRecuperacao, Lojista lojista){
