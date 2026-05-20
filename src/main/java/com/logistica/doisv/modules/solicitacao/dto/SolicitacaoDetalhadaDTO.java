@@ -6,10 +6,8 @@ import com.logistica.doisv.modules.solicitacao.entity.AnexoSolicitacao;
 import com.logistica.doisv.modules.solicitacao.entity.Solicitacao;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Schema(name = "SolicitacaoDetalhada", description = "Dados detalhados de uma solicitação, incluindo venda, consumidor, produto, anexos, histórico e feedbacks")
@@ -26,10 +24,10 @@ public record SolicitacaoDetalhadaDTO(
         @Schema(description = "Motivo da solicitação", example = "Produto com defeito de fabricação")
         String motivo,
 
-        @Schema(description = "Data da solicitação", example = "01/04/2025 14:30")
+        @Schema(description = "Data e hora local da solicitação", example = "01/04/2025 14:30")
         String dataSolicitacao,
 
-        @Schema(description = "Data da última atualização", example = "02/04/2025 10:00")
+        @Schema(description = "Data e hora local da última atualização", example = "02/04/2025 10:00")
         String dataAtualizacao,
 
         @Schema(description = "Status da solicitação", example = "Pendente")
@@ -61,9 +59,7 @@ public record SolicitacaoDetalhadaDTO(
                 solicitacao.getTipoSolicitacao().getDescricao(),
                 solicitacao.getQuantidade(),
                 solicitacao.getMotivo(),
-                solicitacao.getDataSolicitacao().atZone(ZoneId.of("America/Sao_Paulo"))
-                        .format(DateTimeFormatter
-                                .ofPattern("dd/MM/yyyy HH:mm", new Locale("pt", "BR"))),
+                solicitacao.getDataSolicitacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                 solicitacao.getDataAtualizacao() != null ? solicitacao.getDataAtualizacao()
                         .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : null,
                 solicitacao.getStatusSolicitacao().getStatusSolicitacao(),

@@ -1,5 +1,6 @@
 package com.logistica.doisv.integrations.email.service;
 
+import com.logistica.doisv.core.util.generation.DataUtil;
 import com.logistica.doisv.modules.lojista.entity.Lojista;
 import com.logistica.doisv.modules.venda.entity.Venda;
 import jakarta.mail.MessagingException;
@@ -11,7 +12,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -174,7 +174,7 @@ public class EmailService {
             String logoUrl = "https://lh3.googleusercontent.com/d/" + venda.getLoja().getLogo();
             String nomeConsumidor = venda.getConsumidor().getNome();
             String serial = venda.getSerialVenda();
-            int anoAtual = LocalDate.now().getYear();
+            int anoAtual = DataUtil.hoje().getYear();
 
             String html = montarInicioEmail("Acesso para Troca ou Devolução - " + nomeLoja) +
                     montarCabecalho(logoUrl, "Logo de " + nomeLoja, nomeLoja) +
@@ -218,7 +218,7 @@ public class EmailService {
         String nomeLoja = lojista.getLoja().getNome();
         String logoUrl = "https://lh3.googleusercontent.com/d/" + lojista.getLoja().getLogo();
         String nomeLojista = lojista.getNome();
-        int anoAtual = LocalDate.now().getYear();
+        int anoAtual = DataUtil.hoje().getYear();
 
         String html = montarInicioEmail("Recuperação de Senha - " + nomeLoja) +
                 montarCabecalho(logoUrl, "Logo de " + nomeLoja, nomeLoja) +
@@ -262,7 +262,7 @@ public class EmailService {
         String urlAcesso = urlBaseFrontend + "/lojista/login";
         String logoId = "1OAZrlZgYhXO-UzJLx9SZy6JgdLs6W4v2";
         String logoUrl = "https://lh3.googleusercontent.com/d/" + logoId;
-        int anoAtual = LocalDate.now().getYear();
+        int anoAtual = DataUtil.hoje().getYear();
 
         String html = montarInicioEmail("Bem-vindo " + nomeLoja + " - Seu Primeiro Acesso") +
                 montarCabecalho(logoUrl, "Logo " + nomeLoja, "2V Logística") +
@@ -327,8 +327,8 @@ public class EmailService {
         String urlAcesso = "https://app.logistica.com.br/login";
         String logoId = "1OAZrlZgYhXO-UzJLx9SZy6JgdLs6W4v2";
         String logoUrl = "https://lh3.googleusercontent.com/d/" + logoId;
-        int anoAtual = LocalDate.now().getYear();
-        String dataCadastro = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        int anoAtual = DataUtil.hoje().getYear();
+        String dataCadastro = DataUtil.hoje().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
         String html = montarInicioEmail("Usuário Master Criado - " + nomeLoja) +
                 montarCabecalho(logoUrl, "Logo 2V Logística", "2V Logística — Uso Interno") +

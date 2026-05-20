@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,7 +72,7 @@ public class ExcelExportService {
                         v -> v.getPrecoTotal(),
                         v -> v.getDesconto(),
                         v -> v.getFormaPagamento(),
-                        v -> v.getDataCriacao() != null ? FORMATO_DATA_HORA.format(v.getDataCriacao().atZone(ZoneId.systemDefault())) : "",
+                        v -> v.getDataCriacao() != null ? FORMATO_DATA_HORA.format(v.getDataCriacao()) : "",
                         v -> v.getDataEntrega() != null ? FORMATO_DATA.format(v.getDataEntrega()) : "",
                         v -> v.getStatus() != null ? v.getStatus().getStatusItem() : ""
                 )
@@ -91,7 +90,7 @@ public class ExcelExportService {
                         s -> s.getQuantidade(),
                         s -> s.getMotivo(),
                         s -> s.getStatusSolicitacao() != null ? s.getStatusSolicitacao().getStatusSolicitacao() : "",
-                        s -> s.getDataSolicitacao() != null ? FORMATO_DATA_HORA.format(s.getDataSolicitacao().atZone(ZoneId.systemDefault())) : "",
+                        s -> s.getDataSolicitacao() != null ? FORMATO_DATA_HORA.format(s.getDataSolicitacao()) : "",
                         s -> s.getDataAtualizacao() != null ? FORMATO_DATA_HORA.format(s.getDataAtualizacao()) : ""
                 )
         ));

@@ -1,5 +1,6 @@
 package com.logistica.doisv.modules.venda.service;
 
+import com.logistica.doisv.core.util.generation.DataUtil;
 import com.logistica.doisv.modules.venda.dto.ItemDTO;
 import com.logistica.doisv.modules.venda.dto.RegistroVendaDTO;
 import com.logistica.doisv.modules.venda.dto.VendaDTO;
@@ -159,7 +160,7 @@ public class VendaService {
             venda.setSerialVenda(UUID.randomUUID().toString().substring(0,11).replace("-", ""));
             var senha = venda.getConsumidor().getCpf_cnpj().substring(0,4) + "@" + LocalDate.now().getYear();
             venda.setSenha(encoder.encode(senha));
-            venda.setDataEntrega(LocalDate.now());
+            venda.setDataEntrega(DataUtil.hoje());
 
             enviarAcessoConsumidor(venda, senha);
         }

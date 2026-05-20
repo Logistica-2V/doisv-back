@@ -5,6 +5,7 @@ import com.logistica.doisv.core.enums.Status;
 import com.logistica.doisv.core.enums.StatusPedido;
 import com.logistica.doisv.core.exception.EdicaoNaoPermitidaException;
 import com.logistica.doisv.core.exception.ResourceNotFoundException;
+import com.logistica.doisv.core.util.generation.DataUtil;
 import com.logistica.doisv.modules.consumidor.entity.Consumidor;
 import com.logistica.doisv.modules.loja.entity.Loja;
 import com.logistica.doisv.modules.solicitacao.entity.Solicitacao;
@@ -13,8 +14,8 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +57,7 @@ public class Venda {
     private Integer prazoDevolucao;
 
     @Column(nullable = false)
-    private Instant dataCriacao;
+    private LocalDateTime dataCriacao;
 
     private LocalDate dataEntrega;
 
@@ -88,7 +89,7 @@ public class Venda {
         this.prazoTroca = prazoTroca;
         this.prazoDevolucao = prazoDevolucao;
         this.precoTotal = BigDecimal.valueOf(0);
-        this.dataCriacao = Instant.now();
+        this.dataCriacao = DataUtil.dataHoraAgora();
     }
 
     public static Venda criar(Consumidor consumidor, Loja loja, StatusPedido statusPedido, String formaPagamento,
@@ -102,7 +103,7 @@ public class Venda {
                 .desconto(desconto)
                 .prazoTroca(prazoTroca)
                 .prazoDevolucao(prazoDevolucao)
-                .dataCriacao(Instant.now())
+                .dataCriacao(DataUtil.dataHoraAgora())
                 .itensVenda(new ArrayList<>())
                 .status(Status.ATIVO)
                 .build();

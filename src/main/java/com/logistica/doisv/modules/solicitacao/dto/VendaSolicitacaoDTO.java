@@ -4,9 +4,7 @@ import com.logistica.doisv.modules.venda.entity.Venda;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 @Schema(name = "VendaSolicitacao", description = "Dados resumidos da venda associada a uma solicitação")
 public record VendaSolicitacaoDTO(
@@ -34,7 +32,7 @@ public record VendaSolicitacaoDTO(
         @Schema(description = "Prazo de devolução em dias", example = "7")
         Integer prazoDevolucao,
 
-        @Schema(description = "Data de criação da venda", example = "01/04/2025 14:30")
+        @Schema(description = "Data e hora local de criação da venda", example = "01/04/2025 14:30")
         String dataCriacao,
 
         @Schema(description = "Data de entrega da venda", example = "05/04/2025")
@@ -49,9 +47,7 @@ public record VendaSolicitacaoDTO(
                 venda.getFormaPagamento(),
                 venda.getPrazoTroca(),
                 venda.getPrazoDevolucao(),
-                venda.getDataCriacao().atZone(ZoneId.of("America/Sao_Paulo"))
-                        .format(DateTimeFormatter
-                                .ofPattern("dd/MM/yyyy HH:mm", new Locale("pt", "BR"))),
+                venda.getDataCriacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                 venda.getDataEntrega().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
     }
 }

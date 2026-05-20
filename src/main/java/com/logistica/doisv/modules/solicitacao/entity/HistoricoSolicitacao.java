@@ -1,6 +1,7 @@
 package com.logistica.doisv.modules.solicitacao.entity;
 
 import com.logistica.doisv.core.enums.StatusSolicitacao;
+import com.logistica.doisv.core.util.generation.DataUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,7 +28,7 @@ public class HistoricoSolicitacao {
     private StatusSolicitacao statusAtual;
 
     @Column(nullable = false)
-    private LocalDateTime dataAtualizacao = LocalDateTime.now();
+    private LocalDateTime dataAtualizacao = DataUtil.dataHoraAgora();
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String observacao;
@@ -44,7 +45,7 @@ public class HistoricoSolicitacao {
                 .statusAtual(status)
                 .observacao(mensagem)
                 .solicitacao(solicitacao)
-                .dataAtualizacao(LocalDateTime.now())
+                .dataAtualizacao(DataUtil.dataHoraAgora())
                 .build();
     }
 

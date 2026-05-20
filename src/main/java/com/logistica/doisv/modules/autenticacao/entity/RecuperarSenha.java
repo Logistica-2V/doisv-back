@@ -1,6 +1,7 @@
 package com.logistica.doisv.modules.autenticacao.entity;
 
 import com.logistica.doisv.core.enums.Status;
+import com.logistica.doisv.core.util.generation.DataUtil;
 import com.logistica.doisv.modules.lojista.entity.Lojista;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,7 +24,7 @@ public class RecuperarSenha {
     private String codigoRecuperacao;
 
     @Column(nullable = false)
-    private LocalDateTime dataCriacao = LocalDateTime.now();
+    private LocalDateTime dataCriacao = DataUtil.dataHoraAgora();
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -40,7 +41,7 @@ public class RecuperarSenha {
 
     public boolean isExpirado() {
         LocalDateTime dataExpiracao = this.dataCriacao.plusMinutes(15);
-        return LocalDateTime.now().isAfter(dataExpiracao);
+        return DataUtil.dataHoraAgora().isAfter(dataExpiracao);
     }
 
     public boolean isAtivo() {

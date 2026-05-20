@@ -1,18 +1,18 @@
 package com.logistica.doisv.modules.solicitacao.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.logistica.doisv.modules.venda.entity.ItemVenda;
-import com.logistica.doisv.modules.venda.entity.Venda;
 import com.logistica.doisv.core.enums.Status;
 import com.logistica.doisv.core.enums.StatusSolicitacao;
 import com.logistica.doisv.core.enums.TipoSolicitacao;
 import com.logistica.doisv.core.exception.RegraNegocioException;
-import com.logistica.doisv.modules.feedback.entity.Feedback;
+import com.logistica.doisv.core.util.generation.DataUtil;
 import com.logistica.doisv.modules.consumidor.entity.Consumidor;
+import com.logistica.doisv.modules.feedback.entity.Feedback;
+import com.logistica.doisv.modules.venda.entity.ItemVenda;
+import com.logistica.doisv.modules.venda.entity.Venda;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -41,7 +41,7 @@ public class Solicitacao {
     private String motivo;
 
     @Column(nullable = false)
-    private Instant dataSolicitacao;
+    private LocalDateTime dataSolicitacao;
 
     private LocalDateTime dataAtualizacao;
 
@@ -86,7 +86,7 @@ public class Solicitacao {
                 .venda(venda)
                 .consumidor(venda.getConsumidor())
                 .itemVenda(itemVenda)
-                .dataSolicitacao(Instant.now())
+                .dataSolicitacao(DataUtil.dataHoraAgora())
                 .anexos(new LinkedHashSet<>())
                 .historicos(new LinkedHashSet<>())
                 .feedbacks(new HashSet<>())
@@ -97,7 +97,7 @@ public class Solicitacao {
         this.tipoSolicitacao = tipoSolicitacao;
         this.quantidade = quantidade;
         this.motivo = motivo;
-        this.dataAtualizacao = LocalDateTime.now();
+        this.dataAtualizacao = DataUtil.dataHoraAgora();
     }
 
     public void aprovar(ItemVenda itemOriginal) {
@@ -105,7 +105,7 @@ public class Solicitacao {
 
         this.historicos.add(HistoricoSolicitacao.aprovacao(this));
         this.statusSolicitacao = StatusSolicitacao.APROVADA;
-        this.dataAtualizacao = LocalDateTime.now();
+        this.dataAtualizacao = DataUtil.dataHoraAgora();
 
         ItemVenda novoItem = construirItemSolicitacao(itemOriginal);
         itemOriginal.reduzirQuantidade(this.quantidade);
@@ -118,7 +118,7 @@ public class Solicitacao {
 
         this.statusSolicitacao = StatusSolicitacao.REJEITADA;
         this.status = Status.INATIVO;
-        this.dataAtualizacao = LocalDateTime.now();
+        this.dataAtualizacao = DataUtil.dataHoraAgora();
         this.historicos.add(HistoricoSolicitacao.rejeicao(this, motivoReprovacao));
     }
 
@@ -128,7 +128,7 @@ public class Solicitacao {
         this.itemVenda.restaurar();
         this.statusSolicitacao = StatusSolicitacao.CANCELADA;
         this.status = Status.INATIVO;
-        this.dataAtualizacao = LocalDateTime.now();
+        this.dataAtualizacao = DataUtil.dataHoraAgora();
         this.historicos.add(HistoricoSolicitacao.cancelamento(this));
     }
 
@@ -138,7 +138,7 @@ public class Solicitacao {
 
         this.historicos.add(HistoricoSolicitacao.criar(novoStatus, this, observacao));
         this.statusSolicitacao = novoStatus;
-        this.dataAtualizacao = LocalDateTime.now();
+        this.dataAtualizacao = DataUtil.dataHoraAgora();
     }
 
     private void validarSeAlteravel() {
