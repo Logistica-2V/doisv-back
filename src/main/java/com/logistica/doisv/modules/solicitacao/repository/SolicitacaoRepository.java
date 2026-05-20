@@ -16,22 +16,26 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
 
     @Query("""
     SELECT new com.logistica.doisv.modules.solicitacao.dto.SolicitacaoResumidaDTO(
-        s.id, c.nome, v.id, s.tipoSolicitacao, s.motivo, s.dataSolicitacao,
+        s.id, c.nome, v.id, p.descricao, s.tipoSolicitacao, s.motivo, s.dataSolicitacao,
         s.dataAtualizacao, s.statusSolicitacao, s.status)
         FROM Solicitacao s
         JOIN s.consumidor c
         JOIN s.venda v
+        JOIN s.itemVenda iv
+        JOIN iv.produto p
         WHERE v.loja.idLoja = :idLoja
     """)
     Page<SolicitacaoResumidaDTO> listarSolicitacoesResumidas(Pageable pageable, @Param("idLoja") Long idLoja);
 
     @Query("""
     SELECT new com.logistica.doisv.modules.solicitacao.dto.SolicitacaoResumidaDTO(
-        s.id, c.nome, v.id, s.tipoSolicitacao, s.motivo, s.dataSolicitacao,
+        s.id, c.nome, v.id, p.descricao, s.tipoSolicitacao, s.motivo, s.dataSolicitacao,
         s.dataAtualizacao, s.statusSolicitacao, s.status)
         FROM Solicitacao s
         JOIN s.consumidor c
         JOIN s.venda v
+        JOIN s.itemVenda iv
+        JOIN iv.produto p
         WHERE v.loja.idLoja = :idLoja
         AND v.id = :idVenda
     """)

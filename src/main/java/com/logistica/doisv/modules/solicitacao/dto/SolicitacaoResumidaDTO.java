@@ -20,6 +20,9 @@ public record SolicitacaoResumidaDTO(
         @Schema(description = "ID da venda associada", example = "10")
         Long idVenda,
 
+        @Schema(description = "Descricao do produto", example = "Camiseta algodao")
+        String descricaoProduto,
+
         @Schema(description = "Tipo da solicitação", example = "Troca")
         String tipo,
 
@@ -39,12 +42,14 @@ public record SolicitacaoResumidaDTO(
         String status
                                     ) {
 
-    public SolicitacaoResumidaDTO(Long id, String nomeConsumidor, Long idVenda, TipoSolicitacao tipoEnum, String motivo,
+    public SolicitacaoResumidaDTO(Long id, String nomeConsumidor, Long idVenda, String descricaoProduto,
+                                  TipoSolicitacao tipoEnum, String motivo,
                                   LocalDateTime dataSolicitacaoTime, LocalDateTime dataAtualizacaoTime,
                                   StatusSolicitacao statusSolEnum, Status statusEnum) {
         this(id,
                 nomeConsumidor,
                 idVenda,
+                descricaoProduto,
                 tipoEnum.getDescricao(),
                 motivo,
                 dataSolicitacaoTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
@@ -58,6 +63,7 @@ public record SolicitacaoResumidaDTO(
         this(solicitacao.getId(),
                 solicitacao.getConsumidor().getNome(),
                 solicitacao.getVenda().getId(),
+                solicitacao.getItemVenda().getProduto().getDescricao(),
                 solicitacao.getTipoSolicitacao().getDescricao(),
                 solicitacao.getMotivo(),
                 solicitacao.getDataSolicitacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
