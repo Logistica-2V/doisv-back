@@ -1,14 +1,14 @@
 package com.logistica.doisv.modules.solicitacao.validation;
 
-import com.logistica.doisv.modules.solicitacao.dto.CriarSolicitacaoDTO;
-import com.logistica.doisv.modules.venda.entity.ItemVenda;
-import com.logistica.doisv.modules.solicitacao.entity.Solicitacao;
-import com.logistica.doisv.modules.venda.entity.Venda;
 import com.logistica.doisv.core.enums.Status;
 import com.logistica.doisv.core.enums.StatusPedido;
 import com.logistica.doisv.core.enums.StatusSolicitacao;
 import com.logistica.doisv.core.enums.TipoSolicitacao;
 import com.logistica.doisv.core.exception.RegraNegocioException;
+import com.logistica.doisv.modules.solicitacao.dto.CriarSolicitacaoDTO;
+import com.logistica.doisv.modules.solicitacao.entity.Solicitacao;
+import com.logistica.doisv.modules.venda.entity.ItemVenda;
+import com.logistica.doisv.modules.venda.entity.Venda;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -22,7 +22,8 @@ public class SolicitacaoValidador {
                                            ItemVenda itemVenda) {
         validarStatusVenda(venda, dto.tipo());
         validarPrazoSolicitacao(venda, tipoSolicitacao);
-        validarQuantidadeItemVenda(dto.quantidade(), itemVenda.getQuantidade(), dto.tipo());
+        validarSolicitacaoNaoExcedeCompra(dto.quantidade(), itemVenda.getQuantidade(), dto.tipo());
+        validarDisponibilidadeParaSolicitacao(itemVenda, dto.quantidade());
     }
 
     public void validarEdicaoSolicitacao(Solicitacao solicitacao, CriarSolicitacaoDTO dto,
@@ -31,9 +32,10 @@ public class SolicitacaoValidador {
         validarStatusVenda(solicitacao.getVenda(), solicitacao.getTipoSolicitacao().getDescricao().toLowerCase());
         validarPrazoSolicitacao(solicitacao.getVenda(), solicitacao.getTipoSolicitacao());
         validarItemVendaDiferente(solicitacao, itemVenda);
-        validarQuantidadeItemVenda(dto.quantidade(),
+        validarSolicitacaoNaoExcedeCompra(dto.quantidade(),
                 itemVenda.getQuantidade(),
                 solicitacao.getTipoSolicitacao().getDescricao().toLowerCase());
+        validarDisponibilidadeParaSolicitacao(itemVenda, dto.quantidade());
     }
 
 
@@ -56,10 +58,32 @@ public class SolicitacaoValidador {
         }
     }
 
-    public void validarQuantidadeItemVenda(Double quantidadeSolicitada, Double quantidadeComprada, String tipo) {
+    public void validarSolicitacaoNaoExcedeCompra(Double quantidadeSolicitada, Double quantidadeComprada, String tipo) {
         if (quantidadeSolicitada > quantidadeComprada) {
             throw new RegraNegocioException(String
                     .format("A quantidade selecionada para %s é maior que a quantidade comprada", tipo.toLowerCase()));
+        }
+    }
+
+    public void validarDisponibilidadeParaSolicitacao(ItemVenda itemVenda, Double quantidadeSolicitada){
+        if(itemVenda.getStatus() == Status.INATIVO){
+            throw new RegraNegocioException(
+                    "Não é possível solicitar troca ou devolução para este item, pois já existe uma solicitação registrada.");
+        }
+
+        double quantidadeJaSolicitada = itemVenda.getSolicitacoes()
+                .stream()
+                .filter(solicitacao -> solicitacao.getStatusSolicitacao() != StatusSolicitacao.CANCELADA &&
+                        solicitacao.getStatusSolicitacao() != StatusSolicitacao.REJEITADA)
+                .mapToDouble(Solicitacao::getQuantidade)
+                .sum();
+
+        double quantidadeDisponivel = itemVenda.getQuantidade() - quantidadeJaSolicitada;
+
+        if(quantidadeSolicitada > quantidadeDisponivel){
+            throw new RegraNegocioException(String.format(
+                    "A quantidade solicitada (%.2f) excede a quantidade disponível (%.2f) para este item.",
+                    quantidadeSolicitada, quantidadeDisponivel));
         }
     }
 
