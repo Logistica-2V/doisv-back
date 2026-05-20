@@ -17,7 +17,7 @@ public enum StatusSolicitacao {
     StatusSolicitacao(String status){this.statusSolicitacao = status;}
 
     public boolean podeAvancarPara(StatusSolicitacao proximo) {
-        return proximo.ordinal() > this.ordinal();
+        return proximo.ordinal() >= this.ordinal();
     }
 
     public static StatusSolicitacao deString(String status){
