@@ -67,7 +67,7 @@ public class MetricaService {
 
         return MetricasPrivadasDTO.builder()
                 .notaMedia(gerarAvaliacoes(feedbacks))
-                .totalVendas(obterQuantidadeVendas(feedbacks))
+                .totalSolicitacoesAvaliadas(obterQuantidadeSolicitacoesAvaliadas(feedbacks))
                 .quantidadeFeedbackPorTipo(calcularQuantidadePorTipoSolicitacao(feedbacks))
                 .percentualPorTipo(percentuaisPorTipoSolicitacao)
                 .avaliacoes(feedbacksPorTipo)
@@ -166,7 +166,9 @@ public class MetricaService {
     }
 
     private BigDecimal calcularPercentualPorTipo(List<Feedback> feedbacks, TipoSolicitacao tipoSolicitacao){
-        BigDecimal totalVendas = BigDecimal.valueOf(obterQuantidadeVendas(feedbacks));
+        BigDecimal totalSolicitacoesAvaliadas = BigDecimal.valueOf(obterQuantidadeSolicitacoesAvaliadas(feedbacks));
+
+        if (totalSolicitacoesAvaliadas.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
 
         long totalSolicitacoes = feedbacks.stream()
                 .map(Feedback::getSolicitacao)
@@ -176,11 +178,11 @@ public class MetricaService {
 
         return BigDecimal.valueOf(totalSolicitacoes)
                 .multiply(BigDecimal.valueOf(100))
-                .divide(totalVendas, 2, RoundingMode.HALF_UP);
+                .divide(totalSolicitacoesAvaliadas, 2, RoundingMode.HALF_UP);
     }
 
-    private Integer obterQuantidadeVendas(List<Feedback> feedbacks){
-        return feedbacks.stream().map(f -> f.getSolicitacao().getVenda()).toList().size();
+    private Integer obterQuantidadeSolicitacoesAvaliadas(List<Feedback> feedbacks) {
+        return (int) feedbacks.stream().map(Feedback::getSolicitacao).distinct().count();
     }
 
     private List<FeedbackResumidoDTO> obterFeedbacksPorTipo(List<Feedback> feedbacks, TipoFeedback tipoFeedback){

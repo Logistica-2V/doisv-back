@@ -15,8 +15,8 @@ public record MetricasPrivadasDTO(
                 example = "{\"ELOGIO\": 4.5, \"RECLAMACAO\": 2.0, \"SUGESTAO\": 3.8}")
         Map<String, BigDecimal> notaMedia,
 
-        @Schema(description = "Total de vendas realizadas no período", example = "150")
-        Integer totalVendas,
+        @Schema(description = "Quantidade de solicitações únicas que receberam feedbacks no período", example = "150")
+        Integer totalSolicitacoesAvaliadas,
 
         @Schema(description = "Quantidade de feedbacks agrupados por tipo",
                 example = "{\"ELOGIO\": 50, \"RECLAMACAO\": 10, \"SUGESTAO\": 20}")
