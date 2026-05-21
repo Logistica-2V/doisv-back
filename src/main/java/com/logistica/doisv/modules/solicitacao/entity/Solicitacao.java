@@ -1,6 +1,7 @@
 package com.logistica.doisv.modules.solicitacao.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.logistica.doisv.core.enums.MotivoSolicitacao;
 import com.logistica.doisv.core.enums.Status;
 import com.logistica.doisv.core.enums.StatusSolicitacao;
 import com.logistica.doisv.core.enums.TipoSolicitacao;
@@ -37,8 +38,12 @@ public class Solicitacao {
     @Column(nullable = false)
     private Double quantidade;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MotivoSolicitacao motivo;
+
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String motivo;
+    private String observacao;
 
     @Column(nullable = false)
     private LocalDateTime dataSolicitacao;
@@ -75,11 +80,13 @@ public class Solicitacao {
     @JsonIgnore
     private Set<Feedback> feedbacks = new HashSet<>();
 
-    public static Solicitacao criar(Double quantidade, String motivo, Venda venda,
+    public static Solicitacao criar(Double quantidade,MotivoSolicitacao motivo, String observacao, Venda venda,
             ItemVenda itemVenda, TipoSolicitacao tipoSolicitacao) {
+
         return Solicitacao.builder()
                 .quantidade(quantidade)
                 .motivo(motivo)
+                .observacao(observacao)
                 .tipoSolicitacao(tipoSolicitacao)
                 .statusSolicitacao(StatusSolicitacao.PENDENTE)
                 .status(Status.ATIVO)
@@ -93,10 +100,12 @@ public class Solicitacao {
                 .build();
     }
 
-    public void editar(TipoSolicitacao tipoSolicitacao, Double quantidade, String motivo) {
+    public void editar(TipoSolicitacao tipoSolicitacao, Double quantidade,
+                       MotivoSolicitacao motivo, String observacao) {
         this.tipoSolicitacao = tipoSolicitacao;
         this.quantidade = quantidade;
         this.motivo = motivo;
+        this.observacao = observacao;
         this.dataAtualizacao = DataUtil.dataHoraAgora();
     }
 

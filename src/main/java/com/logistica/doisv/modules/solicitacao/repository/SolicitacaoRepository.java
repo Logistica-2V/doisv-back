@@ -16,7 +16,7 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
 
     @Query("""
     SELECT new com.logistica.doisv.modules.solicitacao.dto.SolicitacaoResumidaDTO(
-        s.id, c.nome, v.id, p.descricao, s.tipoSolicitacao, s.motivo, s.dataSolicitacao,
+        s.id, c.nome, v.id, p.descricao, s.tipoSolicitacao, s.motivo, s.observacao, s.dataSolicitacao,
         s.dataAtualizacao, s.statusSolicitacao, s.status)
         FROM Solicitacao s
         JOIN s.consumidor c
@@ -29,7 +29,7 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
 
     @Query("""
     SELECT new com.logistica.doisv.modules.solicitacao.dto.SolicitacaoResumidaDTO(
-        s.id, c.nome, v.id, p.descricao, s.tipoSolicitacao, s.motivo, s.dataSolicitacao,
+        s.id, c.nome, v.id, p.descricao, s.tipoSolicitacao, s.motivo, s.observacao, s.dataSolicitacao,
         s.dataAtualizacao, s.statusSolicitacao, s.status)
         FROM Solicitacao s
         JOIN s.consumidor c

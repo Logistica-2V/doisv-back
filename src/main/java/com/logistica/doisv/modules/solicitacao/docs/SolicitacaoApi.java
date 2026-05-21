@@ -84,7 +84,7 @@ public interface SolicitacaoApi {
             @Parameter(hidden = true) @AuthenticationPrincipal AcessoDTO usuarioLogado);
 
     @Operation(summary = "Criar uma nova solicitação",
-            description = "Registra uma nova solicitação de troca ou devolução. Os dados devem ser enviados como multipart (JSON + anexos obrigatórios). Requer permissão CONSUMIDOR.",
+            description = "Registra uma nova solicitação de troca ou devolução. Os dados devem ser enviados como multipart (JSON + anexos obrigatórios). No JSON, `motivo` deve ser um valor do enum de motivo da solicitação e `observacao` deve conter o texto livre complementar. Requer permissão CONSUMIDOR.",
             operationId = "criarSolicitacao")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Solicitação criada com sucesso",
@@ -116,7 +116,7 @@ public interface SolicitacaoApi {
             @ApiResponse(responseCode = "404", description = "Solicitação não encontrada", content = @Content),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     })
-    @PostMapping(value = "/atualizar/{id}")
+    @PostMapping(value = "/atualizar/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<SolicitacaoDetalhadaDTO> atualizarSolicitacao(
             @Parameter(description = "ID da solicitação", required = true, example = "1")
             @PathVariable Long id,
@@ -164,7 +164,7 @@ public interface SolicitacaoApi {
             @Parameter(hidden = true) @AuthenticationPrincipal AcessoDTO usuarioLogado) throws GeneralSecurityException, IOException;
 
     @Operation(summary = "Editar uma solicitação",
-            description = "Edita os dados de uma solicitação existente, substituindo anexos. Os dados devem ser enviados como multipart (JSON + anexos obrigatórios). Requer permissão CONSUMIDOR.",
+            description = "Edita os dados de uma solicitação existente, substituindo anexos. Os dados devem ser enviados como multipart (JSON + anexos obrigatórios). No JSON, `motivo` deve ser um valor do enum de motivo da solicitação e `observacao` deve conter o texto livre complementar. Requer permissão CONSUMIDOR.",
             operationId = "editarSolicitacao")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Solicitação editada com sucesso",
@@ -176,7 +176,7 @@ public interface SolicitacaoApi {
             @ApiResponse(responseCode = "404", description = "Solicitação não encontrada", content = @Content),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     })
-    @PutMapping(value = "/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<SolicitacaoResumidaDTO> editarSolicitacao(
             @Parameter(description = "ID da solicitação", required = true, example = "1")
             @PathVariable Long id,

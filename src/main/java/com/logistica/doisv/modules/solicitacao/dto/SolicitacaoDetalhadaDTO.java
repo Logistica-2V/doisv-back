@@ -21,8 +21,11 @@ public record SolicitacaoDetalhadaDTO(
         @Schema(description = "Quantidade solicitada", example = "2.0")
         Double quantidade,
 
-        @Schema(description = "Motivo da solicitação", example = "Produto com defeito de fabricação")
+        @Schema(description = "Descrição do motivo da solicitação", example = "Produto com defeito")
         String motivo,
+
+        @Schema(description = "Observação livre informada na solicitação", example = "Produto apresentou falha no primeiro uso.")
+        String observacao,
 
         @Schema(description = "Data e hora local da solicitação", example = "01/04/2025 14:30")
         String dataSolicitacao,
@@ -58,7 +61,8 @@ public record SolicitacaoDetalhadaDTO(
         this(solicitacao.getId(),
                 solicitacao.getTipoSolicitacao().getDescricao(),
                 solicitacao.getQuantidade(),
-                solicitacao.getMotivo(),
+                solicitacao.getMotivo().getDescricao(),
+                solicitacao.getObservacao(),
                 solicitacao.getDataSolicitacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                 solicitacao.getDataAtualizacao() != null ? solicitacao.getDataAtualizacao()
                         .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : null,

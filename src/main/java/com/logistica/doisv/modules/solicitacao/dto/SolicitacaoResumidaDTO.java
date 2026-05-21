@@ -1,6 +1,7 @@
 package com.logistica.doisv.modules.solicitacao.dto;
 
 import com.logistica.doisv.modules.solicitacao.entity.Solicitacao;
+import com.logistica.doisv.core.enums.MotivoSolicitacao;
 import com.logistica.doisv.core.enums.Status;
 import com.logistica.doisv.core.enums.StatusSolicitacao;
 import com.logistica.doisv.core.enums.TipoSolicitacao;
@@ -26,8 +27,11 @@ public record SolicitacaoResumidaDTO(
         @Schema(description = "Tipo da solicitação", example = "Troca")
         String tipo,
 
-        @Schema(description = "Motivo da solicitação", example = "Produto com defeito de fabricação")
+        @Schema(description = "Descrição do motivo da solicitação", example = "Produto com defeito")
         String motivo,
+
+        @Schema(description = "Observação livre informada na solicitação", example = "Produto apresentou falha no primeiro uso.")
+        String observacao,
 
         @Schema(description = "Data e hora local da solicitação", example = "01/04/2025 14:30")
         String dataSolicitacao,
@@ -43,7 +47,7 @@ public record SolicitacaoResumidaDTO(
                                     ) {
 
     public SolicitacaoResumidaDTO(Long id, String nomeConsumidor, Long idVenda, String descricaoProduto,
-                                  TipoSolicitacao tipoEnum, String motivo,
+                                  TipoSolicitacao tipoEnum, MotivoSolicitacao motivo, String observacao,
                                   LocalDateTime dataSolicitacaoTime, LocalDateTime dataAtualizacaoTime,
                                   StatusSolicitacao statusSolEnum, Status statusEnum) {
         this(id,
@@ -51,7 +55,8 @@ public record SolicitacaoResumidaDTO(
                 idVenda,
                 descricaoProduto,
                 tipoEnum.getDescricao(),
-                motivo,
+                motivo.getDescricao(),
+                observacao,
                 dataSolicitacaoTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                 dataAtualizacaoTime != null ?
                         dataAtualizacaoTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : null,
@@ -65,7 +70,8 @@ public record SolicitacaoResumidaDTO(
                 solicitacao.getVenda().getId(),
                 solicitacao.getItemVenda().getProduto().getDescricao(),
                 solicitacao.getTipoSolicitacao().getDescricao(),
-                solicitacao.getMotivo(),
+                solicitacao.getMotivo().getDescricao(),
+                solicitacao.getObservacao(),
                 solicitacao.getDataSolicitacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                 solicitacao.getDataAtualizacao() != null ? solicitacao.getDataAtualizacao()
                         .format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,

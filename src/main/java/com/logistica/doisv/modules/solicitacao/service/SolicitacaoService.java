@@ -1,5 +1,6 @@
 package com.logistica.doisv.modules.solicitacao.service;
 
+import com.logistica.doisv.core.enums.MotivoSolicitacao;
 import com.logistica.doisv.core.file.dto.ArquivoDTO;
 import com.logistica.doisv.modules.solicitacao.dto.CriarSolicitacaoDTO;
 import com.logistica.doisv.modules.solicitacao.dto.HistoricoSolicitacaoDTO;
@@ -73,11 +74,14 @@ public class SolicitacaoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada"));
 
         TipoSolicitacao tipoSolicitacao = TipoSolicitacao.deString(dto.tipo());
+        MotivoSolicitacao motivo = MotivoSolicitacao.deString(dto.motivo());
         ItemVenda itemVenda = buscarItemVendaPorId(dto.idItem(), venda.getItensVenda());
 
-        validador.validarRegistroSolicitacao(venda, dto, tipoSolicitacao, itemVenda);
+        validador.validarRegistroSolicitacao(venda, dto, tipoSolicitacao, motivo, itemVenda);
 
-        Solicitacao solicitacao = Solicitacao.criar(dto.quantidade(), dto.motivo(), venda, itemVenda, tipoSolicitacao);
+        Solicitacao solicitacao = Solicitacao.criar(dto.quantidade(), motivo, dto.observacao(),
+                venda, itemVenda, tipoSolicitacao);
+
         solicitacao = repository.save(solicitacao);
 
         processarAnexos(anexos, solicitacao.getId());
@@ -92,11 +96,12 @@ public class SolicitacaoService {
         Solicitacao solicitacao = buscarSolicitacaoOuLancarExcecao(idSolicitacao, idLoja);
 
         TipoSolicitacao tipoSolicitacao = TipoSolicitacao.deString(dto.tipo());
+        MotivoSolicitacao motivo = MotivoSolicitacao.deString(dto.motivo());
         ItemVenda itemVenda = buscarItemVendaPorId(dto.idItem(), solicitacao.getVenda().getItensVenda());
 
-        validador.validarEdicaoSolicitacao(solicitacao, dto, idLoja, itemVenda);
+        validador.validarEdicaoSolicitacao(solicitacao, tipoSolicitacao, motivo, dto, idLoja, itemVenda);
 
-        solicitacao.editar(tipoSolicitacao, dto.quantidade(), dto.motivo());
+        solicitacao.editar(tipoSolicitacao, dto.quantidade(), motivo, dto.observacao());
 
         solicitacao = repository.save(solicitacao);
         processarAnexos(anexos, solicitacao.getId());

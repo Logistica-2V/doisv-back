@@ -16,6 +16,28 @@ public record CriarSolicitacaoDTO(
         @Schema(description = "Tipo da solicitação (TROCA, DEVOLUCAO)", example = "TROCA", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "O tipo da solicitação é obrigatório.") String tipo,
 
-        @Schema(description = "Motivo da solicitação", example = "Produto com defeito de fabricação", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank(message = "O motivo da solicitação é obrigatório.") String motivo) {
+        @Schema(
+                description = "Motivo da solicitação como enum. O motivo deve ser compatível com o tipo da solicitação.",
+                example = "PRODUTO_COM_DEFEITO",
+                allowableValues = {
+                        "PRODUTO_COM_DEFEITO",
+                        "PRODUTO_DANIFICADO_ENTREGA",
+                        "PRODUTO_DIFERENTE_DO_PEDIDO",
+                        "PRODUTO_INCOMPLETO",
+                        "TAMANHO_INCORRETO",
+                        "COR_INCORRETA",
+                        "MODELO_INCORRETO",
+                        "ARREPENDIMENTO_COMPRA",
+                        "NAO_ATENDEU_EXPECTATIVA",
+                        "DESCRICAO_DIVERGENTE",
+                        "ATRASO_ENTREGA",
+                        "COMPRA_DUPLICADA",
+                        "OUTRO"
+                },
+                requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotBlank(message = "O motivo da solicitação é obrigatório.") String motivo,
+
+        @Schema(description = "Observação livre com detalhes complementares da solicitação", example = "Produto apresentou falha no primeiro uso.", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotBlank(message = "A observação da solicitação é obrigatória.") String observacao
+        ) {
 }

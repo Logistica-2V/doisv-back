@@ -80,7 +80,7 @@ public class ExcelExportService {
 
         relatorios.put("solicitacoes", new ConfiguracaoRelatorio<Solicitacao>(
                 "Solicitações",
-                new String[]{"ID", "Tipo", "Consumidor", "Serial da venda", "Produto", "Quantidade", "Motivo", "Status da solicitação", "Data da solicitação", "Última atualização"},
+                new String[]{"ID", "Tipo", "Consumidor", "Serial da venda", "Produto", "Quantidade", "Motivo", "Observação", "Status da solicitação", "Data da solicitação", "Última atualização"},
                 List.of(
                         s -> s.getId(),
                         s -> s.getTipoSolicitacao() != null ? s.getTipoSolicitacao().getDescricao() : "",
@@ -88,7 +88,8 @@ public class ExcelExportService {
                         s -> s.getVenda() != null ? s.getVenda().getSerialVenda() : "",
                         s -> s.getItemVenda() != null && s.getItemVenda().getProduto() != null ? s.getItemVenda().getProduto().getDescricao() : "",
                         s -> s.getQuantidade(),
-                        s -> s.getMotivo(),
+                        s -> s.getMotivo() != null ? s.getMotivo().getDescricao() : "",
+                        s -> s.getObservacao(),
                         s -> s.getStatusSolicitacao() != null ? s.getStatusSolicitacao().getStatusSolicitacao() : "",
                         s -> s.getDataSolicitacao() != null ? FORMATO_DATA_HORA.format(s.getDataSolicitacao()) : "",
                         s -> s.getDataAtualizacao() != null ? FORMATO_DATA_HORA.format(s.getDataAtualizacao()) : ""

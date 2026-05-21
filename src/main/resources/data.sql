@@ -152,31 +152,31 @@ VALUES
 
 -- SOLICITACAO
 INSERT IGNORE INTO tb_Solicitacao
-(id, data_atualizacao, data_solicitacao, motivo, quantidade, status, status_solicitacao, tipo_solicitacao, id_consumidor, id_item_venda, id_venda)
+(id, data_atualizacao, data_solicitacao, motivo, observacao, quantidade, status, status_solicitacao, tipo_solicitacao, id_consumidor, id_item_venda, id_venda)
 VALUES
-(1, '2025-12-25 10:00:00', '2025-12-18 09:30:00', 'Tela apresentando pixels mortos', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 1, 1, 1),
-(2, '2025-12-26 14:20:00', '2025-12-20 11:00:00', 'Mouse muito pequeno para minha mão', 1.0, 'ATIVO', 'CONCLUIDA', 'DEVOLUCAO', 1, 2, 1),
-(3, '2025-12-30 16:00:00', '2025-12-26 08:45:00', 'Ficou apertado, solicito troca pelo 37', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 5, 7, 5),
-(4, '2025-12-26 08:50:00', '2025-12-26 08:40:00', 'Cliquei errado, desconsiderar', 1.0, 'INATIVO', 'CANCELADA', 'TROCA', 5, 7, 5),
-(5, '2026-01-28 10:00:00', '2026-01-22 15:00:00', 'A cor não combinou com o quarto', 1.0, 'INATIVO', 'REJEITADA', 'DEVOLUCAO', 7, 9, 7),
-(6, '2026-02-05 11:30:00', '2026-01-25 09:00:00', 'Pistão de gás descendo sozinho', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 7, 9, 7),
-(7, '2026-02-25 13:00:00', '2026-02-18 10:00:00', 'Chegou com a capa rasgada', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 9, 11, 9),
-(8, '2026-03-05 08:00:00', '2026-03-05 20:00:00', 'Folhas amarelando muito rápido (forjado)', 1.0, 'INATIVO', 'REJEITADA', 'TROCA', 9, 11, 9),
-(9, '2026-01-10 09:00:00', '2026-01-05 14:00:00', 'Monitor com risco na tela ao tirar da caixa', 1.0, 'ATIVO', 'EM_TRANSITO', 'TROCA', 1, 13, 11),
-(10, '2026-02-15 11:00:00', '2026-02-15 10:00:00', 'Não gostei do caimento', 1.0, 'INATIVO', 'REJEITADA', 'DEVOLUCAO', 2, 15, 12),
-(11, '2026-02-10 16:30:00', '2026-02-10 16:30:00', 'Comprei a edição errada', 1.0, 'ATIVO', 'PENDENTE', 'DEVOLUCAO', 3, 16, 13),
-(12, '2026-03-10 14:00:00', '2026-02-28 09:15:00', 'Webcam veio sem o cabo de conexão', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 4, 17, 14),
-(13, '2026-03-20 10:00:00', '2026-03-15 11:00:00', 'Tamanho ficou pequeno, quero o G', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 7, 22, 17),
-(14, '2026-04-18 10:00:00', '2026-04-12 09:30:00', 'Mouse parou de funcionar o clique direito', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 2, 26, 21),
-(15, '2025-12-28 14:00:00', '2025-12-22 11:15:00', 'Livro veio com a capa dobrada', 1.0, 'ATIVO', 'CONCLUIDA', 'DEVOLUCAO', 6, 29, 23),
-(16, '2026-03-20 16:30:00', '2026-03-15 08:40:00', 'Arrependimento da compra do Notebook', 1.0, 'INATIVO', 'REJEITADA', 'DEVOLUCAO', 8, 30, 24),
-(17, '2026-03-29 09:00:00', '2026-03-27 15:20:00', 'Blusa ficou muito larga, quero M', 1.0, 'ATIVO', 'EM_TRANSITO', 'TROCA', 10, 31, 25),
-(18, '2026-01-25 11:30:00', '2026-01-18 10:00:00', 'Smartwatch não está segurando carga', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 3, 34, 27),
-(19, '2026-04-22 13:45:00', '2026-04-17 14:10:00', 'Cor da camisa não é a mesma da foto', 1.0, 'ATIVO', 'CONCLUIDA', 'DEVOLUCAO', 5, 35, 28),
-(20, '2026-03-10 09:00:00', '2026-03-10 09:00:00', 'Carregador está esquentando muito', 1.0, 'ATIVO', 'PENDENTE', 'TROCA', 9, 37, 30),
-(21, '2026-04-05 10:20:00', '2026-04-02 11:00:00', 'Monitor apresentou listras na tela', 1.0, 'INATIVO', 'REJEITADA', 'TROCA', 1, 13, 11),
-(22, '2026-03-05 15:00:00', '2026-02-26 10:30:00', 'Webcam desfocando sozinha', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 4, 17, 14),
-(23, '2026-03-12 14:00:00', '2026-03-08 09:15:00', 'Saia veio com um rasgo na costura', 1.0, 'ATIVO', 'EM_TRANSITO', 'DEVOLUCAO', 5, 18, 15);
+(1, '2025-12-25 10:00:00', '2025-12-18 09:30:00', 'PRODUTO_COM_DEFEITO', 'Tela apresentando pixels mortos', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 1, 1, 1),
+(2, '2025-12-26 14:20:00', '2025-12-20 11:00:00', 'NAO_ATENDEU_EXPECTATIVA', 'Mouse muito pequeno para minha mão', 1.0, 'ATIVO', 'CONCLUIDA', 'DEVOLUCAO', 1, 2, 1),
+(3, '2025-12-30 16:00:00', '2025-12-26 08:45:00', 'TAMANHO_INCORRETO', 'Ficou apertado, solicito troca pelo 37', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 5, 7, 5),
+(4, '2025-12-26 08:50:00', '2025-12-26 08:40:00', 'OUTRO', 'Cliquei errado, desconsiderar', 1.0, 'INATIVO', 'CANCELADA', 'TROCA', 5, 7, 5),
+(5, '2026-01-28 10:00:00', '2026-01-22 15:00:00', 'NAO_ATENDEU_EXPECTATIVA', 'A cor não combinou com o quarto', 1.0, 'INATIVO', 'REJEITADA', 'DEVOLUCAO', 7, 9, 7),
+(6, '2026-02-05 11:30:00', '2026-01-25 09:00:00', 'PRODUTO_COM_DEFEITO', 'Pistão de gás descendo sozinho', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 7, 9, 7),
+(7, '2026-02-25 13:00:00', '2026-02-18 10:00:00', 'PRODUTO_DANIFICADO_ENTREGA', 'Chegou com a capa rasgada', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 9, 11, 9),
+(8, '2026-03-05 08:00:00', '2026-03-05 20:00:00', 'OUTRO', 'Folhas amarelando muito rápido (forjado)', 1.0, 'INATIVO', 'REJEITADA', 'TROCA', 9, 11, 9),
+(9, '2026-01-10 09:00:00', '2026-01-05 14:00:00', 'PRODUTO_DANIFICADO_ENTREGA', 'Monitor com risco na tela ao tirar da caixa', 1.0, 'ATIVO', 'EM_TRANSITO', 'TROCA', 1, 13, 11),
+(10, '2026-02-15 11:00:00', '2026-02-15 10:00:00', 'NAO_ATENDEU_EXPECTATIVA', 'Não gostei do caimento', 1.0, 'INATIVO', 'REJEITADA', 'DEVOLUCAO', 2, 15, 12),
+(11, '2026-02-10 16:30:00', '2026-02-10 16:30:00', 'PRODUTO_DIFERENTE_DO_PEDIDO', 'Comprei a edição errada', 1.0, 'ATIVO', 'PENDENTE', 'DEVOLUCAO', 3, 16, 13),
+(12, '2026-03-10 14:00:00', '2026-02-28 09:15:00', 'PRODUTO_INCOMPLETO', 'Webcam veio sem o cabo de conexão', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 4, 17, 14),
+(13, '2026-03-20 10:00:00', '2026-03-15 11:00:00', 'TAMANHO_INCORRETO', 'Tamanho ficou pequeno, quero o G', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 7, 22, 17),
+(14, '2026-04-18 10:00:00', '2026-04-12 09:30:00', 'PRODUTO_COM_DEFEITO', 'Mouse parou de funcionar o clique direito', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 2, 26, 21),
+(15, '2025-12-28 14:00:00', '2025-12-22 11:15:00', 'PRODUTO_DANIFICADO_ENTREGA', 'Livro veio com a capa dobrada', 1.0, 'ATIVO', 'CONCLUIDA', 'DEVOLUCAO', 6, 29, 23),
+(16, '2026-03-20 16:30:00', '2026-03-15 08:40:00', 'ARREPENDIMENTO_COMPRA', 'Arrependimento da compra do Notebook', 1.0, 'INATIVO', 'REJEITADA', 'DEVOLUCAO', 8, 30, 24),
+(17, '2026-03-29 09:00:00', '2026-03-27 15:20:00', 'TAMANHO_INCORRETO', 'Blusa ficou muito larga, quero M', 1.0, 'ATIVO', 'EM_TRANSITO', 'TROCA', 10, 31, 25),
+(18, '2026-01-25 11:30:00', '2026-01-18 10:00:00', 'PRODUTO_COM_DEFEITO', 'Smartwatch não está segurando carga', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 3, 34, 27),
+(19, '2026-04-22 13:45:00', '2026-04-17 14:10:00', 'DESCRICAO_DIVERGENTE', 'Cor da camisa não é a mesma da foto', 1.0, 'ATIVO', 'CONCLUIDA', 'DEVOLUCAO', 5, 35, 28),
+(20, '2026-03-10 09:00:00', '2026-03-10 09:00:00', 'PRODUTO_COM_DEFEITO', 'Carregador está esquentando muito', 1.0, 'ATIVO', 'PENDENTE', 'TROCA', 9, 37, 30),
+(21, '2026-04-05 10:20:00', '2026-04-02 11:00:00', 'PRODUTO_COM_DEFEITO', 'Monitor apresentou listras na tela', 1.0, 'INATIVO', 'REJEITADA', 'TROCA', 1, 13, 11),
+(22, '2026-03-05 15:00:00', '2026-02-26 10:30:00', 'PRODUTO_COM_DEFEITO', 'Webcam desfocando sozinha', 1.0, 'ATIVO', 'CONCLUIDA', 'TROCA', 4, 17, 14),
+(23, '2026-03-12 14:00:00', '2026-03-08 09:15:00', 'PRODUTO_DANIFICADO_ENTREGA', 'Saia veio com um rasgo na costura', 1.0, 'ATIVO', 'EM_TRANSITO', 'DEVOLUCAO', 5, 18, 15);
 
 -- HISTORICO SOLICITACAO
 INSERT IGNORE INTO tb_Historico_Solicitacao

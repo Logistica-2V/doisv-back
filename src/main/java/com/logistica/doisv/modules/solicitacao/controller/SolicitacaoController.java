@@ -56,7 +56,7 @@ public class SolicitacaoController implements SolicitacaoApi {
                 usuarioLogado.getIdVenda(), usuarioLogado.getIdLoja()));
     }
 
-    @PostMapping(value = "/atualizar/{id}")
+    @PostMapping(value = "/atualizar/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SolicitacaoDetalhadaDTO> atualizarSolicitacao(@PathVariable Long id,
                                                   @Valid @RequestPart("historico") HistoricoSolicitacaoDTO dto,
                                                   @RequestPart(value = "novosProdutos", required = false) List<ItemDTO> novosProdutos,
@@ -79,7 +79,7 @@ public class SolicitacaoController implements SolicitacaoApi {
         return ResponseEntity.ok(service.reprovarSolicitacao(id, motivoReprovacao ,usuarioLogado.getIdLoja()));
     }
 
-    @PutMapping(value = "/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SolicitacaoResumidaDTO> editarSolicitacao(@PathVariable Long id,
                                                                     @Valid @RequestPart("solicitacao") CriarSolicitacaoDTO dto,
                                                                     @RequestPart("anexos") List<MultipartFile> anexos,
