@@ -44,6 +44,25 @@ public interface FeedbackApi {
             @PathVariable Long idFeedback,
             @Parameter(hidden = true) @AuthenticationPrincipal AcessoDTO usuarioLogado);
 
+    @Operation(summary = "Buscar todos os feedbacks da loja autenticada",
+            description = "Retorna uma página com os feedbacks resumidos vinculados à loja do usuário autenticado, filtrados por período em dias. Suporta paginação via parâmetros `page`, `size` e `sort`.",
+            operationId = "buscarTodosFeedbacksPorLoja")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Página de feedbacks retornada com sucesso",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Page.class))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Acesso negado", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    })
+    @GetMapping
+    ResponseEntity<Page<FeedbackDTO>> buscarTodosFeedbacksPorLoja(
+            @Parameter(description = "Período em dias para filtrar os feedbacks", example = "180")
+            @RequestParam(defaultValue = "180") Integer periodo,
+            @Parameter(description = "Parâmetros de paginação (page, size, sort)")
+            Pageable pageable,
+            @Parameter(hidden = true) @AuthenticationPrincipal AcessoDTO usuarioLogado);
+
     @Operation(summary = "Buscar feedbacks por solicitação",
             description = "Retorna todos os feedbacks vinculados a uma solicitação específica.",
             operationId = "buscarFeedbacksPorSolicitacao")
@@ -75,7 +94,7 @@ public interface FeedbackApi {
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     })
     @GetMapping("/lojas/{idLoja}")
-    ResponseEntity<Page<FeedbackResumidoDTO>> buscarFeedbacksPorLoja(
+    ResponseEntity<Page<FeedbackResumidoDTO>> buscarFeedbacksPublicosPorLoja(
             @Parameter(description = "ID da loja", required = true, example = "550e8400-e29b-41d4-a716-446655440000")
             @PathVariable UUID idLoja,
             @Parameter(description = "Período em dias para filtrar os feedbacks", example = "180")

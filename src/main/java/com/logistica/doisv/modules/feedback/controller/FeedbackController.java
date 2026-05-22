@@ -31,6 +31,15 @@ public class FeedbackController implements FeedbackApi {
         return ResponseEntity.ok(service.buscarPorId(idFeedback, usuarioLogado.getIdLoja()));
     }
 
+    @GetMapping
+    public ResponseEntity<Page<FeedbackDTO>> buscarTodosFeedbacksPorLoja(@RequestParam(defaultValue = "180")
+                                                                            Integer periodo,
+                                                                            Pageable pageable,
+                                                                            @AuthenticationPrincipal AcessoDTO usuarioLogado){
+
+        return ResponseEntity.ok(service.buscarTodosPorLoja(usuarioLogado.getIdLoja(), periodo, pageable));
+    }
+
     @GetMapping("/solicitacoes/{idSolicitacao}")
     public ResponseEntity<List<FeedbackDTO>> buscarFeedbacksPorSolicitacao(@PathVariable Long idSolicitacao,
                                                                            @AuthenticationPrincipal AcessoDTO usuarioLogado){
@@ -39,11 +48,11 @@ public class FeedbackController implements FeedbackApi {
     }
 
     @GetMapping("/lojas/{idLoja}")
-    public ResponseEntity<Page<FeedbackResumidoDTO>> buscarFeedbacksPorLoja(@PathVariable UUID idLoja,
+    public ResponseEntity<Page<FeedbackResumidoDTO>> buscarFeedbacksPublicosPorLoja(@PathVariable UUID idLoja,
                                                                             @RequestParam(defaultValue = "180")
                                                                             Integer periodo,
                                                                             Pageable pageable){
-        return ResponseEntity.ok(service.buscarTodosPorLoja(pageable, idLoja, periodo));
+        return ResponseEntity.ok(service.buscarTodosPublicosPorLoja(pageable, idLoja, periodo));
     }
 
     @PostMapping

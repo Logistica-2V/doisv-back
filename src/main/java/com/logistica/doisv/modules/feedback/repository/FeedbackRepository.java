@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
@@ -65,5 +67,23 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
        WHERE f.dataFeedback BETWEEN :inicio AND :fim
        """)
     List<Feedback> buscarFeedbacksPorPeriodo(LocalDate inicio, LocalDate fim);
+
+    @Query(value = """
+        SELECT f FROM Feedback f
+        JOIN FETCH f.solicitacao s
+        JOIN FETCH s.venda
+        JOIN FETCH f.loja
+        JOIN FETCH f.consumidor
+        WHERE f.loja.idLoja = :idLoja
+        AND f.dataFeedback BETWEEN :inicio AND :fim
+        """, countQuery = """
+        SELECT count(f) FROM Feedback f
+        WHERE f.loja.idLoja = :idLoja
+        AND f.dataFeedback BETWEEN :inicio AND :fim
+        """)
+    Page<Feedback> buscarFeedbacksPaginadosPorLojaEPeriodo(@Param("idLoja") Long idLoja,
+                                                           @Param("inicio") LocalDate inicio,
+                                                           @Param("fim") LocalDate fim,
+                                                           Pageable pageable);
 
 }

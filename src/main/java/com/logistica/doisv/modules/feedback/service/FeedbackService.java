@@ -1,5 +1,6 @@
 package com.logistica.doisv.modules.feedback.service;
 
+import com.logistica.doisv.core.util.generation.DataUtil;
 import com.logistica.doisv.modules.autenticacao.dto.AcessoDTO;
 import com.logistica.doisv.modules.consumidor.entity.Consumidor;
 import com.logistica.doisv.modules.loja.entity.Loja;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class FeedbackService {
@@ -67,9 +69,18 @@ public class FeedbackService {
     }
 
     @Transactional(readOnly = true)
-    public Page<FeedbackResumidoDTO> buscarTodosPorLoja(Pageable pageable, UUID idPublicoLoja, Integer periodo){
-        LocalDate inicio = LocalDate.now().minusDays(periodo);
-        LocalDate fim = LocalDate.now();
+    public Page<FeedbackDTO> buscarTodosPorLoja(Long idLoja, Integer periodo, Pageable pageable) {
+        LocalDate inicio = DataUtil.hoje().minusDays(periodo);
+        LocalDate fim = DataUtil.hoje();
+
+        return repository.buscarFeedbacksPaginadosPorLojaEPeriodo(idLoja, inicio, fim, pageable)
+                .map(FeedbackDTO::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<FeedbackResumidoDTO> buscarTodosPublicosPorLoja(Pageable pageable, UUID idPublicoLoja, Integer periodo){
+        LocalDate inicio = DataUtil.hoje().minusDays(periodo);
+        LocalDate fim = DataUtil.hoje();
 
         List<FeedbackResumidoDTO> feedbacks = repository.buscarFeedbacksPublicosPorLojaEPeriodo(idPublicoLoja, inicio, fim)
                 .stream()
