@@ -54,9 +54,9 @@ public class ExcelExportService {
                         c -> c.getNome(),
                         c -> c.getCpf_cnpj(),
                         c -> c.getEmail(),
-                        c -> c.getCelular(),
-                        c -> c.getTelefone(),
-                        c -> c.getEndereco(),
+                        c -> formatarTelefone(c.getCelular()),
+                        c -> formatarTelefone(c.getTelefone()),
+                        c -> formatarEndereco(c.getEndereco()),
                         c -> c.getStatus() != null ? c.getStatus().getStatusItem() : ""
                 )
         ));
@@ -195,6 +195,33 @@ public class ExcelExportService {
             case "produtos" -> produtoRepository.buscarTodosPorLoja(idLoja);
             default -> throw new IllegalArgumentException("Relatório não encontrado: " + nomeRelatorio);
         };
+    }
+
+    private String formatarEndereco(String endereco) {
+        if (endereco == null || endereco.isBlank()) {
+            return "";
+        }
+        String[] partes = endereco.split("::", -1);
+        return java.util.Arrays.stream(partes)
+                .filter(parte -> parte != null && !parte.trim().isEmpty())
+                .collect(java.util.stream.Collectors.joining(", "));
+    }
+
+    private String formatarTelefone(String numero) {
+        if (numero == null || numero.isBlank()) {
+            return "";
+        }
+        String apenasDigitos = numero.replaceAll("\\D", "");
+        if (apenasDigitos.length() == 11) {
+            return String.format("(%s) %s-%s", apenasDigitos.substring(0, 2), apenasDigitos.substring(2, 7), apenasDigitos.substring(7));
+        } else if (apenasDigitos.length() == 10) {
+            return String.format("(%s) %s-%s", apenasDigitos.substring(0, 2), apenasDigitos.substring(2, 6), apenasDigitos.substring(6));
+        } else if (apenasDigitos.length() == 9) {
+            return String.format("%s-%s", apenasDigitos.substring(0, 5), apenasDigitos.substring(5));
+        } else if (apenasDigitos.length() == 8) {
+            return String.format("%s-%s", apenasDigitos.substring(0, 4), apenasDigitos.substring(4));
+        }
+        return numero;
     }
 
     private record ConfiguracaoRelatorio<T>(
