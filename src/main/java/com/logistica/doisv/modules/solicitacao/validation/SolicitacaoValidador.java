@@ -47,8 +47,6 @@ public class SolicitacaoValidador {
         validarSolicitacaoNaoExcedeCompra(dto.quantidade(),
                 itemVenda.getQuantidade(),
                 tipoSolicitacao.getDescricao().toLowerCase());
-
-        validarDisponibilidadeParaSolicitacao(itemVenda, dto.quantidade());
     }
 
 
