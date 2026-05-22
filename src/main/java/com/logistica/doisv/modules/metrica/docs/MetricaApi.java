@@ -19,16 +19,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Map;
-
 @Tag(name = "Métricas", description = "Consulta de métricas e indicadores das lojas")
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("doisv/metricas")
 public interface MetricaApi {
 
     @Operation(summary = "Buscar métricas privadas",
-            description = "Retorna as métricas privadas da loja do usuário autenticado, incluindo nota média, total de vendas, "
-                    + "quantidade de feedbacks por tipo, percentual por tipo e avaliações resumidas. Filtradas por período em dias.",
+            description = "Retorna as métricas privadas da loja do usuário autenticado, incluindo nota média, status, motivos, "
+                    + "produtos com mais solicitações e solicitações pendentes. Filtradas por período em dias.",
             operationId = "buscarMetricasPrivadas")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Métricas privadas retornadas com sucesso",
@@ -62,21 +60,4 @@ public interface MetricaApi {
             Pageable pageable,
             @Parameter(description = "Período em dias para filtrar as métricas", example = "180")
             @RequestParam(defaultValue = "180") Integer periodo);
-
-    @Operation(summary = "Buscar quantidade de solicitações por status",
-            description = "Retorna um mapa com a quantidade de solicitações agrupadas por status da loja do usuário autenticado, "
-                    + "filtradas por período em dias.",
-            operationId = "buscarQuantidadeSolicitacoesPorStatus")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Quantidade de solicitações por status retornada com sucesso",
-                    content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Acesso negado", content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    })
-    @GetMapping("/solicitacoes/por-status")
-    ResponseEntity<Map<String, Integer>> buscarQuantidadeSolicitacoesPorStatus(
-            @Parameter(description = "Período em dias para filtrar as solicitações", example = "365")
-            @RequestParam(value = "periodo", defaultValue = "365") Integer periodo,
-            @Parameter(hidden = true) @AuthenticationPrincipal AcessoDTO usuarioLogado);
 }

@@ -59,13 +59,17 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
                                               @Param("idLoja") Long idLoja);
 
 
-    @Query(value = """
-            SELECT s.* FROM tb_solicitacao s
-            JOIN tb_venda v
-            ON s.id_venda = v.id
-            WHERE v.id_loja = :idLoja
-            AND DATE(s.data_Solicitacao) BETWEEN :inicio and :fim
-            """, nativeQuery = true)
+    @Query("""
+            SELECT DISTINCT s FROM Solicitacao s
+            JOIN FETCH s.venda v
+            JOIN FETCH s.consumidor c
+            JOIN FETCH s.itemVenda iv
+            JOIN FETCH iv.produto p
+            LEFT JOIN FETCH s.feedbacks f
+            LEFT JOIN FETCH f.consumidor fc
+            WHERE v.loja.idLoja = :idLoja
+            AND FUNCTION('DATE', s.dataSolicitacao) BETWEEN :inicio AND :fim
+            """)
     List<Solicitacao> buscarSolicitacaoPorLojaEPeriodo(@Param("idLoja") Long idLoja,
                                                        @Param("inicio") LocalDate inicio,
                                                        @Param("fim") LocalDate fim);

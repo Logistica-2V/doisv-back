@@ -5,7 +5,6 @@ import com.logistica.doisv.modules.autenticacao.dto.AcessoDTO;
 import com.logistica.doisv.modules.metrica.dto.MetricasPrivadasDTO;
 import com.logistica.doisv.modules.metrica.dto.MetricasPublicasLojaDTO;
 import com.logistica.doisv.modules.metrica.service.MetricaService;
-import com.logistica.doisv.core.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,17 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("doisv/metricas")
 public class MetricaController implements MetricaApi {
 
     @Autowired
     private MetricaService metricaService;
-
-    @Autowired
-    private TokenService tokenService;
 
     @GetMapping("/privadas")
     public ResponseEntity<MetricasPrivadasDTO> buscarMetricasPrivadas(@RequestParam(defaultValue = "365") Integer periodo,
@@ -37,13 +31,6 @@ public class MetricaController implements MetricaApi {
 
     @GetMapping("/publicas")
     public ResponseEntity<Page<MetricasPublicasLojaDTO>> buscarMetricasPublicas(Pageable pageable, @RequestParam(defaultValue = "180") Integer periodo){
-        return ResponseEntity.ok(metricaService.obterMetricasPublicasTodasLojas(pageable, periodo));
-    }
-
-    @GetMapping("/solicitacoes/por-status")
-    public ResponseEntity<Map<String, Integer>> buscarQuantidadeSolicitacoesPorStatus(@RequestParam(value = "periodo", defaultValue = "365") Integer periodo,
-                                                                                      @AuthenticationPrincipal AcessoDTO usuarioLogado){
-
-        return ResponseEntity.ok(metricaService.obterQuantidadeSolicitacoes(usuarioLogado.getIdLoja(), periodo));
+        return ResponseEntity.ok(metricaService.metricasPublicasTodasLojas(pageable, periodo));
     }
 }
