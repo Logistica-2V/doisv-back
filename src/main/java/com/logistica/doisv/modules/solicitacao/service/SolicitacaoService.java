@@ -2,6 +2,7 @@ package com.logistica.doisv.modules.solicitacao.service;
 
 import com.logistica.doisv.core.enums.MotivoSolicitacao;
 import com.logistica.doisv.core.file.dto.ArquivoDTO;
+import com.logistica.doisv.integrations.email.service.EmailService;
 import com.logistica.doisv.modules.solicitacao.dto.CriarSolicitacaoDTO;
 import com.logistica.doisv.modules.solicitacao.dto.HistoricoSolicitacaoDTO;
 import com.logistica.doisv.modules.solicitacao.dto.SolicitacaoDetalhadaDTO;
@@ -45,6 +46,7 @@ public class SolicitacaoService {
     private final SolicitacaoValidador validador;
     private final VendaService vendaService;
     private final ArquivoValidador arquivoValidador;
+    private final EmailService emailService;
 
     @Transactional(readOnly = true)
     public Page<SolicitacaoResumidaDTO> buscarTodasSolicitacoesPorLoja(Pageable pageable, Long idLoja) {
@@ -119,8 +121,10 @@ public class SolicitacaoService {
         );
 
         solicitacao.aprovar(itemOriginal);
+        solicitacao = repository.save(solicitacao);
+        emailService.enviarEmailSolicitacaoAprovada(solicitacao);
 
-        return new SolicitacaoResumidaDTO(repository.save(solicitacao));
+        return new SolicitacaoResumidaDTO(solicitacao);
     }
 
     @Transactional
@@ -129,8 +133,10 @@ public class SolicitacaoService {
 
         solicitacao.reprovar(motivoReprovacao);
         excluirAnexos(solicitacao);
+        solicitacao = repository.save(solicitacao);
+        emailService.enviarEmailSolicitacaoReprovada(solicitacao, motivoReprovacao);
 
-        return new SolicitacaoResumidaDTO(repository.save(solicitacao));
+        return new SolicitacaoResumidaDTO(solicitacao);
     }
 
     @Transactional
@@ -139,11 +145,13 @@ public class SolicitacaoService {
 
         validador.validarStatusVenda(solicitacao.getVenda(), solicitacao.getTipoSolicitacao().getDescricao().toLowerCase());
 
+        StatusSolicitacao statusAnterior = solicitacao.getStatusSolicitacao();
         StatusSolicitacao novoStatus = StatusSolicitacao.deString(dto.statusNovo());
 
         solicitacao.atualizar(novoStatus, dto.observacao());
 
         solicitacao = repository.save(solicitacao);
+        emailService.enviarEmailAtualizacaoSolicitacao(solicitacao, statusAnterior);
         gerarVendaAposTroca(solicitacao, novosProdutos);
 
         return new SolicitacaoDetalhadaDTO(solicitacao);

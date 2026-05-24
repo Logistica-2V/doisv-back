@@ -1,7 +1,9 @@
 package com.logistica.doisv.integrations.email.service;
 
+import com.logistica.doisv.core.enums.StatusSolicitacao;
 import com.logistica.doisv.core.util.generation.DataUtil;
 import com.logistica.doisv.modules.lojista.entity.Lojista;
+import com.logistica.doisv.modules.solicitacao.entity.Solicitacao;
 import com.logistica.doisv.modules.venda.entity.Venda;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -160,6 +162,70 @@ public class EmailService {
         return "<div class=\"credential-item\">" +
                 "<div class=\"cred-label\">" + label + "</div>" +
                 "<div class=\"cred-value\">" + valor + "</div></div>";
+    }
+
+    private String valorOuPadrao(String valor, String padrao) {
+        return valor != null && !valor.isBlank() ? valor : padrao;
+    }
+
+    private String descricaoStatus(StatusSolicitacao statusSolicitacao) {
+        return statusSolicitacao != null ? statusSolicitacao.getStatusSolicitacao() : "Nao informado";
+    }
+
+    private boolean possuiDadosEssenciaisSolicitacao(Solicitacao solicitacao) {
+        return solicitacao != null &&
+                solicitacao.getConsumidor() != null &&
+                solicitacao.getVenda() != null &&
+                solicitacao.getVenda().getLoja() != null &&
+                solicitacao.getConsumidor().getEmail() != null &&
+                !solicitacao.getConsumidor().getEmail().isBlank();
+    }
+
+    private String obterLogoLoja(Solicitacao solicitacao) {
+        String logoLoja = solicitacao.getVenda().getLoja().getLogo();
+        return logoLoja != null && !logoLoja.isBlank()
+                ? "https://lh3.googleusercontent.com/d/" + logoLoja
+                : "https://lh3.googleusercontent.com/d/1OAZrlZgYhXO-UzJLx9SZy6JgdLs6W4v2";
+    }
+
+    private String obterProdutoSolicitacao(Solicitacao solicitacao) {
+        if (solicitacao.getItemVenda() != null && solicitacao.getItemVenda().getProduto() != null) {
+            return valorOuPadrao(solicitacao.getItemVenda().getProduto().getDescricao(), "Produto nao informado");
+        }
+        return "Produto nao informado";
+    }
+
+    private String obterDataAtualizacaoSolicitacao(Solicitacao solicitacao) {
+        return solicitacao.getDataAtualizacao() != null
+                ? solicitacao.getDataAtualizacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                : "Nao informada";
+    }
+
+    private String montarDetalhesSolicitacao(Solicitacao solicitacao) {
+        String produto = obterProdutoSolicitacao(solicitacao);
+        String tipoSolicitacao = solicitacao.getTipoSolicitacao() != null
+                ? solicitacao.getTipoSolicitacao().getDescricao()
+                : "Nao informado";
+        String motivo = solicitacao.getMotivo() != null
+                ? solicitacao.getMotivo().getDescricao()
+                : "Nao informado";
+        String quantidade = solicitacao.getQuantidade() != null
+                ? solicitacao.getQuantidade().toString()
+                : "Nao informada";
+        String idVenda = solicitacao.getVenda().getId() != null
+                ? solicitacao.getVenda().getId().toString()
+                : "Nao informada";
+
+        return "<div class=\"guidance-card\">" +
+                "<h3>Detalhes da solicita&ccedil;&atilde;o</h3>" +
+                "<ul>" +
+                "<li><strong>Produto:</strong> " + produto + "</li>" +
+                "<li><strong>Tipo:</strong> " + tipoSolicitacao + "</li>" +
+                "<li><strong>Motivo:</strong> " + motivo + "</li>" +
+                "<li><strong>Quantidade:</strong> " + quantidade + "</li>" +
+                "<li><strong>Venda:</strong> " + idVenda + "</li>" +
+                "</ul>" +
+                "</div>";
     }
 
     @Async
@@ -379,5 +445,210 @@ public class EmailService {
         helper.setSubject(String.format("[SUPORTE] Usuário Master criado — Loja: %s", nomeLoja));
         helper.setText(html, true);
         mailSender.send(mensagem);
+    }
+
+    @Async
+    public void enviarEmailSolicitacaoAprovada(Solicitacao solicitacao) {
+        try {
+            if (!possuiDadosEssenciaisSolicitacao(solicitacao)) {
+                return;
+            }
+
+            String urlLoginConsumidor = urlBaseFrontend + "/consumidor/login";
+            String nomeLoja = valorOuPadrao(solicitacao.getVenda().getLoja().getNome(), "Loja");
+            String logoUrl = obterLogoLoja(solicitacao);
+            String nomeConsumidor = valorOuPadrao(solicitacao.getConsumidor().getNome(), "cliente");
+            String idSolicitacao = solicitacao.getId() != null ? solicitacao.getId().toString() : "Nao informado";
+            String statusFinal = descricaoStatus(solicitacao.getStatusSolicitacao());
+            String dataAtualizacao = obterDataAtualizacaoSolicitacao(solicitacao);
+            int anoAtual = DataUtil.hoje().getYear();
+
+            String html = montarInicioEmail("Solicitacao aprovada - " + nomeLoja) +
+                    montarCabecalho(logoUrl, "Logo de " + nomeLoja, nomeLoja) +
+                    "<div class=\"content\">" +
+                    "<h1>Ol&aacute;, " + nomeConsumidor + ",</h1>" +
+                    "<p>A solicita&ccedil;&atilde;o ID <strong>" + idSolicitacao
+                    + "</strong> foi <strong>aprovada</strong> pela loja <strong>" + nomeLoja + "</strong>.</p>" +
+                    "<p class=\"text-secondary\">Acesse o portal do consumidor para acompanhar os detalhes completos e os pr&oacute;ximos passos do atendimento.</p>" +
+                    "<div class=\"guidance-card\">" +
+                    "<h3>Resumo da aprova&ccedil;&atilde;o</h3>" +
+                    "<ul>" +
+                    "<li><strong>Status final:</strong> " + statusFinal + "</li>" +
+                    "<li><strong>Data de atualiza&ccedil;&atilde;o:</strong> " + dataAtualizacao + "</li>" +
+                    "<li><strong>Loja:</strong> " + nomeLoja + "</li>" +
+                    "</ul>" +
+                    "</div>" +
+                    montarDetalhesSolicitacao(solicitacao) +
+                    "<div class=\"action-button\">" +
+                    "<a href=\"" + urlLoginConsumidor + "\" target=\"_blank\">Consultar solicita&ccedil;&atilde;o</a>" +
+                    "</div>" +
+                    "<p style=\"margin-top: 28px;\" class=\"text-secondary\">Atenciosamente,<br>Equipe " + nomeLoja + "</p>" +
+                    "</div>" +
+                    montarRodape(nomeLoja, anoAtual,
+                            "Este &eacute; um e-mail autom&aacute;tico. Por favor, n&atilde;o responda se n&atilde;o precisar de suporte.") +
+                    montarFimEmail();
+
+            MimeMessage mensagem = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mensagem, true, "UTF-8");
+
+            helper.setTo(solicitacao.getConsumidor().getEmail());
+            helper.setSubject(String.format("Solicita\u00e7\u00e3o %s aprovada - %s", idSolicitacao, nomeLoja));
+            helper.setText(html, true);
+            mailSender.send(mensagem);
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar email de aprovacao da solicitacao ID: " +
+                    (solicitacao != null ? solicitacao.getId() : "desconhecida"));
+        }
+    }
+
+    @Async
+    public void enviarEmailSolicitacaoReprovada(Solicitacao solicitacao, String motivoReprovacao) {
+        try {
+            if (!possuiDadosEssenciaisSolicitacao(solicitacao)) {
+                return;
+            }
+
+            String urlLoginConsumidor = urlBaseFrontend + "/consumidor/login";
+            String nomeLoja = valorOuPadrao(solicitacao.getVenda().getLoja().getNome(), "Loja");
+            String logoUrl = obterLogoLoja(solicitacao);
+            String nomeConsumidor = valorOuPadrao(solicitacao.getConsumidor().getNome(), "cliente");
+            String idSolicitacao = solicitacao.getId() != null ? solicitacao.getId().toString() : "Nao informado";
+            String statusFinal = descricaoStatus(solicitacao.getStatusSolicitacao());
+            String dataAtualizacao = obterDataAtualizacaoSolicitacao(solicitacao);
+            String motivoReprovacaoFormatado = valorOuPadrao(motivoReprovacao, "Motivo nao informado pela loja.");
+            int anoAtual = DataUtil.hoje().getYear();
+
+            String html = montarInicioEmail("Solicitacao reprovada - " + nomeLoja) +
+                    montarCabecalho(logoUrl, "Logo de " + nomeLoja, nomeLoja) +
+                    "<div class=\"content\">" +
+                    "<h1>Ol&aacute;, " + nomeConsumidor + ",</h1>" +
+                    "<p>A solicita&ccedil;&atilde;o ID <strong>" + idSolicitacao
+                    + "</strong> foi <strong>reprovada</strong> pela loja <strong>" + nomeLoja + "</strong>.</p>" +
+                    "<p class=\"text-secondary\">Confira o motivo informado pela loja e acesse o portal do consumidor para consultar os detalhes completos.</p>" +
+                    "<div class=\"security-box\">" +
+                    "<h4>Motivo da reprova&ccedil;&atilde;o</h4>" +
+                    "<p>" + motivoReprovacaoFormatado + "</p>" +
+                    "</div>" +
+                    "<div class=\"guidance-card\">" +
+                    "<h3>Resumo da reprova&ccedil;&atilde;o</h3>" +
+                    "<ul>" +
+                    "<li><strong>Status final:</strong> " + statusFinal + "</li>" +
+                    "<li><strong>Data de atualiza&ccedil;&atilde;o:</strong> " + dataAtualizacao + "</li>" +
+                    "<li><strong>Loja:</strong> " + nomeLoja + "</li>" +
+                    "</ul>" +
+                    "</div>" +
+                    montarDetalhesSolicitacao(solicitacao) +
+                    "<div class=\"action-button\">" +
+                    "<a href=\"" + urlLoginConsumidor + "\" target=\"_blank\">Consultar solicita&ccedil;&atilde;o</a>" +
+                    "</div>" +
+                    "<p style=\"margin-top: 28px;\" class=\"text-secondary\">Atenciosamente,<br>Equipe " + nomeLoja + "</p>" +
+                    "</div>" +
+                    montarRodape(nomeLoja, anoAtual,
+                            "Este &eacute; um e-mail autom&aacute;tico. Por favor, n&atilde;o responda se n&atilde;o precisar de suporte.") +
+                    montarFimEmail();
+
+            MimeMessage mensagem = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mensagem, true, "UTF-8");
+
+            helper.setTo(solicitacao.getConsumidor().getEmail());
+            helper.setSubject(String.format("Solicita\u00e7\u00e3o %s reprovada - %s", idSolicitacao, nomeLoja));
+            helper.setText(html, true);
+            mailSender.send(mensagem);
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar email de reprovacao da solicitacao ID: " +
+                    (solicitacao != null ? solicitacao.getId() : "desconhecida"));
+        }
+    }
+
+    @Async
+    public void enviarEmailAtualizacaoSolicitacao(Solicitacao solicitacao, StatusSolicitacao statusAnterior){
+        try {
+            if (solicitacao == null || solicitacao.getConsumidor() == null || solicitacao.getVenda() == null ||
+                    solicitacao.getVenda().getLoja() == null ||
+                    solicitacao.getConsumidor().getEmail() == null ||
+                    solicitacao.getConsumidor().getEmail().isBlank()) {
+                return;
+            }
+
+            String urlLoginConsumidor = urlBaseFrontend + "/consumidor/login";
+            String nomeLoja = valorOuPadrao(solicitacao.getVenda().getLoja().getNome(), "Loja");
+            String logoLoja = solicitacao.getVenda().getLoja().getLogo();
+            String logoUrl = logoLoja != null && !logoLoja.isBlank()
+                    ? "https://lh3.googleusercontent.com/d/" + logoLoja
+                    : "https://lh3.googleusercontent.com/d/1OAZrlZgYhXO-UzJLx9SZy6JgdLs6W4v2";
+            String nomeConsumidor = valorOuPadrao(solicitacao.getConsumidor().getNome(), "cliente");
+            String idSolicitacao = solicitacao.getId() != null ? solicitacao.getId().toString() : "Nao informado";
+            String idVenda = solicitacao.getVenda().getId() != null ? solicitacao.getVenda().getId().toString() : "Nao informada";
+            String produto = "Produto nao informado";
+            if (solicitacao.getItemVenda() != null && solicitacao.getItemVenda().getProduto() != null) {
+                produto = valorOuPadrao(solicitacao.getItemVenda().getProduto().getDescricao(), produto);
+            }
+            String tipoSolicitacao = solicitacao.getTipoSolicitacao() != null
+                    ? solicitacao.getTipoSolicitacao().getDescricao()
+                    : "Nao informado";
+            String motivo = solicitacao.getMotivo() != null
+                    ? solicitacao.getMotivo().getDescricao()
+                    : "Nao informado";
+            String quantidade = solicitacao.getQuantidade() != null
+                    ? solicitacao.getQuantidade().toString()
+                    : "Nao informada";
+            String dataAtualizacao = solicitacao.getDataAtualizacao() != null
+                    ? solicitacao.getDataAtualizacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                    : "Nao informada";
+            String observacao = valorOuPadrao(solicitacao.getObservacao(),
+                    "Nenhuma observacao complementar informada.");
+            String statusAntigo = descricaoStatus(statusAnterior);
+            String statusNovo = descricaoStatus(solicitacao.getStatusSolicitacao());
+            int anoAtual = DataUtil.hoje().getYear();
+
+            String html = montarInicioEmail("Solicitacao atualizada - " + nomeLoja) +
+                    montarCabecalho(logoUrl, "Logo de " + nomeLoja, nomeLoja) +
+                    "<div class=\"content\">" +
+                    "<h1>Ol&aacute;, " + nomeConsumidor + ",</h1>" +
+                    "<p>A solicita&ccedil;&atilde;o ID <strong>" + idSolicitacao
+                    + "</strong> recebeu uma atualiza&ccedil;&atilde;o realizada pela loja <strong>" + nomeLoja
+                    + "</strong>.</p>" +
+                    "<p class=\"text-secondary\">Confira abaixo o resumo da altera&ccedil;&atilde;o. Para consultar todos os detalhes e acompanhar os pr&oacute;ximos passos, acesse o portal do consumidor.</p>" +
+                    "<div class=\"guidance-card\">" +
+                    "<h3>Resumo da atualiza&ccedil;&atilde;o</h3>" +
+                    "<ul>" +
+                    "<li><strong>Status antigo:</strong> " + statusAntigo + "</li>" +
+                    "<li><strong>Status novo:</strong> " + statusNovo + "</li>" +
+                    "<li><strong>Data de atualiza&ccedil;&atilde;o:</strong> " + dataAtualizacao + "</li>" +
+                    "<li><strong>Loja:</strong> " + nomeLoja + "</li>" +
+                    "</ul>" +
+                    "</div>" +
+                    "<div class=\"guidance-card\">" +
+                    "<h3>Detalhes da solicita&ccedil;&atilde;o</h3>" +
+                    "<ul>" +
+                    "<li><strong>Produto:</strong> " + produto + "</li>" +
+                    "<li><strong>Tipo:</strong> " + tipoSolicitacao + "</li>" +
+                    "<li><strong>Motivo:</strong> " + motivo + "</li>" +
+                    "<li><strong>Quantidade:</strong> " + quantidade + "</li>" +
+                    "<li><strong>Venda:</strong> " + idVenda + "</li>" +
+                    "<li><strong>Observa&ccedil;&atilde;o:</strong> " + observacao + "</li>" +
+                    "</ul>" +
+                    "</div>" +
+                    "<div class=\"action-button\">" +
+                    "<a href=\"" + urlLoginConsumidor + "\" target=\"_blank\">Consultar atualiza&ccedil;&atilde;o</a>" +
+                    "</div>" +
+                    "<p style=\"margin-top: 28px;\" class=\"text-secondary\">Atenciosamente,<br>Equipe " + nomeLoja + "</p>" +
+                    "</div>" +
+                    montarRodape(nomeLoja, anoAtual,
+                            "Este &eacute; um e-mail autom&aacute;tico. Por favor, n&atilde;o responda se n&atilde;o precisar de suporte.") +
+                    montarFimEmail();
+
+            MimeMessage mensagem = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mensagem, true, "UTF-8");
+
+            helper.setTo(solicitacao.getConsumidor().getEmail());
+            helper.setSubject(String.format("Solicitação %s atualizada - %s", idSolicitacao, nomeLoja));
+            helper.setText(html, true);
+            mailSender.send(mensagem);
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar email de atualizacao da solicitacao ID: " +
+                    (solicitacao != null ? solicitacao.getId() : "desconhecida"));
+        }
+
     }
 }
