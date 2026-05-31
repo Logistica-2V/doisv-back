@@ -47,7 +47,7 @@ public class Venda {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal desconto;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 50)
     private String formaPagamento;
 
     @Column(nullable = false)
