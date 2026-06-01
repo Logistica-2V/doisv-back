@@ -119,6 +119,11 @@ public class Solicitacao {
         ItemVenda novoItem = construirItemSolicitacao(itemOriginal);
         itemOriginal.reduzirQuantidade(this.quantidade);
         this.venda.getItensVenda().add(novoItem);
+
+        if(itemOriginal.getQuantidade() == 0){
+            this.venda.getItensVenda().remove(itemOriginal);
+        }
+
         this.itemVenda = novoItem;
     }
 
