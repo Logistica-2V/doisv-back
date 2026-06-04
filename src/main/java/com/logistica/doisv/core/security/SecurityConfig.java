@@ -39,7 +39,8 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
-                                "/swagger-resources/**"
+                                "/swagger-resources/**",
+                                "/actuator/health"
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/doisv/lojas").permitAll()
